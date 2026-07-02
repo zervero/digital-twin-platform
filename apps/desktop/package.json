@@ -1,0 +1,21 @@
+{
+  "name": "@dt/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "mkdir -p dist && echo 'desktop Tauri build requires Rust toolchain; run tauri build locally' > dist/.gitkeep",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'desktop has no JS tests in V1'",
+    "clean": "rm -rf dist .turbo src-tauri/target"
+  },
+  "dependencies": {
+    "@dt/contracts": "workspace:*",
+    "@tauri-apps/api": "^2.1.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0",
+    "typescript": "^5.6.3"
+  }
+}

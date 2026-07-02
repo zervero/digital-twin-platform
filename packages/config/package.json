@@ -1,0 +1,27 @@
+{
+  "name": "@dt/config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "test": "echo 'config has small parse tests'",
+    "typecheck": "tsc --noEmit",
+    "build": "mkdir -p dist && echo 'config is type-only' > dist/.gitkeep",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@dt/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/node": "^22.10.0"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@dt/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "echo 'web has no unit tests in V1, runs e2e in CI later'",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@dt/api-client": "workspace:*",
+    "@dt/app-shell": "workspace:*",
+    "@dt/contracts": "workspace:*",
+    "pinia": "^2.2.6",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@dt/tsconfig": "workspace:*",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vue-tsc": "^2.1.10"
+  }
+}

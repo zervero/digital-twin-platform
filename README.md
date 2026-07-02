@@ -1,0 +1,72 @@
+# Digital Twin Platform
+
+Industrial digital twin platform starter. Web + Desktop, Vue 3 + Three.js, BFF service, monorepo.
+
+> 其他语言 / Other languages: [简体中文](README.zh-CN.md)
+
+## Versions
+
+- **V1** - Runnable starter (this version): monorepo, BFF with mock data, Engine SDK, Web app, Tauri desktop scaffold, V2/V3 boundary placeholders.
+- **V2** - Enterprise platform base (command bus, realtime, plugins, observability, auth).
+- **V3** - Industrial product layer (AI agents, collaboration, marketplace, tenancy, audit).
+
+See [docs/architecture/overview.md](docs/architecture/overview.md) for the high-level design and [docs/development/local-dev.md](docs/development/local-dev.md) for the local development guide.
+
+## Stack
+
+- pnpm workspace + Turborepo
+- TypeScript (strict)
+- Vue 3 + Vite + Pinia
+- Three.js
+- Tauri (desktop)
+- Node.js BFF
+- Vitest
+
+## Quick Start
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Web: http://localhost:5173
+BFF: http://localhost:3001
+
+## Tasks
+
+```bash
+pnpm typecheck    # strict typecheck across the workspace
+pnpm test         # vitest unit tests
+pnpm lint         # eslint
+pnpm build        # production builds
+```
+
+## Layout
+
+```
+apps/
+  web/        # Browser app (Vue 3 + Vite)
+  desktop/    # Tauri desktop shell
+  bff/        # Node.js BFF service
+packages/
+  contracts/        # Shared DTOs and event names
+  engine-sdk/       # Three.js engine SDK
+  scene-domain/     # Scene business model
+  device-domain/    # Device business model
+  api-client/       # Typed BFF client
+  ui-kit/           # Presentational Vue components
+  app-shell/        # Shared composition: layout, stores, panels
+  realtime/         # V2 boundary: stream interfaces
+  plugin-runtime/   # V2 boundary: plugin manifest and registration
+  ai-agent/         # V3 boundary: command intent types
+  observability/    # V2 boundary: logger
+  config/           # Shared config helpers
+tooling/
+  tsconfig/   # Shared tsconfig presets
+docs/
+  architecture/  # Overview, workspace, engine SDK
+  adr/           # Architecture decision records
+  development/   # Local dev guide
+```
+
+See [docs/architecture/workspace.md](docs/architecture/workspace.md) for package boundaries and dependency rules.

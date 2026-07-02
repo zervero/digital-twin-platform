@@ -1,0 +1,52 @@
+# Node / pnpm
+node_modules
+.pnpm-store
+.pnpm-debug.log*
+
+# Build outputs
+dist
+build
+coverage
+out
+
+# Turbo
+.turbo
+
+# Vite / Vitest
+.vite
+*.tsbuildinfo
+
+# Lefthook local overrides
+lefthook-local.yml
+.lefthook-local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# Tauri / Rust
+target
+apps/desktop/src-tauri/target
+apps/desktop/src-tauri/Cargo.lock
+
+# Test artifacts
+__snapshots__

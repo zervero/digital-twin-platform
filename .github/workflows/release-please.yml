@@ -1,0 +1,28 @@
+# release-please: automates CHANGELOG, semver, tag, GitHub release.
+# Reads conventional commits since the last release, opens a PR with:
+#   - version bump in package.json files
+#   - updated CHANGELOG.md
+#   - a draft GitHub release
+# Merging the PR creates the tag and publishes the release.
+
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          # Monorepo with many package.json files. release-please looks at
+          # the root one by default; pin it explicitly so a future V2 layout
+          # change doesn't silently shift the source of truth.
+          config-file: release-please-config.json

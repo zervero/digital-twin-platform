@@ -1,0 +1,21 @@
+# lefthook: fast polyglot git hooks manager.
+# Docs: https://lefthook.dev/configuration/
+#
+# V1 keeps the local hook surface tiny on purpose - we don't want to slow
+# down `git commit`. Heavy checks (typecheck, test, build) run in CI.
+
+commit-msg:
+  commands:
+    commitlint:
+      # Uses the locally installed commitlint via pnpm.
+      run: pnpm exec commitlint --edit {1}
+      # Skip during rebase to avoid noisy fails when history is being rewritten.
+      skip: rebase
+
+pre-push:
+  parallel: true
+  commands:
+    typecheck:
+      # Sanity check the touched package(s) before pushing. Full typecheck
+      # runs in CI; this is a quick local guard for the common case.
+      run: pnpm typecheck
