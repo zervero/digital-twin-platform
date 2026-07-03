@@ -12,6 +12,11 @@ Industrial digital twin platform starter. Web + Desktop, Vue 3 + Three.js, BFF s
 
 See [docs/architecture/overview.md](docs/architecture/overview.md) for the high-level design and [docs/development/local-dev.md](docs/development/local-dev.md) for the local development guide.
 
+## Requirements
+
+- **Node.js >= 22.17.1** (Node 20.x is not supported; see [ADR 0004](docs/adr/0004-node-22-pin.md))
+- **pnpm 11.7.0** (enabled via `corepack enable` after cloning)
+
 ## Stack
 
 - pnpm workspace + Turborepo
@@ -25,6 +30,8 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) for the high-
 ## Quick Start
 
 ```bash
+nvm use            # picks up .nvmrc -> Node 22.17.1
+corepack enable    # pins pnpm to 11.7.0
 pnpm install
 pnpm dev
 ```

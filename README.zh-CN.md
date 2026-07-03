@@ -12,6 +12,11 @@
 
 高层设计见 [docs/architecture/overview.md](docs/architecture/overview.md)，本地开发见 [docs/development/local-dev.md](docs/development/local-dev.md)。
 
+## 环境要求
+
+- **Node.js >= 22.17.1**（Node 20.x 不受支持，详见 [ADR 0004](docs/adr/0004-node-22-pin.md)）
+- **pnpm 11.7.0**（克隆后运行一次 `corepack enable` 即可锁版本）
+
 ## 技术栈
 
 - pnpm workspace + Turborepo
@@ -25,6 +30,8 @@
 ## 快速开始
 
 ```bash
+nvm use            # 读取 .nvmrc，切换到 Node 22.17.1
+corepack enable    # 锁住 pnpm 11.7.0
 pnpm install
 pnpm dev
 ```

@@ -5,9 +5,19 @@ fresh checkout.
 
 ## Prerequisites
 
-- Node.js >= 20
-- pnpm >= 11 (`corepack enable pnpm` if you don't have it)
+- **Node.js >= 22.17.1** (pinned via `.nvmrc`; Node 20.x is known to fail
+  during `pnpm install` — see [ADR 0004](../adr/0004-node-22-pin.md) and
+  the Troubleshooting section)
+- **pnpm 11.7.0** (`corepack enable` once after cloning to pin pnpm)
 - (Optional) Rust toolchain for Tauri desktop builds
+
+To pick up the right versions automatically:
+
+```bash
+nvm install   # reads .nvmrc
+nvm use
+corepack enable
+```
 
 ## Install
 
@@ -96,3 +106,6 @@ docs/            # Architecture, ADRs, dev guides
   sure the dev dependency installed correctly.
 - **Tauri build complains about icons** - the V1 placeholder icons are
   1x1 transparent PNGs. Replace them with real assets before shipping.
+- **`pnpm install` fails on Node 20.x** - upgrade to Node 22.17.1 or
+  newer (`nvm use` from the repo root). The 20.x line is not supported
+  in V1; see [ADR 0004](../adr/0004-node-22-pin.md).
