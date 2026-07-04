@@ -50,3 +50,6 @@ apps/desktop/src-tauri/Cargo.lock
 
 # Test artifacts
 __snapshots__
+
+# Tauri 2 emits capability / schema files into gen/ on first build.
+apps/desktop/src-tauri/gen

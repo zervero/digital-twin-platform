@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "turbo run dev --filter=!@dt/desktop",
-    "dev:all": "turbo run dev",
+    "dev:all": "turbo run dev --filter=!@dt/web",
     "build": "turbo run build",
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",

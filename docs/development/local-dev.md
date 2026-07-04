@@ -42,6 +42,21 @@ The Tauri desktop app does not auto-start. Launch it explicitly:
 pnpm --filter @dt/desktop dev
 ```
 
+There is also a one-shot script that boots the web, BFF and the Tauri
+desktop shell together:
+
+```bash
+pnpm dev:all
+```
+
+`dev:all` is implemented as `turbo run dev --filter=!@dt/web`. The
+reason `@dt/web` is excluded is that `@dt/desktop`'s Tauri config sets
+`beforeDevCommand: pnpm --filter @dt/web dev`, so Tauri starts its own
+Vite dev server on port 5173 when the desktop shell launches. Running
+both `@dt/web` and `@dt/desktop` through Turbo would race for the same
+port. The Tauri-owned Vite is the canonical one in this mode.
+
+
 ## Scripts
 
 ```bash
