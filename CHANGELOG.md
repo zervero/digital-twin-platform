@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## 1.0.0 (2026-07-04)
+
+
+### Features
+
+* ship V1 with MIT license ([#2](https://github.com/zervero/digital-twin-platform/issues/2)) ([348eff1](https://github.com/zervero/digital-twin-platform/commit/348eff176a96acf770c26c0257a9d5e0bb310630))
+
 ## [Unreleased]
 
 ### Added
