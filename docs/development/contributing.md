@@ -149,8 +149,15 @@ Releases are automated by [release-please](https://github.com/googleapis/release
 - Review the release PR. If the version bump and changelog look right,
   merge it. That merge creates the git tag and GitHub release.
 
-V1 ships at `0.1.0`. The first release PR will appear automatically after
-the first `feat` lands on `main`.
+V1 shipped at `1.0.0` (tag `digital-twin-platform-v1.0.0`). Note
+that release-please reads the manifest at `.release-please-manifest.json`
+to decide the next version. Because the manifest started at `0.0.0`,
+the first `feat:` triggered a major bump to `1.0.0` rather than
+the expected `0.1.0`. This is release-please's default behavior for
+a `0.0.0` starting point, not a bug. To pin V1 to `0.1.0` in the
+future, the manifest would need to start at `0.0.1` or higher.
+For a full walkthrough of the release procedure, see
+[release-playbook.md](release-playbook.md).
 
 For a step-by-step release procedure (pre-flight checks, merge, tag
 verification, smoke test, retrospective), see
