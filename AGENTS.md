@@ -63,7 +63,60 @@ Before reporting back, run this checklist mentally:
 - [ ] Commit message uses a Conventional Commits type and a scoped
       subject under 72 chars.
 
-## 5. What this file is not
+## 5. Adding a new GitHub Action
+
+Workflow files are not the whole story. GitHub Actions has repo-level
+and runner-level concerns the YAML cannot see. Run this checklist
+**before** writing the workflow file, because the fix for some items
+lives in GitHub's UI, not in the repo:
+
+- [ ] **Repo-level settings** (Settings → Actions → General):
+  - [ ] "Allow GitHub Actions to create and approve pull requests"
+        is ON if the action opens or approves PRs. This is OFF by
+        default for new repos and is independent of the workflow's
+        `permissions:` block. The first time a release-please or
+        dependency-bot style action fails with "GitHub Actions is
+        not permitted to create or approve pull requests", this is
+        why.
+  - [ ] "Workflow permissions" is set to "Read and write" if the
+        action needs more than read access to `GITHUB_TOKEN`.
+- [ ] **Action version**: pin to a major tag (`@v5`) unless there is
+      a specific reason not to. Check the action's recent releases
+      for Node runtime deprecation warnings - GitHub-hosted runners
+      are deprecating Node 20 in 2025, and `@vN` series older than
+      the cut-off emit warnings on every run. When bumping, scan
+      the whole workflow file for all `@vN` references and update
+      them together, not per-warning, so a second cleanup commit
+      is not needed.
+- [ ] **Permission scope**: grant only what the action needs. Start
+      with the minimum scope, add `pull-requests: write` only if
+      the action opens PRs, `id-token: write` only for OIDC. Comment
+      each non-obvious grant inline so future readers know why it
+      is there.
+- [ ] **Action-specific config files**: many actions need a
+      companion file in the repo before they will run. Examples
+      that bit us in V1: `release-please` v17+ requires
+      `.release-please-manifest.json`; `pnpm/action-setup` reads the
+      version from `packageManager` in `package.json` (and barfs if
+      the workflow YAML also specifies a different version). Read
+      the action's "Getting started" docs, do not just copy an
+      example.
+- [ ] **Concurrency and timeout**: for long or repeating workflows,
+      set `concurrency:` to cancel in-progress runs on the same ref,
+      and `timeout-minutes` so a hung action does not eat minutes.
+- [ ] **First-run verification**: after the workflow lands, read
+      the full log of the first run, not just the green/red status.
+      A green run with a deprecation warning or a "Multiple versions
+      of X specified" error is a future failure, not a clean bill
+      of health.
+- [ ] **Documentation**: if the action is contributor-facing (CI,
+      releases, dependency updates), update
+      `docs/development/contributing.md` with the new command, the
+      expected PR cadence, and any bypass rules. For a new class of
+      automation, write an ADR explaining why this tool over the
+      alternatives.
+
+## 6. What this file is not
 
 - Not a style guide (Prettier + ESLint handle that).
 - Not a tutorial (see `docs/architecture/` and `README.md`).
