@@ -152,6 +152,11 @@ Releases are automated by [release-please](https://github.com/googleapis/release
 V1 ships at `0.1.0`. The first release PR will appear automatically after
 the first `feat` lands on `main`.
 
+For a step-by-step release procedure (pre-flight checks, merge, tag
+verification, smoke test, retrospective), see
+[release-playbook.md](release-playbook.md). Read it before merging
+the first release PR you cut.
+
 ## Local hooks
 
 `lefthook` is installed automatically on `pnpm install` (via the
