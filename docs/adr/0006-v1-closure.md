@@ -25,8 +25,8 @@ without overbuilding the boundaries.
 ## Decision
 
 V1 is considered **shipped** based on the verification matrix below.
-Two acceptance items remain unverified in the current environment,
-but neither blocks the V1 closure.
+All 13 acceptance items are verified on the host as of the latest
+update (see Update history).
 
 ### Acceptance matrix (13 items)
 
@@ -39,10 +39,10 @@ but neither blocks the V1 closure.
 | 5 | Selecting a device highlights a 3D node | verified | `DevicePanel` -> `sceneStore.selectNode` -> `engine.selectNode` chain |
 | 6 | BFF serves `/health` | verified | returns `{ok: true, service, version}` |
 | 7 | `pnpm --filter @dt/web build` succeeds | verified | handoff |
-| 8 | `pnpm --filter @dt/desktop dev` opens desktop | **unverified** | Rust toolchain not installed on host |
+| 8 | `pnpm dev:all` brings web, BFF, and Tauri desktop up | verified | `pnpm dev:all` boots Tauri + BFF + Vite; `/health`, `/api/devices`, and Tauri window all serve 200; RGBA icons shipped so the bundle builds. |
 | 9 | `pnpm test` passes | verified | 31 tests across 5 packages |
 | 10 | `pnpm typecheck` passes | verified | handoff |
-| 11 | `pnpm lint` passes | **unverified** | root `pnpm lint` runs `eslint .`; not exercised end-to-end in CI yet |
+| 11 | `pnpm lint` passes | verified | `eslint .` runs clean on the current tree (exit 0, no errors) |
 | 12 | README explains local startup | verified | `README.md` and `README.zh-CN.md` |
 | 13 | Architecture docs explain package boundaries | verified | `workspace.md`, `engine-sdk.md`, 5 ADRs |
 
@@ -59,7 +59,7 @@ but neither blocks the V1 closure.
 | 7 | UI kit | done | 4 spec components + `DtEmptyState` |
 | 8 | App shell | done | `packages/app-shell/` with `AppShell.vue`, 3 components, 3 stores |
 | 9 | Web app | done | `apps/web/` |
-| 10 | Tauri desktop | scaffold | `apps/desktop/src-tauri/` complete; awaiting Rust toolchain |
+| 10 | Tauri desktop | done | `apps/desktop/src-tauri/` builds and runs on the host (`pnpm dev:all`) |
 | 11 | V2/V3 boundary packages | done (interfaces only) | `realtime`, `plugin-runtime`, `ai-agent`, `observability` |
 | 12 | Documentation | done | 3 architecture docs + 5 ADRs + `local-dev` + `contributing` + `release-playbook` + `AGENTS.md` |
 
@@ -103,18 +103,16 @@ but neither blocks the V1 closure.
 
 ## Known limitations at V1 closure
 
-These are the items marked unverified above. They are blockers for
-"production use" but not for "V1 ship":
+None. All 13 acceptance items are now verified on the host:
 
-- **Desktop acceptance (#8)** requires `rustup` and
-  `xcode-select --install` on the host. The code is in place; only
-  the toolchain is missing. This is a host setup task, not a code
-  task.
-- **Lint acceptance (#11)** has never been run end-to-end on a clean
-  checkout. The root `pnpm lint` script is `eslint .`, the ESLint
-  config is committed, and the CI workflow runs it. If a future CI
-  run is red, it will be because of a real lint regression, not a
-  config issue.
+- Desktop (#8): `pnpm dev:all` brings the Tauri shell up. The macOS
+  Rust toolchain is installed on the host, and the first
+  `cargo build` warms the target dir; subsequent runs are fast. The
+  icons shipped in this repo are RGBA placeholders, intended to be
+  swapped for real product art in V2.
+- Lint (#11): `pnpm lint` is exercised manually here; the CI
+  workflow runs it on every push and PR, so the next green CI will
+  re-confirm this on a clean checkout.
 
 ## Consequences
 
@@ -124,10 +122,10 @@ These are the items marked unverified above. They are blockers for
   release-please pipeline that was set up during V1 (release
   playbook, AGENTS.md section 5 pre-flight checklist, branch
   protection).
-- The 2 unverified items are tracked here so a V2 contributor can
-  pick them up as the first V2 cleanup tasks:
-  1. Verify `pnpm lint` end-to-end on the next CI run
-  2. Add Rust toolchain to a CI matrix and verify the desktop build
+- The previous "unverified" items are now resolved. The V2 backlog
+  in `docs/development/release-playbook.md` (revisit list) carries
+  the next cleanup work: Rust in the CI matrix, real desktop icons,
+  and a Windows build smoke test.
 
 ## Revisit when
 
@@ -145,3 +143,12 @@ These are the items marked unverified above. They are blockers for
 - Development: `docs/development/local-dev.md`, `docs/development/contributing.md`, `docs/development/release-playbook.md`
 - Process: `AGENTS.md` (especially section 5 - pre-flight checklist for new GitHub Actions)
 - Related ADRs: 0001 (monorepo), 0002 (engine as SDK), 0003 (BFF layer), 0004 (Node 22.17.1), 0005 (public repo for V1)
+
+## Update history
+
+- Initial: 2026-07-03, V1 closure recorded with #8 and #11 unverified.
+- 2026-07-04: Desktop (#8) and Lint (#11) both verified on the host.
+  `pnpm dev:all` now brings Tauri + BFF + Vite up cleanly; `pnpm lint`
+  passes. RGBA placeholders for the four Tauri icons are committed so
+  the bundle builds. See commit `38f76d3` for the runtime fix and the
+  follow-up commit that flips this ADR to "all verified".
