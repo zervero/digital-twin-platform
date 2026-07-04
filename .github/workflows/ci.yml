@@ -33,7 +33,9 @@ jobs:
         uses: pnpm/action-setup@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        # v5 targets Node 24 natively; v4 was being force-bumped by the
+        # runner and emitting a deprecation warning on every run.
+        uses: actions/setup-node@v5
         with:
           node-version: 22.17.1
           cache: pnpm
