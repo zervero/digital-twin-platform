@@ -77,3 +77,7 @@ docs/
 ```
 
 See [docs/architecture/workspace.md](docs/architecture/workspace.md) for package boundaries and dependency rules.
+
+## License
+
+[MIT](LICENSE) - Copyright (c) 2026 zengxiangrong
