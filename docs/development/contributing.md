@@ -108,6 +108,19 @@ Before you hit merge, run through this:
 - [ ] If you made an architectural decision, you wrote an ADR under
       `docs/adr/`
 
+## Repository visibility
+
+The repository **must be public** for the branch protection rules
+below to be enforced by GitHub. The Free plan silently does not
+enforce branch protection on private repositories — the rules
+appear configured in the UI but do not actually block pushes.
+
+This is the V1 trade-off. See [ADR 0005](../adr/0005-public-repo-for-v1.md)
+for why we accept it and under what conditions we revisit. If the
+project later needs to be private, upgrade to GitHub Team
+($4/user/month) before flipping the visibility — the rules below
+will keep working without re-configuration.
+
 ## Branch protection on `main`
 
 Apply these settings on GitHub (Settings → Branches → Branch protection
