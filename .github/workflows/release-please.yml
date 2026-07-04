@@ -19,10 +19,16 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v4
+      # v5 targets Node 24 natively; v4 was being force-bumped by the
+      # runner and emitting a deprecation warning on every run.
+      - uses: googleapis/release-please-action@v5
         id: release
         with:
           # Monorepo with many package.json files. release-please looks at
           # the root one by default; pin it explicitly so a future V2 layout
           # change doesn't silently shift the source of truth.
           config-file: release-please-config.json
+          # The manifest file is required since release-please v17. It
+          # records the last released version of each tracked package.
+          # Kept at `.release-please-manifest.json` (the default path)
+          # so no extra `manifest` parameter is needed.
