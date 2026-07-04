@@ -112,3 +112,7 @@ docs/
 - 接入真实设备数据 → 替换 `apps/bff/src/mock/demo-data.ts`
 - V2 实时数据 → 看 `packages/realtime` 的 `RealtimeStream` 接口
 - 写 ADR → 在 `docs/adr/` 加文件，参考现有 3 份
+
+## 许可证
+
+[MIT](LICENSE) - Copyright (c) 2026 zengxiangrong

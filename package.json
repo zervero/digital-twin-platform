@@ -32,5 +32,16 @@
     "@commitlint/cli": "^19.6.0",
     "@commitlint/config-conventional": "^19.6.0",
     "lefthook": "^1.13.0"
+  },
+  "license": "MIT",
+  "author": "zengxiangrong <zengxiangrong@nxin.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zervero/digital-twin-platform.git",
+    "directory": "."
+  },
+  "homepage": "https://github.com/zervero/digital-twin-platform#readme",
+  "bugs": {
+    "url": "https://github.com/zervero/digital-twin-platform/issues"
   }
 }
