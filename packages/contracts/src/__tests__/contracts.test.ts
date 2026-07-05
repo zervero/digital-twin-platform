@@ -61,6 +61,7 @@ describe('@dt/contracts', () => {
     const event: DigitalTwinEvent = {
       type: 'scene:node-selected',
       payload: { nodeId: 'node-1' },
+      timestamp: '2026-07-05T00:00:00.000Z',
     };
     if (event.type === 'scene:node-selected') {
       expect(event.payload.nodeId).toBe('node-1');
