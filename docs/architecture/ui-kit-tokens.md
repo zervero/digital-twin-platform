@@ -91,6 +91,26 @@ the existing Vite + Vue 3 setup.
   elevation, z-index) — at that point, split tokens into per-group
   files and document the system more formally.
 
+## Consumer wiring
+
+A consumer (e.g. `apps/web`) must declare `@dt/ui-kit` as a **direct**
+dependency in its own `package.json`, not rely on it being pulled in
+transitively. The reason is Vite's build (Rollup) and dev (esbuild)
+resolvers handle nested `node_modules` symlinks differently:
+
+- **Dev server** (esbuild) walks up `node_modules` and finds a
+  transitive `@dt/ui-kit` symlinked under `@dt/app-shell/node_modules/`.
+  The import resolves.
+- **Build** (Rollup) does not walk up to a peer's `node_modules` for
+  a `package.json` exports subpath. The same import fails with
+  "Rollup failed to resolve import".
+
+The fix is to make the dep explicit. This also documents the
+dependency in the consumer's `package.json` rather than hiding it.
+
+The `apps/web/package.json` `dependencies` block is the canonical
+example.
+
 ## Cross-references
 
 - Components: `packages/ui-kit/src/components/`

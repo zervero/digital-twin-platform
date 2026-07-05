@@ -10,12 +10,15 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     },
-    "./styles": "./src/styles/tokens.css"
+    "./styles": {
+      "style": "./dist/tokens.css",
+      "default": "./dist/tokens.css"
+    }
   },
   "scripts": {
     "test": "echo 'ui-kit has component tests in app-shell e2e'",
     "typecheck": "vue-tsc --noEmit",
-    "build": "mkdir -p dist && echo 'ui-kit is consumed as Vue SFCs, no JS bundle in V1' > dist/.gitkeep",
+    "build": "mkdir -p dist && cp src/styles/tokens.css dist/tokens.css && echo 'ui-kit: Vue SFCs consumed as source + tokens.css copied to dist/' > dist/.gitkeep",
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {

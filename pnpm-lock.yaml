@@ -88,6 +88,9 @@ importers:
       '@dt/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@dt/ui-kit':
+        specifier: workspace:*
+        version: link:../../packages/ui-kit
       pinia:
         specifier: ^2.2.6
         version: 2.3.1(typescript@5.6.3)(vue@3.5.39(typescript@5.6.3))
