@@ -12,15 +12,15 @@ withDefaults(defineProps<{ divided?: boolean }>(), { divided: true });
 .dt-toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
-  background: #161b22;
-  border-bottom: 1px solid #21262d;
+  gap: var(--dt-space-md);
+  padding: var(--dt-space-sm) var(--dt-space-lg);
+  background: var(--dt-bg-elevated);
+  border-bottom: 1px solid var(--dt-border-subtle);
   min-height: 36px;
 }
 .dt-toolbar--divided :slotted(:not(:first-child)) {
-  border-left: 1px solid #21262d;
-  padding-left: 8px;
+  border-left: 1px solid var(--dt-border-subtle);
+  padding-left: var(--dt-space-md);
   margin-left: 0;
 }
 </style>

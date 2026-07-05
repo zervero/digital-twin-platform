@@ -1,0 +1,78 @@
+/**
+ * @dt/ui-kit design tokens
+ *
+ * Single source of truth for the presentational layer's visual language.
+ * Components reference these variables instead of hard-coded values, so a
+ * theme / re-skin is a one-file change.
+ *
+ * Consumers must import this CSS once at the application entry point:
+ *
+ *     import '@dt/ui-kit/styles';
+ *
+ * The token names are namespaced with `--dt-*` to avoid collisions with
+ * app-level CSS. Values are the current dark theme; a future light theme
+ * can be added as a `[data-theme="light"]` block that re-defines the
+ * same variable names.
+ */
+
+:root {
+  /* --- Surfaces ----------------------------------------------------- */
+  --dt-bg-base: #0d1117;            /* page / panel base */
+  --dt-bg-elevated: #161b22;        /* toolbar, slight elevation */
+  --dt-bg-surface: #21262d;         /* neutral interactive surface */
+  --dt-bg-surface-hover: #30363d;   /* neutral hover */
+  --dt-bg-overlay: rgba(13, 17, 23, 0.6);
+
+  /* --- Borders ------------------------------------------------------ */
+  --dt-border-subtle: #21262d;      /* dividers inside a surface */
+  --dt-border-default: #30363d;     /* panel / button default edge */
+  --dt-border-strong: #484f58;      /* hover edge */
+
+  /* --- Text --------------------------------------------------------- */
+  --dt-text-primary: #c9d1d9;       /* main readable text */
+  --dt-text-secondary: #8b949e;     /* supporting text */
+  --dt-text-muted: #6e7681;         /* metadata, descriptions */
+  --dt-text-inverse: #ffffff;       /* text on accent fills */
+
+  /* --- Accent (interactive) ---------------------------------------- */
+  --dt-accent-primary: #1f6feb;     /* primary action */
+  --dt-accent-primary-hover: #388bfd;
+  --dt-accent-danger: #da3633;      /* destructive action */
+  --dt-accent-danger-hover: #f85149;
+
+  /* --- Status (semantic) -------------------------------------------- */
+  --dt-status-online: #3fb950;
+  --dt-status-offline: #8b949e;
+  --dt-status-warning: #d29922;
+  --dt-status-alarm: #f85149;
+
+  /* status backgrounds and borders (translucent fills) */
+  --dt-status-online-bg: rgba(63, 185, 80, 0.1);
+  --dt-status-online-border: rgba(63, 185, 80, 0.3);
+  --dt-status-offline-bg: rgba(139, 148, 158, 0.08);
+  --dt-status-offline-border: rgba(139, 148, 158, 0.3);
+  --dt-status-warning-bg: rgba(210, 153, 34, 0.1);
+  --dt-status-warning-border: rgba(210, 153, 34, 0.3);
+  --dt-status-alarm-bg: rgba(248, 81, 73, 0.1);
+  --dt-status-alarm-border: rgba(248, 81, 73, 0.4);
+
+  /* --- Spacing (semantic scale) ------------------------------------ */
+  --dt-space-xs: 4px;               /* tightest gap, e.g. badge dot */
+  --dt-space-sm: 6px;               /* small padding-y */
+  --dt-space-md: 8px;               /* panel header padding-y, gap */
+  --dt-space-lg: 10px;              /* toolbar padding-x */
+  --dt-space-xl: 12px;              /* panel header padding-x, button padding-x */
+  --dt-space-2xl: 16px;             /* section padding */
+  --dt-space-3xl: 24px;             /* empty-state padding-y */
+
+  /* --- Radii -------------------------------------------------------- */
+  --dt-radius-sm: 4px;              /* button */
+  --dt-radius-md: 6px;              /* panel */
+  --dt-radius-pill: 10px;           /* status badge */
+
+  /* --- Typography --------------------------------------------------- */
+  --dt-text-xs: 11px;               /* status badge */
+  --dt-text-sm: 12px;               /* compact density */
+  --dt-text-md: 13px;               /* comfortable density */
+  --dt-line-tight: 16px;            /* badge line-height */
+}

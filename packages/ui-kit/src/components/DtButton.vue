@@ -31,46 +31,46 @@ const classes = computed(() => ['dt-button', `dt-button--${props.variant}`]);
 <style scoped>
 .dt-button {
   appearance: none;
-  border: 1px solid #30363d;
-  background: #21262d;
-  color: #c9d1d9;
-  padding: 6px 12px;
-  border-radius: 4px;
+  border: 1px solid var(--dt-border-default);
+  background: var(--dt-bg-surface);
+  color: var(--dt-text-primary);
+  padding: var(--dt-space-sm) var(--dt-space-xl);
+  border-radius: var(--dt-radius-sm);
   font: inherit;
   cursor: pointer;
   transition: background 120ms ease, border-color 120ms ease;
 }
 .dt-button:hover:not(:disabled) {
-  background: #30363d;
-  border-color: #484f58;
+  background: var(--dt-bg-surface-hover);
+  border-color: var(--dt-border-strong);
 }
 .dt-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .dt-button--primary {
-  background: #1f6feb;
-  border-color: #1f6feb;
-  color: #ffffff;
+  background: var(--dt-accent-primary);
+  border-color: var(--dt-accent-primary);
+  color: var(--dt-text-inverse);
 }
 .dt-button--primary:hover:not(:disabled) {
-  background: #388bfd;
-  border-color: #388bfd;
+  background: var(--dt-accent-primary-hover);
+  border-color: var(--dt-accent-primary-hover);
 }
 .dt-button--danger {
-  background: #da3633;
-  border-color: #da3633;
-  color: #ffffff;
+  background: var(--dt-accent-danger);
+  border-color: var(--dt-accent-danger);
+  color: var(--dt-text-inverse);
 }
 .dt-button--danger:hover:not(:disabled) {
-  background: #f85149;
-  border-color: #f85149;
+  background: var(--dt-accent-danger-hover);
+  border-color: var(--dt-accent-danger-hover);
 }
 .dt-button--ghost {
   background: transparent;
   border-color: transparent;
 }
 .dt-button--ghost:hover:not(:disabled) {
-  background: #21262d;
+  background: var(--dt-bg-surface);
 }
 </style>

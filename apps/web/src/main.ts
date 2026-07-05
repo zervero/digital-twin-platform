@@ -6,6 +6,7 @@
  */
 
 import { createApp } from 'vue';
+import '@dt/ui-kit/styles';
 
 import { AppShell, provideApiClient } from '@dt/app-shell';
 import { createApiClient } from '@dt/api-client';

@@ -25,18 +25,18 @@ withDefaults(
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px 12px;
-  color: #8b949e;
+  padding: var(--dt-space-3xl) var(--dt-space-xl);
+  color: var(--dt-text-secondary);
   text-align: center;
-  gap: 4px;
+  gap: var(--dt-space-xs);
 }
 .dt-empty__title {
-  color: #c9d1d9;
-  font-size: 13px;
+  color: var(--dt-text-primary);
+  font-size: var(--dt-text-md);
   font-weight: 600;
 }
 .dt-empty__description {
-  font-size: 12px;
-  color: #6e7681;
+  font-size: var(--dt-text-sm);
+  color: var(--dt-text-muted);
 }
 </style>

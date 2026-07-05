@@ -21,31 +21,31 @@ withDefaults(
 
 <style scoped>
 .dt-panel {
-  background: #0d1117;
-  border: 1px solid #30363d;
-  border-radius: 6px;
+  background: var(--dt-bg-base);
+  border: 1px solid var(--dt-border-default);
+  border-radius: var(--dt-radius-md);
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
 .dt-panel--compact {
-  font-size: 12px;
+  font-size: var(--dt-text-sm);
 }
 .dt-panel--comfortable {
-  font-size: 13px;
+  font-size: var(--dt-text-md);
 }
 .dt-panel__header {
-  padding: 8px 12px;
-  border-bottom: 1px solid #21262d;
+  padding: var(--dt-space-md) var(--dt-space-xl);
+  border-bottom: 1px solid var(--dt-border-subtle);
   font-weight: 600;
-  color: #c9d1d9;
+  color: var(--dt-text-primary);
   letter-spacing: 0.02em;
 }
 .dt-panel__body {
-  padding: 8px 12px;
+  padding: var(--dt-space-md) var(--dt-space-xl);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--dt-space-xs);
   min-height: 0;
   overflow: auto;
 }

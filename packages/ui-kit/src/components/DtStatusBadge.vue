@@ -19,11 +19,11 @@ const label = computed(() => STATUS_LABELS_ZH[props.status]);
 .dt-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  line-height: 16px;
+  gap: var(--dt-space-sm);
+  padding: 2px var(--dt-space-md);
+  border-radius: var(--dt-radius-pill);
+  font-size: var(--dt-text-xs);
+  line-height: var(--dt-line-tight);
   border: 1px solid transparent;
   font-weight: 500;
 }
@@ -34,23 +34,23 @@ const label = computed(() => STATUS_LABELS_ZH[props.status]);
   background: currentColor;
 }
 .dt-badge--online {
-  color: #3fb950;
-  background: rgba(63, 185, 80, 0.1);
-  border-color: rgba(63, 185, 80, 0.3);
+  color: var(--dt-status-online);
+  background: var(--dt-status-online-bg);
+  border-color: var(--dt-status-online-border);
 }
 .dt-badge--offline {
-  color: #8b949e;
-  background: rgba(139, 148, 158, 0.08);
-  border-color: rgba(139, 148, 158, 0.3);
+  color: var(--dt-status-offline);
+  background: var(--dt-status-offline-bg);
+  border-color: var(--dt-status-offline-border);
 }
 .dt-badge--warning {
-  color: #d29922;
-  background: rgba(210, 153, 34, 0.1);
-  border-color: rgba(210, 153, 34, 0.3);
+  color: var(--dt-status-warning);
+  background: var(--dt-status-warning-bg);
+  border-color: var(--dt-status-warning-border);
 }
 .dt-badge--alarm {
-  color: #f85149;
-  background: rgba(248, 81, 73, 0.1);
-  border-color: rgba(248, 81, 73, 0.4);
+  color: var(--dt-status-alarm);
+  background: var(--dt-status-alarm-bg);
+  border-color: var(--dt-status-alarm-border);
 }
 </style>
