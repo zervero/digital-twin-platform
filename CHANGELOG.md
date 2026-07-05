@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [1.0.2](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v1.0.1...digital-twin-platform-v1.0.2) (2026-07-05)
+
+
+### Bug Fixes
+
+* **ui-kit:** make tokens.css resolvable by Vite production build ([000e6f8](https://github.com/zervero/digital-twin-platform/commit/000e6f862fceee1d7d04a05c395b2ed04cb0c3c2))
+
 ## [1.0.1](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v1.0.0...digital-twin-platform-v1.0.1) (2026-07-04)
 
 
