@@ -2,11 +2,15 @@
  * The HTTP wrapper.
  *
  * Centralizes:
- *   - JSON parsing
+ *   - JSON parsing (including 204 / empty body)
  *   - Error normalization
- *   - Default headers
+ *   - Default headers (content-type, accept, Authorization when set)
  *
  * Tests inject a `fetchImpl` to assert wiring without touching the network.
+ *
+ * V2.1: holds the auth bearer token in a closure; `setAuthToken`
+ * mutates it. The BFF treats a missing or expired token as
+ * "anonymous".
  */
 
 import type {
@@ -14,6 +18,9 @@ import type {
   CommandAcceptedResponse,
   Device,
   DigitalTwinCommand,
+  LoginRequest,
+  LoginResponse,
+  MeResponse,
   SceneSnapshot,
 } from '@dt/contracts';
 
@@ -29,6 +36,10 @@ export interface ApiClient {
   getDevices(): Promise<Device[]>;
   getScene(): Promise<SceneSnapshot>;
   sendCommand(command: DigitalTwinCommand): Promise<CommandAcceptedResponse>;
+  getMe(): Promise<MeResponse>;
+  login(req: LoginRequest): Promise<LoginResponse>;
+  logout(): Promise<void>;
+  setAuthToken(token: string | null): void;
 }
 
 interface RequestOptions {
@@ -66,11 +77,19 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
   const baseUrl = normalizeBaseUrl(options.baseUrl);
   const fetchImpl: typeof fetch = options.fetchImpl ?? globalThis.fetch.bind(globalThis);
 
+  // Token is held in a closure; setAuthToken mutates it.
+  let token: string | null = null;
+
   async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
     const url = `${baseUrl}${path}`;
+    const headers: Record<string, string> = {
+      'content-type': 'application/json',
+      accept: 'application/json',
+    };
+    if (token) headers.authorization = `Bearer ${token}`;
     const init: RequestInit = {
       method: opts.method ?? 'GET',
-      headers: { 'content-type': 'application/json', accept: 'application/json' },
+      headers,
     };
     if (opts.body !== undefined) {
       init.body = JSON.stringify(opts.body);
@@ -87,7 +106,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       );
     }
 
-    return (await response.json()) as T;
+    // Some endpoints (logout) return 204 with no body.
+    const text = await response.text();
+    return (text ? JSON.parse(text) : undefined) as T;
   }
 
   return {
@@ -96,5 +117,18 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     getScene: () => request<SceneSnapshot>('/api/scene'),
     sendCommand: (command) =>
       request<CommandAcceptedResponse>('/api/commands', { method: 'POST', body: command }),
+    getMe: () => request<MeResponse>('/api/auth/me'),
+    login: async (req) => {
+      const res = await request<LoginResponse>('/api/auth/login', { method: 'POST', body: req });
+      token = res.session.token;
+      return res;
+    },
+    logout: async () => {
+      await request<null>('/api/auth/logout', { method: 'POST' });
+      token = null;
+    },
+    setAuthToken: (next: string | null) => {
+      token = next;
+    },
   };
 }
