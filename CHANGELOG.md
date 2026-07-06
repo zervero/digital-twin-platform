@@ -7,6 +7,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [2.3.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v2.2.0...digital-twin-platform-v2.3.0) (2026-07-06)
+
+
+### Features
+
+* **bff:** graceful shutdown and /ready endpoint ([b80c250](https://github.com/zervero/digital-twin-platform/commit/b80c2509354bbd69ff887adb2f27dc6dad4fa4e8))
+* **bff:** multi-stage Dockerfile with tini + healthcheck ([7e08e38](https://github.com/zervero/digital-twin-platform/commit/7e08e38ec8916fafee81e07500b0b24340fb7055))
+* **config:** production env validation and AUTH_PROVIDER ([b4b8906](https://github.com/zervero/digital-twin-platform/commit/b4b8906204d9e79e7de6e61d1adbe26ddefe79b7))
+* **deploy:** docker compose for BFF + web (v2.3) ([58ed51b](https://github.com/zervero/digital-twin-platform/commit/58ed51b5703966e36b8f15c0ac8ffeb96e6ab61c))
+* **web:** multi-stage Dockerfile with nginx + /api proxy ([3ae9f99](https://github.com/zervero/digital-twin-platform/commit/3ae9f99be5848d811e873ba6eb27446113cf2a13))
+
 ## [2.2.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v2.1.0...digital-twin-platform-v2.2.0) (2026-07-06)
 
 
