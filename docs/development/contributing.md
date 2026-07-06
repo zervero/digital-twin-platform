@@ -198,6 +198,7 @@ after I'm done?**
 | New architecture decision | New ADR under `docs/adr/` |
 | New env var, new script, new dev step | `README.md` + `docs/development/local-dev.md` |
 | Process / workflow change | this file (`contributing.md`) |
+| New prod deployment concern (Dockerfile, env, health, shutdown) | `docs/development/deployment.md` |
 | Anything else | the commit message (Conventional Commits) |
 
 The full rule lives in `AGENTS.md` at the repo root. Both must stay in
@@ -216,3 +217,11 @@ When you delegate a task to an AI agent:
 - **Boundary review**: changes in `packages/contracts/`,
   `packages/engine-sdk/`, or `packages/app-shell/` touch the platform
   contract — they deserve a careful human pass even in V1.
+
+## Related guides
+
+- [Local development](./local-dev.md) — how to run `pnpm dev` on a fresh checkout.
+- [Deployment](./deployment.md) — production-shape Dockerfiles, compose stack,
+  env vars, health checks, graceful shutdown, pre-release pre-flight.
+- [Release playbook](./release-playbook.md) — release-please cadence, manifest,
+  PR review and merge steps.
