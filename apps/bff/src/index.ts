@@ -15,11 +15,17 @@
  * by `httpLogger` (they never return an HTTP response), but the
  * `requestId` they receive via the upgrade headers still rides along
  * on any log line we add inside the route later.
+ *
+ * V2.3 adds graceful shutdown: SIGTERM / SIGINT set the `isShuttingDown`
+ * flag (which flips `/ready` to 503), stop the dev mock source, close
+ * every active WebSocket with a 1001 frame, then close the HTTP server
+ * and exit 0 within a 10s drain timeout. The Tauri / docker stop
+ * paths depend on this contract.
  */
 
 import { serve, upgradeWebSocket } from '@hono/node-server';
 import { Hono } from 'hono';
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, type WebSocket as WsWebSocket } from 'ws';
 
 import { readAppEnv } from '@dt/config';
 import { withTimestamp } from '@dt/contracts';
@@ -47,11 +53,28 @@ const app = new Hono();
 app.use('*', requestId());
 app.use('*', httpLogger(logger));
 
-app.route('/', healthRoute);
+// Mount the health route early so /health and /ready are reachable
+// even if a later route module fails to load. The closure on
+// `isShuttingDown` lets the route read the current shutdown state
+// without subscribing to an event.
+let isShuttingDown = false;
+app.route('/', healthRoute({ isShuttingDown: () => isShuttingDown }));
+
 app.route('/api', devicesRoute);
 app.route('/api', sceneRoute);
-const authStore = new MockAuthStore();
-app.route('/api/auth', authRoute(authStore));
+
+// AUTH_PROVIDER: in production the env validator has already ensured
+// this is set; in dev it's optional and we default to the mock store.
+if (!env.production || env.authProvider === 'mock') {
+  const authStore = new MockAuthStore();
+  app.route('/api/auth', authRoute(authStore));
+} else if (env.production && env.authProvider === 'oidc') {
+  // Reserved for V3. We log + throw so a misconfiguration is loud
+  // at boot rather than silent at request time.
+  logger.error('AUTH_PROVIDER=oidc is reserved for V3; V2.3 only supports mock');
+  throw new Error('AUTH_PROVIDER=oidc is reserved for V3');
+}
+
 app.route('/api', commandsRoute);
 
 app.get(
@@ -98,20 +121,74 @@ app.onError((err, c) => {
 });
 
 const wss = new WebSocketServer({ noServer: true });
-serve(
+const wssClients = new Set<WsWebSocket>();
+wss.on('connection', (ws) => {
+  wssClients.add(ws);
+  ws.on('close', () => {
+    wssClients.delete(ws);
+  });
+});
+
+const server = serve(
   {
     fetch: app.fetch,
     port: env.port,
     websocket: { server: wss },
   },
   (info) => {
-    logger.info('listening', { port: info.port });
+    logger.info('listening', { port: info.port, authProvider: env.authProvider ?? 'unset' });
   },
 );
 
-// Start the dev mock source in non-production environments.
-if (env.nodeEnv !== 'production') {
-  const dev = new DevMockSource({ broadcaster });
+// Start the dev mock source in non-production environments. Capture
+// the handle so the shutdown path can stop it.
+let dev: DevMockSource | null = null;
+if (!env.production) {
+  dev = new DevMockSource({ broadcaster });
   dev.start();
   logger.info('dev mock source started');
 }
+
+const SHUTDOWN_TIMEOUT_MS = 10_000;
+
+async function shutdown(signal: NodeJS.Signals): Promise<void> {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  logger.info('shutdown started', { signal });
+
+  // 1. Stop the dev mock source so it doesn't push events into a
+  //    draining server.
+  dev?.stop();
+  dev = null;
+
+  // 2. Send a close frame to every active WebSocket. We don't wait
+  //    for the close ACKs; the server.close() below does the final
+  //    cleanup after the drain timeout.
+  for (const ws of wssClients) {
+    try {
+      ws.close(1001, 'going away');
+    } catch {
+      // ignore individual close failures
+    }
+  }
+  wssClients.clear();
+
+  // 3. Close the HTTP server. This stops accepting new connections
+  //    and waits for in-flight responses, with a hard timeout.
+  await new Promise<void>((resolve) => {
+    server.close((err) => {
+      if (err) logger.warn('http server close reported error', { error: err.message });
+      resolve();
+    });
+    setTimeout(() => {
+      logger.warn('shutdown timeout, forcing exit', { timeoutMs: SHUTDOWN_TIMEOUT_MS });
+      resolve();
+    }, SHUTDOWN_TIMEOUT_MS);
+  });
+
+  logger.info('shutdown complete');
+  process.exit(0);
+}
+
+process.on('SIGTERM', () => void shutdown('SIGTERM'));
+process.on('SIGINT', () => void shutdown('SIGINT'));
