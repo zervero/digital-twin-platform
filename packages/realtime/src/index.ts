@@ -8,6 +8,11 @@
  * Consumers should pick one of:
  * - `createInMemoryStream()` for tests and local-only flows
  * - `createWebSocketStream({ url })` for real deployments
+ *
+ * The WebSocket-facing types below are deliberately *structural* (no
+ * dependency on DOM `Event` / `CloseEvent` / `MessageEvent`) so this
+ * package can be consumed by Node-only tsconfigs (e.g. the BFF) where
+ * the DOM lib is not loaded.
  */
 
 import { withTimestamp, type DigitalTwinEvent } from '@dt/contracts';
@@ -31,14 +36,35 @@ export interface ReconnectOptions {
   maxDelayMs?: number;
 }
 
+/**
+ * Structural shape of a WebSocket close event. Matches what the browser
+ * `CloseEvent` and `ws`'s server-side close emit (the two we care about).
+ */
+interface WebSocketLikeCloseEvent {
+  code: number;
+  reason: string;
+}
+
+/**
+ * Structural shape of a WebSocket message event. We only ever read
+ * `.data` as a JSON string, but the type stays open for binary frames.
+ */
+interface WebSocketLikeMessageEvent {
+  data: string | ArrayBuffer | Blob | ArrayBufferLike;
+}
+
+/**
+ * Minimal `WebSocketLike` interface. The browser `WebSocket`, the `ws`
+ * package's `WebSocket`, and our test `MockWebSocket` all satisfy this.
+ */
 interface WebSocketLike {
   readyState: number;
   send(data: string): void;
   close(code?: number, reason?: string): void;
-  onopen: ((ev: Event) => void) | null;
-  onclose: ((ev: CloseEvent) => void) | null;
-  onmessage: ((ev: MessageEvent) => void) | null;
-  onerror: ((ev: Event) => void) | null;
+  onopen: ((ev: WebSocketLikeMessageEvent | WebSocketLikeCloseEvent | unknown) => void) | null;
+  onclose: ((ev: WebSocketLikeCloseEvent) => void) | null;
+  onmessage: ((ev: WebSocketLikeMessageEvent) => void) | null;
+  onerror: ((ev: unknown) => void) | null;
 }
 
 function getWebSocketImpl(): { new (url: string): WebSocketLike } {
@@ -118,7 +144,7 @@ export class WebSocketRealtimeStream implements RealtimeStream {
     ws.onmessage = (ev) => {
       let event: DigitalTwinEvent;
       try {
-        event = JSON.parse((ev as MessageEvent).data as string) as DigitalTwinEvent;
+        event = JSON.parse(String(ev.data)) as DigitalTwinEvent;
       } catch {
         return;
       }
