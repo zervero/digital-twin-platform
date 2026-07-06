@@ -15,7 +15,7 @@
  * the DOM lib is not loaded.
  */
 
-import { withTimestamp, type DigitalTwinEvent } from '@dt/contracts';
+import { withTimestamp, type Device, type DigitalTwinEvent } from '@dt/contracts';
 
 export interface RealtimeStream {
   subscribe(listener: (event: DigitalTwinEvent) => void): () => void;
@@ -24,7 +24,7 @@ export interface RealtimeStream {
 }
 
 export interface DeviceUpdateSource {
-  onDeviceUpdate(listener: (device: import('@dt/contracts').Device) => void): () => void;
+  onDeviceUpdate(listener: (device: Device) => void): () => void;
   start(): void;
   stop(): void;
 }
