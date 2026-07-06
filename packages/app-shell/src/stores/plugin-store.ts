@@ -20,7 +20,7 @@
  */
 
 import { defineStore } from 'pinia';
-import { computed, inject, ref, shallowRef } from 'vue';
+import { computed, inject, markRaw, ref, shallowRef, toRaw } from 'vue';
 
 import type { Permission } from '@dt/contracts';
 import type { RealtimeStream } from '@dt/realtime';
@@ -93,7 +93,7 @@ export const usePluginStore = defineStore('dt:plugins', () => {
     for (const e of entriesRaw.value) {
       if (e.state !== 'active') continue;
       for (const ext of e.extensions) {
-        if (ext.kind === 'ui-panel') out.push(ext.panel);
+        if (ext.kind === 'ui-panel') { out.push({ ...toRaw(ext.panel), component: markRaw(toRaw(ext.panel.component)) }); }
       }
     }
     return out;

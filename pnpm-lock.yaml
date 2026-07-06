@@ -112,6 +112,9 @@ importers:
       '@dt/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@dt/plugin-runtime':
+        specifier: workspace:*
+        version: link:../../packages/plugin-runtime
       '@dt/ui-kit':
         specifier: workspace:*
         version: link:../../packages/ui-kit

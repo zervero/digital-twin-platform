@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps } from 'vue';
 import type { PluginPanel } from '@dt/plugin-runtime';
 
 defineProps<{ panel: PluginPanel }>();

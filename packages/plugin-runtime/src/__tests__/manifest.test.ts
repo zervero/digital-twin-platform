@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 
 import {
   validatePluginManifest,
-  type PluginManifest,
 } from '../manifest.js';
 
 describe('validatePluginManifest', () => {
