@@ -7,6 +7,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [2.1.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v2.0.0...digital-twin-platform-v2.1.0) (2026-07-06)
+
+
+### Features
+
+* **api-client:** auth methods (getMe, login, logout) with bearer token ([596f29d](https://github.com/zervero/digital-twin-platform/commit/596f29d0780278964b35d7ba8011222d8bbb7bfd))
+* **app-shell:** auth store, useCurrentUser, usePermission composables ([33eb274](https://github.com/zervero/digital-twin-platform/commit/33eb2743aa15a1e26349faf999354d31915d3eac))
+* **bff:** mock auth store and /api/auth endpoints ([a397ec3](https://github.com/zervero/digital-twin-platform/commit/a397ec3c32c9106d44d0eb061bfbc1fd28356d17))
+* **bff:** requiresPermission middleware with role-based access ([f154daf](https://github.com/zervero/digital-twin-platform/commit/f154daf3a872744e9eb124a1c26e7e448013e924))
+* **contracts:** auth and role types for V2.1 ([5913a07](https://github.com/zervero/digital-twin-platform/commit/5913a072511737e7fed08dabe92560fcef80458c))
+
 ## [2.0.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v1.0.2...digital-twin-platform-v2.0.0) (2026-07-06)
 
 
