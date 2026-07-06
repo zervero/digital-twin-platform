@@ -14,7 +14,7 @@ export type { SceneNode, SceneNodeType, SceneSnapshot } from './scene.js';
 export type { DigitalTwinCommand, DigitalTwinCommandType } from './command.js';
 
 export type { DigitalTwinEvent, DigitalTwinEventType } from './event.js';
-export { DIGITAL_TWIN_EVENT_TYPES } from './event.js';
+export { DIGITAL_TWIN_EVENT_TYPES, withTimestamp } from './event.js';
 
 export type {
   ApiHealth,
