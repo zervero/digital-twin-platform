@@ -1,8 +1,8 @@
 # V2 Overview
 
 > Active. Records the scope and ordering for V2 work, with
-> per-release ship status. V2.0, V2.1, and V2.2 are shipped; V2.3
-> is planned but not yet started.
+> per-release ship status. V2.0, V2.1, V2.2, and V2.3 are
+> shipped; V3 is the next planned track.
 >
 > For the closed-out V2.0 detail (acceptance matrix, task
 > matrix, known limitations), see
@@ -10,7 +10,9 @@
 > for V2.1, see
 > [`docs/adr/0009-v2.1-closure.md`](../adr/0009-v2.1-closure.md);
 > for V2.2, see
-> [`docs/adr/0010-v2.2-closure.md`](../adr/0010-v2.2-closure.md).
+> [`docs/adr/0010-v2.2-closure.md`](../adr/0010-v2.2-closure.md);
+> for V2.3, see
+> [`docs/adr/0011-v2.3-closure.md`](../adr/0011-v2.3-closure.md).
 
 ## Context
 
@@ -45,7 +47,7 @@ already in place since V1.0.0 — see `.github/workflows/ci.yml`.)
 ## Track ordering
 
 ```
-V2.0 ✅  ──►  V2.1 ✅  ──►  V2.2 ✅  ──►  V2.3
+V2.0 ✅  ──►  V2.1 ✅  ──►  V2.2 ✅  ──►  V2.3 ✅
     A,C          D           B            E
 ```
 
@@ -61,9 +63,15 @@ V2.0 ✅  ──►  V2.1 ✅  ──►  V2.2 ✅  ──►  V2.3
   types) plus a Pinia store, composables, and a working sample
   plugin in `@dt/app-shell`. Permission gate reuses the V2.1
   `Permission` union. See [ADR 0010](../adr/0010-v2.2-closure.md).
-- **V2.3 (Track E)**: production deployment. Last because everything
-  else needs to be stable before we can write a Dockerfile we
-  actually want to keep.
+- **V2.3 (Track E) ✅ shipped as v2.3.0 (2026-07-06)**: production deployment.
+  Production env gate (`AUTH_PROVIDER` enforced in `@dt/config`),
+  graceful BFF shutdown with `/ready` flip, two Dockerfiles (BFF
+  + nginx SPA + `/api/` reverse proxy), `docker-compose.yml` +
+  `.env.example`, a Windows CI job, `docs/development/deployment.md`
+  with the pre-release pre-flight, and `scripts/smoke-prod.sh` as
+  the gating check. Last because everything else needed to be
+  stable before we wrote Dockerfiles we wanted to keep. See
+  [ADR 0011](../adr/0011-v2.3-closure.md).
 
 This order also keeps each track shippable as a single
 release-please version bump, so the V2 release cadence mirrors V1.
@@ -102,8 +110,8 @@ These are explicitly **not** in V2.0. They live in later V2.x:
 
 - Authentication (Track D, V2.1)
 - Plugin loading (Track B, V2.2)
-- Production Docker (Track E, V2.3)
-- CI matrix on Windows (deferred to V2.3)
+- Production Docker (Track E, ✅ shipped as part of V2.3)
+- CI matrix on Windows (✅ shipped as part of V2.3)
 - AI / plugins / marketplace (V3)
 
 ## Release status
@@ -113,7 +121,7 @@ These are explicitly **not** in V2.0. They live in later V2.x:
 | V2.0 (A+C) | ✅ shipped as `digital-twin-platform@2.0.0` | 2026-07-06 | [0008](../adr/0008-v2-closure.md) |
 | V2.1 (D) | ✅ shipped as `digital-twin-platform@2.1.0` | 2026-07-06 | [0009](../adr/0009-v2.1-closure.md) |
 | V2.2 (B) | ✅ shipped as `digital-twin-platform@2.2.0` | 2026-07-06 | [0010](../adr/0010-v2.2-closure.md) |
-| V2.3 (E) | ⏳ planned — production deployment | — | — |
+| V2.3 (E) | ✅ shipped as `digital-twin-platform@2.3.0` | 2026-07-06 | [0011](../adr/0011-v2.3-closure.md) |
 
 ## Open questions
 

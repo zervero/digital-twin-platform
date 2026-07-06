@@ -190,6 +190,6 @@ delayed release.
 - [Local development](./local-dev.md) — `pnpm dev`, prerequisites, troubleshooting.
 - [Contributing](./contributing.md) — workflow rules (branches, commits, hooks).
 - [Release playbook](./release-playbook.md) — release-please cadence and PR review.
-- V2.3 closure ADR (pending) — the rationale for the tsx-at-runtime
-  design choice documented above lives there. Linked from this section
-  once written.
+- [V2.3 closure ADR](../adr/0011-v2.3-closure.md) — the rationale for the
+  tsx-at-runtime design choice documented above, plus the full
+  acceptance matrix and deviations from the V2.3 plan.
