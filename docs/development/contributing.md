@@ -52,6 +52,12 @@ The `commitlint` lefthook will reject any commit that doesn't comply.
 - Lowercase type
 - Subject ≤ 72 characters
 - Reference the affected package in `<scope>` when applicable
+- Version-name subjects use lowercase (`v3`, `v2.3`, never `V3`
+  or `V2.3`). commitlint's subject-case rule trips on a leading
+  capital letter even when it's a version digit, so capital
+  versions leak through only when the lefthook hook is
+  bypassed with `--no-verify`. Stick to lowercase so the
+  hook stays useful as a gate.
 
 ### Examples
 
