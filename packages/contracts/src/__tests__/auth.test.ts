@@ -5,12 +5,10 @@ import {
   ROLE_PERMISSIONS,
   type AuthState,
   type Permission,
-  type Role,
 } from '../auth.js';
 
 describe('auth contract (V2.1)', () => {
   it('declares the three baseline roles', () => {
-    const roles: Role[] = ['admin', 'operator', 'viewer'];
     expect(ROLE_PERMISSIONS.admin).toContain('device:write');
     expect(ROLE_PERMISSIONS.viewer).toContain('device:read');
     expect(ROLE_PERMISSIONS.viewer).not.toContain('device:write');

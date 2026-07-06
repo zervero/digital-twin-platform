@@ -113,7 +113,7 @@ describe('api-client auth methods (V2.1)', () => {
   });
 
   it('login posts the email, stashes the token, and sends it on subsequent calls', async () => {
-    const fetchImpl = vi.fn<typeof fetch>().mockImplementation(async (_url: string | URL | Request, init?: RequestInit) => {
+    const fetchImpl = vi.fn<typeof fetch>().mockImplementation(async (_url: string | URL | Request) => {
       const url = typeof _url === 'string' ? _url : _url.toString();
       if (url.endsWith('/api/auth/login')) {
         return makeJsonResponse({
