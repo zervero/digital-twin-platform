@@ -7,6 +7,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [2.2.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v2.1.0...digital-twin-platform-v2.2.0) (2026-07-06)
+
+
+### Features
+
+* **app-shell:** bootstrap activates plugins and renders slots ([85ef2ad](https://github.com/zervero/digital-twin-platform/commit/85ef2ada787c88b61d00a5ae3b7796626bf44224))
+* **app-shell:** plugin store and panel/menu composables ([0049754](https://github.com/zervero/digital-twin-platform/commit/00497549c0dd5744b09a742ae21047e40c6fea18))
+* **plugin-runtime:** manifest validator with permission union check ([ce2af40](https://github.com/zervero/digital-twin-platform/commit/ce2af40f96d4e04f56f046012e94b4fd28f0001a))
+* **plugin-runtime:** plugin registry with permission-gated activation ([9144dea](https://github.com/zervero/digital-twin-platform/commit/9144dea9562d4ec618af3dfb003a1e2e861e2d80))
+* **samples:** hello plugin + bootstrap integration test ([c0ec10a](https://github.com/zervero/digital-twin-platform/commit/c0ec10ac3deb9fbae23d9b3eed832ba41610babc))
+
 ## [2.1.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v2.0.0...digital-twin-platform-v2.1.0) (2026-07-06)
 
 
