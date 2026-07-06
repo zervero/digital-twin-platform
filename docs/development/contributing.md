@@ -263,3 +263,8 @@ When you delegate a task to an AI agent:
   env vars, health checks, graceful shutdown, pre-release pre-flight.
 - [Release playbook](./release-playbook.md) — release-please cadence, manifest,
   PR review and merge steps.
+- [V2 overview](../plans/v2-overview.md) — V2 (realtime + observability + auth +
+  plugins + production deploy) tracks, ordering, ship status.
+- [V3 overview](../plans/v3-overview.md) — V3 (real auth + production platform +
+  Tauri releases + multi-tenant + plugin marketplace) tracks, ordering,
+  open questions.
