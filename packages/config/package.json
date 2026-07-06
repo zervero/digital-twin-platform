@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "test": "echo 'config has small parse tests'",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "mkdir -p dist && echo 'config is type-only' > dist/.gitkeep",
     "clean": "rm -rf dist .turbo"
@@ -21,7 +21,8 @@
     "@dt/contracts": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^22.10.0",
     "typescript": "^5.6.3",
-    "@types/node": "^22.10.0"
+    "vitest": "^2.1.5"
   }
 }
