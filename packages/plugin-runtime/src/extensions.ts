@@ -24,8 +24,11 @@ export interface PluginComponent {
   // Vue components have at least one of these. The runtime
   // never calls them directly; the host's
   // `<component :is="..." />` does.
-  render?: (...args: unknown[]) => unknown;
-  setup?: (...args: unknown[]) => unknown;
+  // We use `Function` instead of a strict signature so a
+  // real Vue `Component` is assignable without TS complaining
+  // about variance. The runtime never calls them directly.
+  render?: Function;
+  setup?: Function;
   // `defineComponent` returns a richer object. We accept
   // anything extra as `[key: string]: unknown` so the
   // structural type stays loose without `any`.

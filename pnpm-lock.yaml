@@ -175,6 +175,9 @@ importers:
       '@dt/engine-sdk':
         specifier: workspace:*
         version: link:../engine-sdk
+      '@dt/plugin-runtime':
+        specifier: workspace:*
+        version: link:../plugin-runtime
       '@dt/realtime':
         specifier: workspace:*
         version: link:../realtime
