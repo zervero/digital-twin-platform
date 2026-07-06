@@ -34,4 +34,4 @@ export type {
   Role,
   User,
 } from './auth.js';
-export { ROLE_PERMISSIONS, permissionsFor } from './auth.js';
+export { ALL_PERMISSIONS, ROLE_PERMISSIONS, permissionsFor } from './auth.js';

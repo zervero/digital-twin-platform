@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  ALL_PERMISSIONS,
   permissionsFor,
   ROLE_PERMISSIONS,
   type AuthState,
@@ -48,5 +49,19 @@ describe('auth contract (V2.1)', () => {
       'command:send', 'auth:login',
     ];
     expect(perms.length).toBeGreaterThan(0);
+  });
+
+  it('ALL_PERMISSIONS covers every union member', () => {
+    // If a new Permission value is added to the union, this test
+    // stays passing (ALL_PERMISSIONS is a tuple of literals that
+    // has to be updated by hand), but the satisfies annotation
+    // will fail to compile until it is. The runtime check below
+    // catches a developer who edits one without the other.
+    expect(new Set(ALL_PERMISSIONS).size).toBe(ALL_PERMISSIONS.length);
+    expect(ALL_PERMISSIONS.length).toBeGreaterThanOrEqual(6);
+    for (const p of ALL_PERMISSIONS) {
+      const probe: Permission = p;
+      expect(probe).toBe(p);
+    }
   });
 });

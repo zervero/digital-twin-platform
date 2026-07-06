@@ -18,6 +18,26 @@ export type Permission =
   | 'auth:login';
 
 /**
+ * Canonical, ordered list of every Permission value.
+ *
+ * V3.0: needed by @dt/auth-oidc to filter JWT scope /
+ * permissions claims down to known permissions without a
+ * runtime cast. Adding a new permission means adding it to
+ * both the union above and this tuple; the
+ * "as const satisfies readonly Permission[]" annotation
+ * makes the second step a compile error if the value is
+ * misspelled.
+ */
+export const ALL_PERMISSIONS = [
+  'device:read',
+  'device:write',
+  'scene:read',
+  'scene:write',
+  'command:send',
+  'auth:login',
+] as const satisfies readonly Permission[];
+
+/**
  * What each role grants by default. The BFF and plugins both
  * consult this map; adding a new permission means adding it here
  * and to every role that should grant it.
