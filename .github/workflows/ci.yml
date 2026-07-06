@@ -4,6 +4,14 @@
 
 name: CI
 
+# Pin bash as the run shell for every step. Linux defaults to bash
+# already, so this is a no-op there; on Windows it overrides the
+# PowerShell default, which would otherwise fail every pnpm
+# invocation that hits a Unix-style shell snippet.
+defaults:
+  run:
+    shell: bash
+
 on:
   pull_request:
   push:
@@ -63,3 +71,43 @@ jobs:
         run: pnpm smoke:v2
         env:
           PORT: 3001
+
+
+  windows:
+    name: Windows · Lint / Typecheck / Test
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      # Match the verify job: pnpm version comes from package.json's
+      # packageManager field, not a hardcoded number, and corepack
+      # never prompts interactively in CI.
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        # Version is read from `packageManager` in package.json so the
+        # root manifest stays the single source of truth. Keep them in
+        # sync, or pnpm install will fail with ERR_PNPM_BAD_PM_VERSION.
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        # v5 targets Node 24 natively; v4 was being force-bumped by the
+        # runner and emitting a deprecation warning on every run.
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.17.1
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test

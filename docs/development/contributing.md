@@ -108,6 +108,44 @@ Before you hit merge, run through this:
 - [ ] If you made an architectural decision, you wrote an ADR under
       `docs/adr/`
 
+## CI
+
+Two parallel jobs run on every PR and every push to `main`:
+
+- **`verify`** — `ubuntu-latest`, runs `pnpm install --frozen-lockfile`
+  then `pnpm lint` + `pnpm typecheck` + `pnpm test` + `pnpm build` +
+  `pnpm smoke:v2`. The V2 smoke boots the BFF against the freshly
+  built repo and exercises `/health`, `/api/stream`, and the
+  structured logger. This is the single signal that the realtime
+  path is end-to-end healthy before a release-please PR is merged.
+- **`windows`** — `windows-latest`, runs `pnpm lint` + `pnpm typecheck`
+  + `pnpm test` only. No build, no smoke. The V2 smoke and the Tauri
+  build on Windows (signed `.msi` / `.exe`) are V3 follow-ups; see
+  [`docs/plans/v2.3-implementation-plan.md`](../plans/v2.3-implementation-plan.md)
+  for the scope split.
+
+Both jobs share the workflow-level `concurrency:` group, so an
+in-progress run for the same ref is cancelled when a new commit
+pushes to that ref.
+
+### Workflow defaults
+
+The workflow pins `bash` as the run-shell via a top-level
+`defaults.run.shell` block. Linux defaults to bash anyway; on
+Windows it overrides the PowerShell default that would otherwise
+fire every `pnpm …` invocation that hits a Unix-style snippet.
+
+### Action versions
+
+All three setup actions are pinned to `@v5` (checkout, pnpm
+setup, node setup). v5 targets Node 24 natively, which avoids the
+"Node.js 20 is deprecated" warning that previous versions emitted
+on every run. When bumping the major tag, scan the file for all
+`@vN` references and update them in one commit, not per-warning.
+
+The full pre-flight checklist for new GitHub Actions lives in
+`AGENTS.md` at the repo root (section 5).
+
 ## Repository visibility
 
 The repository **must be public** for the branch protection rules
