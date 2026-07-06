@@ -12,7 +12,8 @@
     }
   },
   "scripts": {
-    "test": "echo 'plugin-runtime gets manifest validation tests in V2'",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "build": "mkdir -p dist && echo 'plugin-runtime exports types only in V1' > dist/.gitkeep",
     "clean": "rm -rf dist .turbo"
@@ -21,6 +22,7 @@
     "@dt/contracts": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
   }
 }
