@@ -1,0 +1,57 @@
+# Production-shape local stack. Builds the BFF and web
+# images from their Dockerfiles and starts them on an
+# internal network. The web container's /api/ proxy
+# points at the BFF service by name.
+#
+# Usage:
+#   cp .env.example .env  # then edit
+#   docker compose up --build
+#   curl -sS http://localhost:8080/health
+#   docker compose down
+#
+# Why no `volumes: bff-logs:/var/log/bff` here: the BFF
+# runs via @dt/observability which writes to process.stdout
+# (containers default to the json-file log driver). Mount
+# a host path here only when a process inside actually
+# writes files.
+
+services:
+  bff:
+    build:
+      context: .
+      dockerfile: apps/bff/Dockerfile
+    image: digital-twin-platform/bff:dev
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      AUTH_PROVIDER: ${AUTH_PROVIDER:-mock}
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3001/health']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - dt-net
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    image: digital-twin-platform/web:dev
+    environment:
+      BFF_UPSTREAM: http://bff:3001
+    depends_on:
+      bff:
+        condition: service_healthy
+    ports:
+      - '8080:80'
+    networks:
+      - dt-net
+    restart: unless-stopped
+
+networks:
+  dt-net:
+    driver: bridge
