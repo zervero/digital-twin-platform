@@ -27,11 +27,13 @@ import { createLogger, type Logger } from '@dt/observability';
 
 import { httpLogger } from './middleware/logger.js';
 import { requestId } from './middleware/request-id.js';
+import { authRoute } from './routes/auth.js';
 import { commandsRoute } from './routes/commands.js';
 import { devicesRoute } from './routes/devices.js';
 import { healthRoute } from './routes/health.js';
 import { sceneRoute } from './routes/scene.js';
 import { RealtimeBroadcaster } from './realtime/broadcaster.js';
+import { MockAuthStore } from './auth/mock-store.js';
 import { DevMockSource } from './realtime/dev-source.js';
 
 const env = readAppEnv();
@@ -48,6 +50,8 @@ app.use('*', httpLogger(logger));
 app.route('/', healthRoute);
 app.route('/api', devicesRoute);
 app.route('/api', sceneRoute);
+const authStore = new MockAuthStore();
+app.route('/api/auth', authRoute(authStore));
 app.route('/api', commandsRoute);
 
 app.get(
