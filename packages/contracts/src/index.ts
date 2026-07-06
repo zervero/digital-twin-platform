@@ -21,3 +21,17 @@ export type {
   ApiErrorPayload,
   CommandAcceptedResponse,
 } from './api.js';
+
+// Auth (V2.1)
+export type {
+  AuthErrorCode,
+  AuthSession,
+  AuthState,
+  LoginRequest,
+  LoginResponse,
+  MeResponse,
+  Permission,
+  Role,
+  User,
+} from './auth.js';
+export { ROLE_PERMISSIONS, permissionsFor } from './auth.js';
