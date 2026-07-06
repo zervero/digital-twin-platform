@@ -24,19 +24,40 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Reject obviously-busy ports up front so we never end up testing a
+# BFF we did not start.
+if lsof -i ":$PORT" -sTCP:LISTEN >/dev/null 2>&1; then
+  echo "[smoke] port $PORT already in use; set PORT to a free port"
+  exit 1
+fi
+
 echo "[smoke] starting bff on :$PORT (log: $LOG_FILE)"
-(cd "$(dirname "$0")/.." && pnpm --filter @dt/bff dev) > "$LOG_FILE" 2>&1 &
+# Force dev mode: the smoke fundamentally needs the DevMockSource
+# to emit device:list-updated events, and the mock source is
+# gated on NODE_ENV != production. This smoke is the dev-mode
+# contract; production behavior is exercised separately.
+(cd "$(dirname "$0")/.." && PORT="$PORT" NODE_ENV=development pnpm --filter @dt/bff dev) > "$LOG_FILE" 2>&1 &
 BFF_PID=$!
 
-# Wait for /health up to 15s.
-for _ in $(seq 1 30); do
-  if curl -sf "http://localhost:$PORT/health" >/dev/null 2>&1; then
+# Wait for OUR BFF to log "listening" — never trust an unauthenticated
+# `curl /health` to be answered by the process we started. The pattern
+# matches both pretty (`[info] listening {"port":...}`) and json
+# (`{"msg":"listening",...}`) modes.
+for _ in $(seq 1 60); do
+  if grep -Eq '(listening|"msg":"listening")' "$LOG_FILE" 2>/dev/null; then
     break
   fi
   sleep 0.5
 done
+if ! grep -Eq '(listening|"msg":"listening")' "$LOG_FILE" 2>/dev/null; then
+  echo "[smoke] bff never logged 'listening'"
+  cat "$LOG_FILE"
+  exit 1
+fi
+
+# Belt-and-suspenders: also confirm /health is reachable.
 if ! curl -sf "http://localhost:$PORT/health" >/dev/null; then
-  echo "[smoke] bff never came up"
+  echo "[smoke] /health not reachable"
   cat "$LOG_FILE"
   exit 1
 fi
@@ -83,7 +104,7 @@ ws.on('close', () => {
 });
 "
 
-# Verify the BFF logged the request id we used for /health.
+# Verify OUR BFF logged the request id we used for /health.
 if ! grep -q "\"requestId\":\"$REQUEST_ID\"" "$LOG_FILE" \
   && ! grep -q "\"requestId\": \"$REQUEST_ID\"" "$LOG_FILE" \
   && ! grep -q "requestId.*$REQUEST_ID" "$LOG_FILE"; then
