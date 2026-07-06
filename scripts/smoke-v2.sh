@@ -141,6 +141,30 @@ echo "$POST_LOGOUT_ME" | grep -q '"session":null' \
   || { echo "[smoke] /me after logout should be null"; cat "$LOG_FILE"; exit 1; }
 echo "[smoke] logout invalidated the token"
 
+# Exercise the V2.2 plugin manifest validator. The runtime
+# lives in the workspace's `packages/plugin-runtime`. We
+# import it via tsx (already a workspace dep) so we don't
+# need a build step in the smoke.
+node --import tsx --input-type=module -e "
+import { validatePluginManifest } from '@dt/plugin-runtime';
+const r = validatePluginManifest({
+  id: 'hello',
+  name: 'Hello Plugin',
+  version: '1.0.0',
+  vendor: '@dt/samples',
+  permissions: ['auth:login'],
+});
+if (!r.ok) {
+  console.error('[smoke] hello-plugin manifest rejected:', r.errors);
+  process.exit(1);
+}
+if (r.manifest.id !== 'hello') {
+  console.error('[smoke] hello-plugin manifest id mismatch:', r.manifest.id);
+  process.exit(1);
+}
+console.log('[smoke] hello-plugin manifest validated');
+"
+
 # Verify OUR BFF logged the request id we used for /health.
 if ! grep -q "\"requestId\":\"$REQUEST_ID\"" "$LOG_FILE" \
   && ! grep -q "\"requestId\": \"$REQUEST_ID\"" "$LOG_FILE" \
