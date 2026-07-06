@@ -17,12 +17,56 @@ describe('readAppEnv production validation', () => {
     expect(env.authProvider).toBe('mock');
   });
 
-  it('passes in production with AUTH_PROVIDER=oidc (reserved for V3)', () => {
+  it('passes in production with AUTH_PROVIDER=oidc when OIDC vars are complete', () => {
     const env = readAppEnv({
       NODE_ENV: 'production',
       AUTH_PROVIDER: 'oidc',
+      OIDC_ISSUER_URL: 'https://idp.example.test/',
+      OIDC_CLIENT_ID: 'digital-twin',
+      OIDC_AUDIENCE: 'digital-twin-platform',
+      OIDC_SCOPES: 'openid profile device:read',
     });
     expect(env.authProvider).toBe('oidc');
+    expect(env.oidc).toEqual({
+      issuerUrl: 'https://idp.example.test/',
+      clientId: 'digital-twin',
+      audience: 'digital-twin-platform',
+      scopes: ['openid', 'profile', 'device:read'],
+    });
+  });
+
+  it('throws in production when AUTH_PROVIDER=oidc and OIDC vars are missing', () => {
+    expect(() =>
+      readAppEnv({
+        NODE_ENV: 'production',
+        AUTH_PROVIDER: 'oidc',
+        OIDC_ISSUER_URL: 'https://idp.example.test/',
+      }),
+    ).toThrow(/OIDC_CLIENT_ID|OIDC_AUDIENCE/);
+  });
+
+  it('exposes OIDC env as undefined in production+oidc without OIDC vars but lets BFF decide', () => {
+    // Dev / test permissive path: the OIDC config is undefined
+    // and the BFF picks the mock provider instead. Production
+    // throws in the test above.
+    const env = readAppEnv({
+      NODE_ENV: 'development',
+      AUTH_PROVIDER: 'oidc',
+    });
+    expect(env.authProvider).toBe('oidc');
+    expect(env.oidc).toBeUndefined();
+  });
+
+  it('passes OIDC_JWKS_URI override through', () => {
+    const env = readAppEnv({
+      NODE_ENV: 'development',
+      AUTH_PROVIDER: 'oidc',
+      OIDC_ISSUER_URL: 'https://idp.example.test/',
+      OIDC_CLIENT_ID: 'digital-twin',
+      OIDC_AUDIENCE: 'digital-twin-platform',
+      OIDC_JWKS_URI: 'https://idp.example.test/jwks.json',
+    });
+    expect(env.oidc?.jwksUri).toBe('https://idp.example.test/jwks.json');
   });
 
   it('throws EnvValidationError in production when AUTH_PROVIDER is missing', () => {
