@@ -1,14 +1,16 @@
 # V2 Overview
 
 > Active. Records the scope and ordering for V2 work, with
-> per-release ship status. V2.0 and V2.1 are shipped; V2.2 /
-> V2.3 are planned but not yet started.
+> per-release ship status. V2.0, V2.1, and V2.2 are shipped; V2.3
+> is planned but not yet started.
 >
 > For the closed-out V2.0 detail (acceptance matrix, task
 > matrix, known limitations), see
 > [`docs/adr/0008-v2-closure.md`](../adr/0008-v2-closure.md);
 > for V2.1, see
-> [`docs/adr/0009-v2.1-closure.md`](../adr/0009-v2.1-closure.md).
+> [`docs/adr/0009-v2.1-closure.md`](../adr/0009-v2.1-closure.md);
+> for V2.2, see
+> [`docs/adr/0010-v2.2-closure.md`](../adr/0010-v2.2-closure.md).
 
 ## Context
 
@@ -43,8 +45,8 @@ already in place since V1.0.0 — see `.github/workflows/ci.yml`.)
 ## Track ordering
 
 ```
-V2.0 ✅  ──►  V2.1  ──►  V2.2  ──►  V2.3
-    A,C          D          B          E
+V2.0 ✅  ──►  V2.1 ✅  ──►  V2.2 ✅  ──►  V2.3
+    A,C          D           B            E
 ```
 
 - **V2.0 (Tracks A + C) ✅ shipped as v2.0.0 (2026-07-06)**: realtime + observability. Smallest delta
@@ -54,11 +56,11 @@ V2.0 ✅  ──►  V2.1  ──►  V2.2  ──►  V2.3
   model in `@dt/contracts`, plumbed through `@dt/api-client`
   and the BFF, consumed from `@dt/app-shell` via composables.
   See [ADR 0009](../adr/0009-v2.1-closure.md).
-- **V2.2 (Track B)**: plugin runtime. The plugin model benefits from
-  stable realtime + auth + observability underneath it; building it
-  first would force us to redesign. Implementation plan drafted in
-  [`docs/plans/v2.2-implementation-plan.md`](./v2.2-implementation-plan.md);
-  awaiting sign-off.
+- **V2.2 (Track B) ✅ shipped as v2.2.0 (2026-07-06)**: plugin runtime. Host-agnostic
+  `@dt/plugin-runtime` (manifest validator, registry, extension
+  types) plus a Pinia store, composables, and a working sample
+  plugin in `@dt/app-shell`. Permission gate reuses the V2.1
+  `Permission` union. See [ADR 0010](../adr/0010-v2.2-closure.md).
 - **V2.3 (Track E)**: production deployment. Last because everything
   else needs to be stable before we can write a Dockerfile we
   actually want to keep.
@@ -110,7 +112,7 @@ These are explicitly **not** in V2.0. They live in later V2.x:
 | --- | --- | --- | --- |
 | V2.0 (A+C) | ✅ shipped as `digital-twin-platform@2.0.0` | 2026-07-06 | [0008](../adr/0008-v2-closure.md) |
 | V2.1 (D) | ✅ shipped as `digital-twin-platform@2.1.0` | 2026-07-06 | [0009](../adr/0009-v2.1-closure.md) |
-| V2.2 (B) | ⏳ planned — plugin runtime | — | — |
+| V2.2 (B) | ✅ shipped as `digital-twin-platform@2.2.0` | 2026-07-06 | [0010](../adr/0010-v2.2-closure.md) |
 | V2.3 (E) | ⏳ planned — production deployment | — | — |
 
 ## Open questions
@@ -191,6 +193,63 @@ V3:
   The mock store accepts any well-formed email and assigns the
   `viewer` role so the demo "just works".
 
+
+## V2.2 in detail
+
+### V2.2 scope
+
+6 implementation tasks across `@dt/plugin-runtime`,
+`@dt/app-shell`, and `apps/web`, mirroring the V2.0 and V2.1
+plans. The full source-of-truth is
+[`docs/plans/v2.2-implementation-plan.md`](./v2.2-implementation-plan.md);
+the closed-out record is
+[ADR 0010](../adr/0010-v2.2-closure.md).
+
+| # | Task | Package(s) | Acceptance item |
+| --- | --- | --- | --- |
+| 1 | Plugin manifest validator + registry/extension stubs | `@dt/plugin-runtime` | `validatePluginManifest(input): {ok, manifest/errors}` with `PluginManifestError.code` ∈ `INVALID_ID`, `INVALID_VERSION`, `UNKNOWN_PERMISSION`, `MISSING_FIELD` |
+| 2 | Plugin registry + extension shapes (full impl) | `@dt/plugin-runtime` | `createPluginRegistry()` with sequential activation, LIFO deactivation, `PERMISSION_DENIED` on missing grants, `state: 'errored'` not blocking the next plugin |
+| 3 | Plugin store + panel/menu composables | `@dt/app-shell` | `usePluginStore` (Pinia) with `entries`, `panels`, `menuItems` computeds; `usePluginPanels` / `usePluginMenu` flatten active plugins' extensions |
+| 4 | Bootstrap signature + AppShell slot + event hook | `@dt/app-shell` | `bootstrapAppShell({apiClient, host, plugins?, realtime?})` hydrates auth, then activates plugins after permission gating, then mounts `AppShell` |
+| 5 | Sample plugin + bootstrap integration test | `apps/web`, `@dt/app-shell` | `helloPlugin` wires into `apps/web`; integration test drives `bootstrapAppShell({plugins:[reg]})` and asserts the panel surfaces via `usePluginPanels()` |
+| 6 | Extend `scripts/smoke-v2.sh` with manifest validation | `scripts/` | New `[smoke] hello-plugin manifest validated` line prints before the existing `[smoke] OK` |
+
+### V2.2 acceptance (proposed)
+
+| # | Item | How to verify |
+| --- | --- | --- |
+| 1 | `pnpm typecheck` green | CI |
+| 2 | `pnpm test` green, including 5 manifest + 6 registry + 3 plugin-store + 1 bootstrap tests | CI |
+| 3 | `pnpm lint` clean | CI |
+| 4 | `pnpm build` green | CI |
+| 5 | `pnpm smoke:v2` green (now also validates the hello plugin's manifest) | CI |
+| 6 | `validatePluginManifest` rejects a malformed id, version, and unknown permission | unit |
+| 7 | `PluginRegistry.activateAll` blocks a plugin whose required permission is missing, with `state: 'errored'` and `error.code: 'PERMISSION_DENIED'` | unit |
+| 8 | `bootstrapAppShell({ plugins: [helloPlugin] })` activates the plugin and `usePluginPanels()` returns its panel | integration |
+| 9 | The hello plugin's panel renders inside the `AppShell` sidebar in `pnpm dev:web` | manual |
+
+### V2.2 non-goals
+
+These are explicitly **not** in V2.2. They live in V2.3 or V3:
+
+- Real plugin sandboxing (`iframe` / `Worker` / signed manifests).
+  The trust model is "operator reviewed" in V2.2.
+- URL-based dynamic plugin loading. The host passes a static
+  `readonly PluginRegistration[]`; no remote fetch, no `eval`.
+- `provide:commands` extension. Reserved in the type union but
+  not surfaced in V2.2.
+- Permission enforcement on existing BFF routes. Carried over
+  from V2.1 — `/api/devices`, `/api/scene`, `/api/commands`,
+  `/api/stream` keep their open access.
+- Multi-tenant workspace model (V3, spec #7).
+- Audit log events for plugin lifecycle (V3, spec #8).
+- Plugin configuration / settings UI. The host decides which
+  registrations to pass; that is the entire config surface.
+- Plugin-side data fetching through `PluginContext`. The
+  context is intentionally narrow (`grantedPermissions`,
+  `subscribe`); a plugin that wants the `ApiClient` imports
+  it directly.
+
 ## Cross-references
 
 - V1 dev spec §8 (V2 Roadmap):
@@ -200,6 +259,7 @@ V3:
 - ADR 0007 (V2 roadmap): `docs/adr/0007-v2-roadmap.md`
 - ADR 0008 (V2.0 closure): `docs/adr/0008-v2-closure.md`
 - ADR 0009 (V2.1 closure): `docs/adr/0009-v2.1-closure.md`
+- ADR 0010 (V2.2 closure): `docs/adr/0010-v2.2-closure.md`
 - V2.1 plan: `docs/plans/v2.1-implementation-plan.md`
 - V2.2 plan: `docs/plans/v2.2-implementation-plan.md`
 - Workspace rules: `docs/architecture/workspace.md`
