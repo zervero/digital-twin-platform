@@ -1,23 +1,35 @@
 /**
  * @dt/observability
  *
- * V2 boundary. In V1 we ship a thin console logger. V2 adds structured logs,
- * request tracing, and metrics.
+ * V2 boundary. In V1 we shipped a thin console logger. V2 adds structured
+ * logs (JSON or pretty), a `sink` injection point for tests, and request
+ * tracing support via child loggers.
+ *
+ * The default format is `json` in production (`NODE_ENV=production`) and
+ * `pretty` otherwise. Pass `format` to override.
  */
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
+export type LogFormat = 'json' | 'pretty';
+
+export interface LogContext {
+  [key: string]: unknown;
+}
+
 export interface Logger {
-  debug(message: string, context?: Record<string, unknown>): void;
-  info(message: string, context?: Record<string, unknown>): void;
-  warn(message: string, context?: Record<string, unknown>): void;
-  error(message: string, context?: Record<string, unknown>): void;
-  child(bindings: Record<string, unknown>): Logger;
+  debug(message: string, context?: LogContext): void;
+  info(message: string, context?: LogContext): void;
+  warn(message: string, context?: LogContext): void;
+  error(message: string, context?: LogContext): void;
+  child(bindings: LogContext): Logger;
 }
 
 export interface LoggerOptions {
   level?: LogLevel;
-  bindings?: Record<string, unknown>;
+  format?: LogFormat;
+  bindings?: LogContext;
+  sink?: (line: string) => void;
 }
 
 const LEVEL_ORDER: Record<LogLevel, number> = {
@@ -27,37 +39,79 @@ const LEVEL_ORDER: Record<LogLevel, number> = {
   error: 40,
 };
 
-class ConsoleLogger implements Logger {
-  constructor(
-    private readonly level: LogLevel = 'info',
-    private readonly bindings: Record<string, unknown> = {},
-  ) {}
+function defaultFormat(): LogFormat {
+  return process.env['NODE_ENV'] === 'production' ? 'json' : 'pretty';
+}
 
-  debug(message: string, context?: Record<string, unknown>): void {
+function defaultSink(): (line: string) => void {
+  return (line) => {
+    process.stdout.write(line + '\n');
+  };
+}
+
+function emit(
+  format: LogFormat,
+  level: LogLevel,
+  message: string,
+  context: LogContext,
+  sink: (line: string) => void,
+): void {
+  if (format === 'json') {
+    sink(JSON.stringify({ time: new Date().toISOString(), level, msg: message, ...context }));
+    return;
+  }
+  const tags = Object.keys(context).length ? ' ' + JSON.stringify(context) : '';
+  sink(`[${level}] ${message}${tags}`);
+}
+
+function levelForOrder(order: number): LogLevel {
+  if (order <= LEVEL_ORDER.debug) return 'debug';
+  if (order <= LEVEL_ORDER.info) return 'info';
+  if (order <= LEVEL_ORDER.warn) return 'warn';
+  return 'error';
+}
+
+class StructuredLogger implements Logger {
+  private readonly levelOrder: number;
+  private readonly format: LogFormat;
+  private readonly bindings: LogContext;
+  private readonly sink: (line: string) => void;
+
+  constructor(options: LoggerOptions) {
+    const level = options.level ?? 'info';
+    this.levelOrder = LEVEL_ORDER[level];
+    this.format = options.format ?? defaultFormat();
+    this.bindings = options.bindings ?? {};
+    this.sink = options.sink ?? defaultSink();
+  }
+
+  debug(message: string, context: LogContext = {}): void {
     this.log('debug', message, context);
   }
-  info(message: string, context?: Record<string, unknown>): void {
+  info(message: string, context: LogContext = {}): void {
     this.log('info', message, context);
   }
-  warn(message: string, context?: Record<string, unknown>): void {
+  warn(message: string, context: LogContext = {}): void {
     this.log('warn', message, context);
   }
-  error(message: string, context?: Record<string, unknown>): void {
+  error(message: string, context: LogContext = {}): void {
     this.log('error', message, context);
   }
-  child(bindings: Record<string, unknown>): Logger {
-    return new ConsoleLogger(this.level, { ...this.bindings, ...bindings });
+  child(bindings: LogContext): Logger {
+    return new StructuredLogger({
+      level: levelForOrder(this.levelOrder),
+      format: this.format,
+      bindings: { ...this.bindings, ...bindings },
+      sink: this.sink,
+    });
   }
 
-  private log(level: LogLevel, message: string, context?: Record<string, unknown>): void {
-    if (LEVEL_ORDER[level] < LEVEL_ORDER[this.level]) return;
-    const payload = { ...this.bindings, ...context };
-    const fn =
-      level === 'error' ? console.error : level === 'warn' ? console.warn : console.log;
-    fn(`[${level}] ${message}`, payload);
+  private log(level: LogLevel, message: string, context: LogContext): void {
+    if (LEVEL_ORDER[level] < this.levelOrder) return;
+    emit(this.format, level, message, { ...this.bindings, ...context }, this.sink);
   }
 }
 
 export function createLogger(options: LoggerOptions = {}): Logger {
-  return new ConsoleLogger(options.level, options.bindings);
+  return new StructuredLogger(options);
 }

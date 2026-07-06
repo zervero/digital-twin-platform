@@ -12,15 +12,17 @@
     }
   },
   "scripts": {
-    "test": "echo 'observability gets logger tests in V2'",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "mkdir -p dist && echo 'observability exports types only in V1' > dist/.gitkeep",
-    "clean": "rm -rf dist .turbo"
+    "clean": "rm -rf dist .turbo",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@dt/contracts": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
   }
 }
