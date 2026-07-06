@@ -12,7 +12,8 @@
     }
   },
   "scripts": {
-    "test": "echo 'app-shell is integration-tested in the web app'",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "vue-tsc --noEmit",
     "build": "mkdir -p dist && echo 'app-shell is bundled by apps/web, no separate JS build in V1' > dist/.gitkeep",
     "clean": "rm -rf dist .turbo"
@@ -22,13 +23,17 @@
     "@dt/contracts": "workspace:*",
     "@dt/device-domain": "workspace:*",
     "@dt/engine-sdk": "workspace:*",
+    "@dt/realtime": "workspace:*",
     "@dt/scene-domain": "workspace:*",
     "@dt/ui-kit": "workspace:*",
     "pinia": "^2.2.6"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^15.11.7",
     "typescript": "^5.6.3",
+    "vitest": "^2.1.5",
     "vue": "^3.5.13",
     "vue-tsc": "^2.1.10"
   },

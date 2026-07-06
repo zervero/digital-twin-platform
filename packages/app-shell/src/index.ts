@@ -21,6 +21,7 @@ export { provideApiClient, ApiClientKey } from './stores/api-store.js';
 export { default as DevicePanel } from './components/DevicePanel.vue';
 export { default as SceneViewport } from './components/SceneViewport.vue';
 export { default as TopToolbar } from './components/TopToolbar.vue';
+export { useDeviceStream } from './composables/useDeviceStream.js';
 
 /**
  * Bootstrap helper. Creates a Vue app, installs Pinia, provides the API

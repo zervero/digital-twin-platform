@@ -4,6 +4,10 @@
  * Loads the device list from the injected API client, sorts by priority, and
  * exposes selection state. The selected device id is the source of truth for
  * the 3D viewport; the engine subscribes to changes via `watch`.
+ *
+ * V2 adds `setDevices` and `upsertDevice` so the realtime stream
+ * composable (`useDeviceStream`) can mirror server-pushed updates
+ * without going back through the API.
  */
 
 import { defineStore } from 'pinia';
@@ -51,6 +55,25 @@ export const useDeviceStore = defineStore('dt:devices', () => {
     selectedDeviceId.value = id;
   }
 
+  /** Replace the entire device list. Used by the realtime stream on
+   *  `device:list-updated`. */
+  function setDevices(next: Device[]): void {
+    devices.value = next;
+  }
+
+  /** Upsert one device by id. Used by the realtime stream on
+   *  `device:updated`. */
+  function upsertDevice(next: Device): void {
+    const idx = devices.value.findIndex((d) => d.id === next.id);
+    if (idx >= 0) {
+      const copy = devices.value.slice();
+      copy[idx] = next;
+      devices.value = copy;
+    } else {
+      devices.value = [...devices.value, next];
+    }
+  }
+
   return {
     devices,
     sortedDevices,
@@ -60,5 +83,7 @@ export const useDeviceStore = defineStore('dt:devices', () => {
     error,
     load,
     selectDevice,
+    setDevices,
+    upsertDevice,
   };
 });
