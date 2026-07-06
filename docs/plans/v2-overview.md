@@ -56,7 +56,9 @@ V2.0 ✅  ──►  V2.1  ──►  V2.2  ──►  V2.3
   See [ADR 0009](../adr/0009-v2.1-closure.md).
 - **V2.2 (Track B)**: plugin runtime. The plugin model benefits from
   stable realtime + auth + observability underneath it; building it
-  first would force us to redesign.
+  first would force us to redesign. Implementation plan drafted in
+  [`docs/plans/v2.2-implementation-plan.md`](./v2.2-implementation-plan.md);
+  awaiting sign-off.
 - **V2.3 (Track E)**: production deployment. Last because everything
   else needs to be stable before we can write a Dockerfile we
   actually want to keep.
@@ -199,4 +201,5 @@ V3:
 - ADR 0008 (V2.0 closure): `docs/adr/0008-v2-closure.md`
 - ADR 0009 (V2.1 closure): `docs/adr/0009-v2.1-closure.md`
 - V2.1 plan: `docs/plans/v2.1-implementation-plan.md`
+- V2.2 plan: `docs/plans/v2.2-implementation-plan.md`
 - Workspace rules: `docs/architecture/workspace.md`
