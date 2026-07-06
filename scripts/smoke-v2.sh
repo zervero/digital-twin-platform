@@ -104,6 +104,43 @@ ws.on('close', () => {
 });
 "
 
+# Exercise the V2.1 auth flow: login, /me with bearer, logout, /me
+# should drop back to null. The mock auth store assigns the
+# `viewer` role, which is enough to confirm the round-trip.
+LOGIN_BODY='{"email":"smoke@example.com"}'
+LOGIN_RES="$(curl -sf -X POST -H 'content-type: application/json' \
+  -d "$LOGIN_BODY" "http://localhost:$PORT/api/auth/login")" \
+  || { echo "[smoke] login failed"; cat "$LOG_FILE"; exit 1; }
+TOKEN="$(printf '%s' "$LOGIN_RES" \
+  | node --input-type=module -e "
+import process from 'node:process';
+let buf = '';
+process.stdin.on('data', (c) => buf += c);
+process.stdin.on('end', () => {
+  const j = JSON.parse(buf);
+  process.stdout.write(j.session.token);
+});
+")"
+[ -n "$TOKEN" ] || { echo "[smoke] login returned no token"; cat "$LOG_FILE"; exit 1; }
+echo "[smoke] logged in as smoke@example.com"
+
+ME_RES="$(curl -sf -H "authorization: Bearer $TOKEN" \
+  "http://localhost:$PORT/api/auth/me")" \
+  || { echo "[smoke] /me failed"; cat "$LOG_FILE"; exit 1; }
+echo "$ME_RES" | grep -q '"email":"smoke@example.com"' \
+  || { echo "[smoke] /me did not echo the logged-in email"; cat "$LOG_FILE"; exit 1; }
+echo "[smoke] /me echoed the logged-in email"
+
+curl -sf -X POST -H "authorization: Bearer $TOKEN" \
+  -o /dev/null "http://localhost:$PORT/api/auth/logout" \
+  || { echo "[smoke] logout failed"; cat "$LOG_FILE"; exit 1; }
+
+POST_LOGOUT_ME="$(curl -s -H "authorization: Bearer $TOKEN" \
+  "http://localhost:$PORT/api/auth/me")"
+echo "$POST_LOGOUT_ME" | grep -q '"session":null' \
+  || { echo "[smoke] /me after logout should be null"; cat "$LOG_FILE"; exit 1; }
+echo "[smoke] logout invalidated the token"
+
 # Verify OUR BFF logged the request id we used for /health.
 if ! grep -q "\"requestId\":\"$REQUEST_ID\"" "$LOG_FILE" \
   && ! grep -q "\"requestId\": \"$REQUEST_ID\"" "$LOG_FILE" \
