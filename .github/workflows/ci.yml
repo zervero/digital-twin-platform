@@ -54,3 +54,12 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Run V2 smoke
+        # Boots the BFF against the freshly built repo, exercises
+        # /health, /api/stream, and the structured logger. This is
+        # the single signal that the realtime path is end-to-end
+        # healthy before we cut a release.
+        run: pnpm smoke:v2
+        env:
+          PORT: 3001
