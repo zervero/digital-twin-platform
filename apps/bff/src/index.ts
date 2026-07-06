@@ -8,14 +8,25 @@
  * WebSocket support uses @hono/node-server v2's built-in
  * `upgradeWebSocket` plus a `ws.WebSocketServer` with `noServer: true`
  * so the same HTTP server handles both HTTP and WS.
+ *
+ * Every HTTP request flows through `requestId()` then `httpLogger()`:
+ * the first stamps a UUID on `c.var.requestId`, the second emits one
+ * structured log line per response. WebSocket upgrades are not covered
+ * by `httpLogger` (they never return an HTTP response), but the
+ * `requestId` they receive via the upgrade headers still rides along
+ * on any log line we add inside the route later.
  */
 
 import { serve, upgradeWebSocket } from '@hono/node-server';
 import { Hono } from 'hono';
 import { WebSocketServer } from 'ws';
 
+import { readAppEnv } from '@dt/config';
 import { withTimestamp } from '@dt/contracts';
+import { createLogger, type Logger } from '@dt/observability';
 
+import { httpLogger } from './middleware/logger.js';
+import { requestId } from './middleware/request-id.js';
 import { commandsRoute } from './routes/commands.js';
 import { devicesRoute } from './routes/devices.js';
 import { healthRoute } from './routes/health.js';
@@ -23,11 +34,16 @@ import { sceneRoute } from './routes/scene.js';
 import { RealtimeBroadcaster } from './realtime/broadcaster.js';
 import { DevMockSource } from './realtime/dev-source.js';
 
-const PORT = Number(process.env['PORT'] ?? 3001);
-const NODE_ENV = process.env['NODE_ENV'] ?? 'development';
+const env = readAppEnv();
+const logger: Logger = createLogger({ level: env.logLevel });
+const broadcaster = new RealtimeBroadcaster();
 
 const app = new Hono();
-const broadcaster = new RealtimeBroadcaster();
+
+// Cross-cutting middleware: request id first, http logger second so
+// the logger can read the id off the context for child bindings.
+app.use('*', requestId());
+app.use('*', httpLogger(logger));
 
 app.route('/', healthRoute);
 app.route('/api', devicesRoute);
@@ -73,7 +89,7 @@ app.notFound((c) =>
 );
 
 app.onError((err, c) => {
-  console.error('[bff] unhandled error', err);
+  logger.error('unhandled error', { error: err.message });
   return c.json({ error: 'InternalError', message: err.message }, 500);
 });
 
@@ -81,17 +97,17 @@ const wss = new WebSocketServer({ noServer: true });
 serve(
   {
     fetch: app.fetch,
-    port: PORT,
+    port: env.port,
     websocket: { server: wss },
   },
   (info) => {
-    console.log(`[bff] listening on http://localhost:${info.port}`);
+    logger.info('listening', { port: info.port });
   },
 );
 
 // Start the dev mock source in non-production environments.
-if (NODE_ENV !== 'production') {
+if (env.nodeEnv !== 'production') {
   const dev = new DevMockSource({ broadcaster });
   dev.start();
-  console.log('[bff] dev mock source started');
+  logger.info('dev mock source started');
 }

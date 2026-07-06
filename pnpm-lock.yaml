@@ -41,9 +41,15 @@ importers:
 
   apps/bff:
     dependencies:
+      '@dt/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       '@dt/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@dt/observability':
+        specifier: workspace:*
+        version: link:../../packages/observability
       '@dt/realtime':
         specifier: workspace:*
         version: link:../../packages/realtime
