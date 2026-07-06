@@ -3,6 +3,10 @@
  *
  * Wires `MockAuthStore` to Hono. The real provider drops in here
  * behind the same `AuthStore` interface in V3.
+ *
+ * The `/_protected` route is the demo target for `requiresPermission`.
+ * In V2.2 it can move into a real route module once plugin
+ * permissions are defined.
  */
 
 import { Hono } from 'hono';
@@ -13,6 +17,7 @@ import {
 } from '@dt/contracts';
 
 import { AuthError, type AuthStore } from '../auth/mock-store.js';
+import { requiresPermission } from '../middleware/requires-permission.js';
 
 function extractBearer(header: string | undefined): string {
   if (!header) return '';
@@ -50,6 +55,13 @@ export function authRoute(store: AuthStore): Hono {
     await store.logout(token);
     return c.body(null, 204);
   });
+
+  // Demo target: any user with `device:write` is allowed through.
+  // Used by the V2.1 smoke to confirm the middleware plumbs roles
+  // from the token into the request context.
+  app.get('/_protected', requiresPermission(store, 'device:write'), (c) =>
+    c.json({ ok: true, user: c.get('user')?.email ?? null }),
+  );
 
   return app;
 }
