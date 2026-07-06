@@ -1,12 +1,14 @@
 # V2 Overview
 
 > Active. Records the scope and ordering for V2 work, with
-> per-release ship status. V2.0 is shipped; V2.1 / V2.2 / V2.3
-> are planned but not yet started.
+> per-release ship status. V2.0 and V2.1 are shipped; V2.2 /
+> V2.3 are planned but not yet started.
 >
 > For the closed-out V2.0 detail (acceptance matrix, task
 > matrix, known limitations), see
-> [`docs/adr/0008-v2-closure.md`](../adr/0008-v2-closure.md).
+> [`docs/adr/0008-v2-closure.md`](../adr/0008-v2-closure.md);
+> for V2.1, see
+> [`docs/adr/0009-v2.1-closure.md`](../adr/0009-v2.1-closure.md).
 
 ## Context
 
@@ -48,9 +50,10 @@ V2.0 ✅  ──►  V2.1  ──►  V2.2  ──►  V2.3
 - **V2.0 (Tracks A + C) ✅ shipped as v2.0.0 (2026-07-06)**: realtime + observability. Smallest delta
   from V1 that makes the system *deployable* in the loose sense
   (live data + structured logs). See [ADR 0008](../adr/0008-v2-closure.md).
-- **V2.1 (Track D)**: auth contracts. Needed before V3 multi-tenancy.
-  Doing it now keeps the realtime and plugin work from baking in
-  assumptions that the auth model has to undo later.
+- **V2.1 (Track D) ✅ shipped as v2.1.0 (2026-07-06)**: auth contracts. Stable auth + permission
+  model in `@dt/contracts`, plumbed through `@dt/api-client`
+  and the BFF, consumed from `@dt/app-shell` via composables.
+  See [ADR 0009](../adr/0009-v2.1-closure.md).
 - **V2.2 (Track B)**: plugin runtime. The plugin model benefits from
   stable realtime + auth + observability underneath it; building it
   first would force us to redesign.
@@ -104,7 +107,7 @@ These are explicitly **not** in V2.0. They live in later V2.x:
 | Release | Status | Date | ADR |
 | --- | --- | --- | --- |
 | V2.0 (A+C) | ✅ shipped as `digital-twin-platform@2.0.0` | 2026-07-06 | [0008](../adr/0008-v2-closure.md) |
-| V2.1 (D) | ⏳ planned — auth contracts | — | — |
+| V2.1 (D) | ✅ shipped as `digital-twin-platform@2.1.0` | 2026-07-06 | [0009](../adr/0009-v2.1-closure.md) |
 | V2.2 (B) | ⏳ planned — plugin runtime | — | — |
 | V2.3 (E) | ⏳ planned — production deployment | — | — |
 
@@ -134,6 +137,58 @@ written. Each one has a recommended default; speak up if you disagree.
    **Default: timer-based source in V1 mock data, emitting updates
    every 2-5s.** No new upstream service in V2.0.
 
+## V2.1 in detail
+
+### V2.1 scope
+
+6 implementation tasks + a verification matrix, mirroring the
+V1 and V2.0 plans. The full source-of-truth is
+[`docs/plans/v2.1-implementation-plan.md`](./v2.1-implementation-plan.md);
+the closed-out record is
+[ADR 0009](../adr/0009-v2.1-closure.md).
+
+| # | Task | Package(s) | Acceptance item |
+| --- | --- | --- | --- |
+| 1 | Add auth and role types to contracts | `@dt/contracts` | `Role` / `Permission` / `User` / `AuthSession` / `AuthState` (discriminated union) / `LoginRequest` / `LoginResponse` / `MeResponse` / `AuthErrorCode` + `ROLE_PERMISSIONS` + `permissionsFor` |
+| 2 | Add `getMe` / `login` / `logout` / `setAuthToken` to api-client, with bearer token held in a closure | `@dt/api-client` | New methods work; `Authorization: Bearer <token>` sent when a token is set; `request` handles 204 / empty body |
+| 3 | `MockAuthStore` + `/api/auth/{me,login,logout}` route module | `@dt/bff` | Round-trip: anonymous `/me` returns `{session:null}`; `/login` returns the session; `/me` with the token returns the session; `/logout` returns 204; `/me` after logout returns `{session:null}` |
+| 4 | `requiresPermission(store, perm)` middleware + `/api/auth/_protected` demo route | `@dt/bff` | 401 on no / bad token, 403 on missing permission, otherwise sets `c.var.user` / `c.var.permissions` and calls `next()` |
+| 5 | `useAuthStore` (Pinia) + `useCurrentUser` + `usePermission` composables; hydrate in `bootstrapAppShell` | `@dt/app-shell` | `usePermission('device:write')` is reactive; `login` / `logout` / `refresh()` drive the state machine; token persisted to `sessionStorage` under `dt:auth:token` |
+| 6 | Extend `scripts/smoke-v2.sh` to walk login → me → logout | `scripts/` | New `[smoke] logged in`, `[smoke] /me echoed`, `[smoke] logout invalidated` lines print before the existing `[smoke] OK` |
+
+### V2.1 acceptance (proposed)
+
+| # | Item | How to verify |
+| --- | --- | --- |
+| 1 | `pnpm typecheck` green | CI |
+| 2 | `pnpm test` green, including 5 mock-store + 3 middleware + 3 app-shell auth tests | CI |
+| 3 | `pnpm lint` clean | CI |
+| 4 | `pnpm build` green | CI |
+| 5 | `pnpm smoke:v2` green (now includes auth flow) | CI |
+| 6 | `/api/auth/me` returns 200 + `{session:null}` anonymous, 200 with session after login | smoke |
+| 7 | `usePermission('device:write')` reactive, respects auth store | unit |
+
+### V2.1 non-goals
+
+These are explicitly **not** in V2.1. They live in later V2.x or
+V3:
+
+- Real auth provider (OAuth, SAML, JWT signing / verification).
+  The BFF ships a `MockAuthStore` behind an `AuthStore`
+  interface; V3 swaps in a real provider.
+- Permission enforcement on existing routes (`/api/devices`,
+  `/api/scene`, `/api/commands`, `/api/stream`). The middleware
+  ships and is exercised by `/api/auth/*` + `/api/auth/_protected`,
+  but pre-existing surfaces keep their open access.
+- Multi-tenant workspace model (V3, spec #7).
+- Audit log events (V3, spec #8).
+- Session persistence beyond `sessionStorage`. The token is
+  returned; storage is local to the tab. Cross-tab sharing,
+  cookies, and refresh tokens are V3.
+- Login form UX, password handling, MFA, account recovery.
+  The mock store accepts any well-formed email and assigns the
+  `viewer` role so the demo "just works".
+
 ## Cross-references
 
 - V1 dev spec §8 (V2 Roadmap):
@@ -142,4 +197,6 @@ written. Each one has a recommended default; speak up if you disagree.
 - ADR 0006 (V1 closure): `docs/adr/0006-v1-closure.md`
 - ADR 0007 (V2 roadmap): `docs/adr/0007-v2-roadmap.md`
 - ADR 0008 (V2.0 closure): `docs/adr/0008-v2-closure.md`
+- ADR 0009 (V2.1 closure): `docs/adr/0009-v2.1-closure.md`
+- V2.1 plan: `docs/plans/v2.1-implementation-plan.md`
 - Workspace rules: `docs/architecture/workspace.md`
