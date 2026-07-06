@@ -1,8 +1,12 @@
 # V2 Overview
 
-> Draft. Records the proposed scope and ordering for V2 work.
-> Once approved, this document becomes the input to per-track
-> implementation plans.
+> Active. Records the scope and ordering for V2 work, with
+> per-release ship status. V2.0 is shipped; V2.1 / V2.2 / V2.3
+> are planned but not yet started.
+>
+> For the closed-out V2.0 detail (acceptance matrix, task
+> matrix, known limitations), see
+> [`docs/adr/0008-v2-closure.md`](../adr/0008-v2-closure.md).
 
 ## Context
 
@@ -37,13 +41,13 @@ already in place since V1.0.0 — see `.github/workflows/ci.yml`.)
 ## Track ordering
 
 ```
-V2.0  ──►  V2.1  ──►  V2.2  ──►  V2.3
-  A,C       D          B          E
+V2.0 ✅  ──►  V2.1  ──►  V2.2  ──►  V2.3
+    A,C          D          B          E
 ```
 
-- **V2.0 (Tracks A + C)**: realtime + observability. Smallest delta
+- **V2.0 (Tracks A + C) ✅ shipped as v2.0.0 (2026-07-06)**: realtime + observability. Smallest delta
   from V1 that makes the system *deployable* in the loose sense
-  (live data + structured logs).
+  (live data + structured logs). See [ADR 0008](../adr/0008-v2-closure.md).
 - **V2.1 (Track D)**: auth contracts. Needed before V3 multi-tenancy.
   Doing it now keeps the realtime and plugin work from baking in
   assumptions that the auth model has to undo later.
@@ -95,6 +99,15 @@ These are explicitly **not** in V2.0. They live in later V2.x:
 - CI matrix on Windows (deferred to V2.3)
 - AI / plugins / marketplace (V3)
 
+## Release status
+
+| Release | Status | Date | ADR |
+| --- | --- | --- | --- |
+| V2.0 (A+C) | ✅ shipped as `digital-twin-platform@2.0.0` | 2026-07-06 | [0008](../adr/0008-v2-closure.md) |
+| V2.1 (D) | ⏳ planned — auth contracts | — | — |
+| V2.2 (B) | ⏳ planned — plugin runtime | — | — |
+| V2.3 (E) | ⏳ planned — production deployment | — | — |
+
 ## Open questions
 
 These need an answer before the V2.0 implementation plan can be
@@ -127,5 +140,6 @@ written. Each one has a recommended default; speak up if you disagree.
   `/Users/zengxiangrong/Desktop/digital-twin-platform-codex-dev-doc.md`
 - ADR 0003 (BFF layer): `docs/adr/0003-bff-layer.md`
 - ADR 0006 (V1 closure): `docs/adr/0006-v1-closure.md`
-- ADR 0007 (V2 roadmap): `docs/adr/0007-v2-roadmap.md` (proposed)
+- ADR 0007 (V2 roadmap): `docs/adr/0007-v2-roadmap.md`
+- ADR 0008 (V2.0 closure): `docs/adr/0008-v2-closure.md`
 - Workspace rules: `docs/architecture/workspace.md`
