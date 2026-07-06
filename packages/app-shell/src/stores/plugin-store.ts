@@ -5,17 +5,25 @@
  * and menu items are derived `ComputedRef`s that re-run when
  * the registry's `subscribe` callback fires.
  *
- * The activation context's `subscribe` is wired to the
- * realtime stream by `attachRealtime` (added in T4). Without
- * it, `event-subscriber` extensions never receive events,
- * but `ui-panel` and `menu-item` extensions still work
- * because they don't need a stream.
+ * The realtime stream is wired by `attachRealtime` (called
+ * from `bootstrapAppShell`). Without it, `event-subscriber`
+ * extensions never receive events; `ui-panel` and
+ * `menu-item` extensions work fine because they don't need
+ * a stream.
+ *
+ * The activation context's `subscribe` returns the host's
+ * realtime subscription when a stream is attached, or a
+ * no-op otherwise. This lets a plugin call
+ * `ctx.subscribe(handler)` in its `activate` and get either
+ * a working subscription or a clean teardown, with no
+ * special-casing at the call site.
  */
 
 import { defineStore } from 'pinia';
 import { computed, inject, ref, shallowRef } from 'vue';
 
 import type { Permission } from '@dt/contracts';
+import type { RealtimeStream } from '@dt/realtime';
 import {
   type PluginContext,
   type PluginRegistry,
@@ -30,10 +38,8 @@ import { ApiClientKey } from './api-store.js';
 export const usePluginStore = defineStore('dt:plugins', () => {
   // The host injects the api client at bootstrap. The store
   // reads it lazily so the registry's `activate` callbacks
-  // can call `api.getDevices()` etc. T4 wires this through
-  // the activation context, but the store already checks for
-  // it here so `activateAll` fails fast with a clear message
-  // if the host forgot `provideApiClient`.
+  // can call `api.getDevices()` etc. activateAll fails fast
+  // with a clear message if the host forgot provideApiClient.
   const api = inject(ApiClientKey);
 
   const registry = shallowRef<PluginRegistry>(createPluginRegistry());
@@ -54,6 +60,30 @@ export const usePluginStore = defineStore('dt:plugins', () => {
     registry.value = r;
     entriesRaw.value = [...r.list()];
     track();
+  }
+
+  // Realtime wiring. `realtimeUnsub` is the store-level
+  // subscription that fans events out to active
+  // `event-subscriber` extensions; `stream` is the per-plugin
+  // source that `ctx.subscribe` reads from.
+  const stream = shallowRef<RealtimeStream | undefined>(undefined);
+  let realtimeUnsub: (() => void) | null = null;
+
+  function attachRealtime(s: RealtimeStream | undefined): void {
+    realtimeUnsub?.();
+    stream.value = s;
+    if (!s) return;
+    realtimeUnsub = s.subscribe((event) => {
+      for (const e of entriesRaw.value) {
+        if (e.state !== 'active') continue;
+        for (const ext of e.extensions) {
+          if (ext.kind !== 'event-subscriber') continue;
+          const sub = ext.subscriber;
+          if (sub.eventTypes && !sub.eventTypes.includes(event.type)) continue;
+          void sub.handle(event);
+        }
+      }
+    });
   }
 
   const entries = computed(() => entriesRaw.value);
@@ -86,12 +116,14 @@ export const usePluginStore = defineStore('dt:plugins', () => {
     }
     const ctx: PluginContext = {
       grantedPermissions: granted,
-      // No-op until T4 wires the realtime stream via
-      // `attachRealtime`. Plugins that subscribe to events
-      // need to wait for T4 (or run on a host that calls
-      // attachRealtime); V2.2 ui-panel / menu-item plugins
-      // don't need this.
-      subscribe: () => () => undefined,
+      // Forward to the host's realtime stream if attached.
+      // No-op otherwise; plugins that don't need events work
+      // either way.
+      subscribe: (fn) => {
+        const s = stream.value;
+        if (!s) return () => undefined;
+        return s.subscribe(fn);
+      },
     };
     await registry.value.activateAll(ctx);
     entriesRaw.value = [...registry.value.list()];
@@ -107,6 +139,7 @@ export const usePluginStore = defineStore('dt:plugins', () => {
     panels,
     menuItems,
     setRegistry,
+    attachRealtime,
     activateAll,
     deactivateAll,
   };

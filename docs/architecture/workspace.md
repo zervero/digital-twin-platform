@@ -15,7 +15,15 @@ will be enforced by a tooling check in V2. The allowed graph is:
 apps/web       -> app-shell, api-client, contracts, config
 apps/desktop   -> apps/web (built), contracts
 apps/bff       -> contracts
-app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scene-domain
+app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scene-domain, realtime, plugin-runtime
+# Notes:
+#   - realtime: V2.0 useDeviceStream added the consumer edge
+#     (commit e00bf0f). The runtime depends on contracts only;
+#     the consumer wiring is internal to app-shell.
+#   - plugin-runtime: V2.2 plugin runtime ships in T4. The
+#     runtime depends on contracts only; the activation
+#     context passes a structural PluginContext that the host
+#     satisfies with the concrete api-client / realtime.
 engine-sdk     -> contracts, three
 api-client     -> contracts
 device-domain  -> contracts
