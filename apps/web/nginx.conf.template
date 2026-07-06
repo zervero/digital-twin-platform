@@ -1,0 +1,35 @@
+# Web runtime nginx config. Templated only for ${BFF_UPSTREAM};
+# every other $var below is an nginx runtime variable that must
+# NOT be substituted by envsubst.
+server {
+  listen 80;
+  server_name _;
+  root /usr/share/nginx/html;
+  index index.html;
+
+  # SPA fallback: any unknown path serves index.html so the
+  # client-side router can take over.
+  location / {
+    try_files $uri /index.html;
+  }
+
+  # API reverse proxy. $BFF_UPSTREAM is set by envsubst in
+  # the entrypoint; defaults to `http://bff:3001` in compose.
+  # The trailing slash on the location keeps the /api prefix
+  # intact when forwarded to the upstream.
+  location /api/ {
+    proxy_pass ${BFF_UPSTREAM};
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_read_timeout 60s;
+  }
+
+  # Long-lived WebSocket for /api/stream (the V2.0 realtime
+  # path). The Upgrade/Connection headers above already cover
+  # it; no separate location block needed.
+}
