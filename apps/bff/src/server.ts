@@ -99,24 +99,42 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
   app.get(
     '/api/stream',
     // V3.3: the WebSocket upgrade is gated on a tenant scope.
-    // The permission is `scene:read` (viewer has it) so the
-    // existing dev loop keeps working; T7 will filter events
-    // to the caller's tenant at broadcast time.
+    // T4 put the gate here; T7 reads the resolved tenant id
+    // off `c.var.tenant` and passes it to `subscribeClient`
+    // so the broadcaster filters events at the stream boundary
+    // (see `realtime/broadcaster.ts`). The permission is
+    // `scene:read` (viewer has it) so the existing dev loop
+    // keeps working.
     requiresTenantScope(authStore, 'scene:read'),
-    upgradeWebSocket(() => {
+    upgradeWebSocket((c) => {
+      // `requiresTenantScope` sets `c.var.tenant` before
+      // calling `next()`; the assertion is the explicit
+      // acknowledgement of that contract. If the gate ever
+      // regresses, the upgrade handler would receive a
+      // context with no tenant and the broadcaster would
+      // throw at the non-null assertion -- a loud failure
+      // is the right shape.
+      const tenantId = c.var.tenant!.tenant.id;
+      // Keepalive payloads also need a `tenantId` so the
+      // broadcaster's per-tenant filter doesn't drop them.
+      // The `withTimestamp` helper doesn't enforce `tenantId`
+      // (it's a generic stamping helper), so we stamp it
+      // explicitly here.
+      const buildPing = () =>
+        withTimestamp({
+          tenantId,
+          type: 'ping',
+          payload: { nonce: String(Date.now()) },
+        });
       let cleanup: (() => void) | null = null;
       return {
         onOpen(_evt, ws) {
-          const unsubscribe = broadcaster.subscribeClient((event) => {
+          const unsubscribe = broadcaster.subscribeClient(tenantId, (event) => {
             ws.send(JSON.stringify(event));
           });
-          ws.send(JSON.stringify(
-            withTimestamp({ type: 'ping', payload: { nonce: String(Date.now()) } }),
-          ));
+          ws.send(JSON.stringify(buildPing()));
           const ping = setInterval(() => {
-            ws.send(JSON.stringify(
-              withTimestamp({ type: 'ping', payload: { nonce: String(Date.now()) } }),
-            ));
+            ws.send(JSON.stringify(buildPing()));
           }, 25_000);
           cleanup = () => {
             unsubscribe();
