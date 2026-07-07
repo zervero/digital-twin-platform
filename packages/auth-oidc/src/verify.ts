@@ -23,6 +23,7 @@ import {
 } from 'jose';
 
 import { ALL_PERMISSIONS, type Permission } from '@dt/contracts';
+import { getTenantIdFromClaims, TENANT_ID_CLAIM } from '@dt/tenant';
 
 /** Default cache TTL for the JWKS resolver (5 minutes). */
 const DEFAULT_JWKS_TTL_MS = 5 * 60 * 1000;
@@ -71,6 +72,16 @@ export interface OidcVerifyConfig {
    * Defaults to 30 seconds.
    */
   jwksCooldownMs?: number;
+  /**
+   * V3.3: JWT claim name carrying the tenant ID. Defaults to
+   * `TENANT_ID_CLAIM` from `@dt/tenant` (the canonical
+   * namespaced claim `https://api.digital-twin-platform.local/tenant_id`).
+   * A deployment that uses Auth0 might pass
+   * `https://your-app.auth0.com/tenant_id` instead; the BFF
+   * reads `OIDC_TENANT_CLAIM` at startup and forwards it here
+   * so this package stays env-var-agnostic.
+   */
+  tenantClaimName?: string;
 }
 
 export interface VerifiedSession {
@@ -78,6 +89,16 @@ export interface VerifiedSession {
   subject: string;
   /** Permissions extracted from `scope` / `permissions` claims. */
   permissions: readonly Permission[];
+  /**
+   * V3.3: tenant ID read from the namespaced tenant claim
+   * (default `https://api.digital-twin-platform.local/tenant_id`,
+   * overridable via `OidcVerifyConfig.tenantClaimName`). Present
+   * when the JWT carries a non-empty string value; `undefined`
+   * (not `null`) when the claim is missing, the wrong type, or
+   * the empty string. The BFF (T4) maps `undefined` to a 401
+   * `AUTH_NO_TENANT` on tenant-scoped routes.
+   */
+  tenantId?: string;
   /** The full JWT payload, for downstream consumers that need more claims. */
   claims: JWTPayload;
 }
@@ -141,6 +162,7 @@ export async function verifyJwt(
   return verifyJwtWithResolver(token, jwksResolver, {
     issuerUrl: config.issuerUrl,
     audience: config.audience,
+    tenantClaimName: config.tenantClaimName ?? TENANT_ID_CLAIM,
   });
 }
 
@@ -155,7 +177,17 @@ export async function verifyJwt(
 export async function verifyJwtWithResolver(
   token: string,
   jwksResolver: JWTVerifyGetKey,
-  opts: { issuerUrl: string; audience: string },
+  opts: {
+    issuerUrl: string;
+    audience: string;
+    /**
+     * V3.3: JWT claim name carrying the tenant ID. Defaults to
+     * `TENANT_ID_CLAIM` from `@dt/tenant`. Production callers
+     * usually pass this through from `OidcVerifyConfig.tenantClaimName`;
+     * tests pass a custom string to exercise the override path.
+     */
+    tenantClaimName?: string;
+  },
 ): Promise<VerifyResult> {
   let result: JWTVerifyResult;
   try {
@@ -189,12 +221,23 @@ export async function verifyJwtWithResolver(
   const permissions = extractPermissions(result.payload);
   const subject =
     typeof result.payload.sub === 'string' ? result.payload.sub : '';
+  // V3.3: surface the tenant claim so the BFF can resolve it
+  // to a full Tenant record via the dev tenant registry (T5)
+  // or a real database later. We normalize `null` (missing /
+  // wrong-type / empty-string claim) to `undefined` so the
+  // field is either a real string or absent -- not `null` --
+  // matching the spec note in V3.3 plan T3.
+  const tenantId = getTenantIdFromClaims(
+    result.payload,
+    opts.tenantClaimName ?? TENANT_ID_CLAIM,
+  );
   return {
     ok: true,
     session: {
       subject,
       permissions,
       claims: result.payload,
+      ...(tenantId !== null ? { tenantId } : {}),
     },
   };
 }

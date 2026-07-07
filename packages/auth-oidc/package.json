@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@dt/contracts": "workspace:*",
+    "@dt/tenant": "workspace:*",
     "jose": "^5.9.6"
   },
   "devDependencies": {

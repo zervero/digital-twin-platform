@@ -245,6 +245,9 @@ importers:
       '@dt/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@dt/tenant':
+        specifier: workspace:*
+        version: link:../tenant
       jose:
         specifier: ^5.9.6
         version: 5.9.6
