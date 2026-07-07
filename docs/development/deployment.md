@@ -218,6 +218,26 @@ Shipped in V3.0:
   with JWKS verification, the V2.1 permission union, and the
   dev IdP for CI.
 
+Shipped in V3.1:
+
+- **Kubernetes Helm chart** — V3.1 Track G. The umbrella
+  chart at `tooling/k8s/digital-twin-platform/` provisions
+  the BFF + web + (optionally) Ingress + cert-manager with
+  `helm install dtp`. See
+  [`docs/development/production-platform.md`](./production-platform.md)
+  for the install / TLS / OTel / operations runbook.
+- **OpenTelemetry traces + metrics** — V3.1 Track G. The
+  `@dt/otel` package starts a NodeSDK on BFF bootstrap and
+  shuts it down as the last step of graceful shutdown.
+  Configured via `OTEL_*` env vars; defaults wired in
+  `apps/bff/.env.example.otel`.
+- **V3.0 was the last "compose is enough" release.** From
+  V3.1 onward the supported deployment shape is the helm
+  chart. The compose files in `apps/{bff,web}` Dockerfiles
+  remain for dev-loop convenience but are no longer the
+  production path. The V2.3-era `docker-compose.yml`
+  contract is now considered legacy.
+
 ## Related guides
 
 - [Local development](./local-dev.md) — `pnpm dev`, prerequisites, troubleshooting.
@@ -225,6 +245,8 @@ Shipped in V3.0:
 - [Release playbook](./release-playbook.md) — release-please cadence and PR review.
 - [OIDC (V3.0)](./oidc.md) — `AUTH_PROVIDER=oidc`, dev IdP,
   production env vars, JWT claim shape, troubleshooting.
+- [Production platform (V3.1)](./production-platform.md) — helm chart,
+  TLS via cert-manager, OTel, operations runbook.
 - [V2.3 closure ADR](../adr/0011-v2.3-closure.md) — the rationale for the
   tsx-at-runtime design choice documented above, plus the full
   acceptance matrix and deviations from the V2.3 plan.

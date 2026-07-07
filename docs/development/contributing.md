@@ -116,7 +116,7 @@ Before you hit merge, run through this:
 
 ## CI
 
-Two parallel jobs run on every PR and every push to `main`:
+Three parallel jobs run on every PR and every push to `main`:
 
 - **`verify`** — `ubuntu-latest`, runs `pnpm install --frozen-lockfile`
   then `pnpm lint` + `pnpm typecheck` + `pnpm test` + `pnpm build` +
@@ -124,6 +124,13 @@ Two parallel jobs run on every PR and every push to `main`:
   built repo and exercises `/health`, `/api/stream`, and the
   structured logger. This is the single signal that the realtime
   path is end-to-end healthy before a release-please PR is merged.
+- **`chart`** — `ubuntu-latest`, installs `helm` and `kubeconform`
+  from upstream releases, then runs `pnpm chart:lint:strict`. The
+  script exercises both the default values path AND the
+  cert-manager overlay path, and `kubeconform` validates every
+  emitted manifest against the k8s OpenAPI schema (with the
+  datreeio CRD catalog as a fallback for cert-manager CRDs).
+  Required for V3.1+ PRs that touch `tooling/k8s/`.
 - **`windows`** — `windows-latest`, runs `pnpm lint` + `pnpm typecheck`
   + `pnpm test` only. No build, no smoke. The V2 smoke and the Tauri
   build on Windows (signed `.msi` / `.exe`) are V3 follow-ups; see
@@ -174,7 +181,7 @@ rules → `main`):
 - [x] Require approvals: **1** (V1 — just you)
 - [x] Dismiss stale pull request approvals when new commits are pushed
 - [x] Require status checks to pass before merging
-  - Required check: `verify` (the single CI job)
+  - Required checks: `verify`, `chart`
 - [x] Require linear history (squash or rebase; no merge commits)
 - [ ] Include administrators — **off in V1** so you can hot-fix yourself
       without a PR. Turn this on in V2.
@@ -243,6 +250,8 @@ after I'm done?**
 | New env var, new script, new dev step | `README.md` + `docs/development/local-dev.md` |
 | Process / workflow change | this file (`contributing.md`) |
 | New prod deployment concern (Dockerfile, env, health, shutdown) | `docs/development/deployment.md` |
+| Helm chart / values / template change | `docs/development/production-platform.md` (and run `pnpm chart:lint:strict` before pushing) |
+| OpenTelemetry env var or wiring change | `apps/bff/.env.example.otel` (and `production-platform.md` if cluster-side) |
 | Anything else | the commit message (Conventional Commits) |
 
 The full rule lives in `AGENTS.md` at the repo root. Both must stay in
@@ -269,6 +278,8 @@ When you delegate a task to an AI agent:
   env vars, health checks, graceful shutdown, pre-release pre-flight.
 - [OIDC](./oidc.md) — `AUTH_PROVIDER=oidc`, dev IdP, production env vars,
   JWT claim shape, troubleshooting.
+- [Production platform](./production-platform.md) — V3.1 helm chart, TLS via
+  cert-manager, OTel, operations runbook.
 - [Release playbook](./release-playbook.md) — release-please cadence, manifest,
   PR review and merge steps.
 - [V2 overview](../plans/v2-overview.md) — V2 (realtime + observability + auth +

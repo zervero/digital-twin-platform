@@ -20,7 +20,9 @@ product that can run in the browser, on macOS, and on Windows.
             |  |  +-- contracts -- shared DTOs & events           |  |
             |  |  +-- device-domain, scene-domain (pure)          |  |
             |  |  +-- realtime, plugin-runtime, ai-agent,        |  |
-            |  |     observability, config (boundaries)          |  |
+            |  |     observability, config, otel (boundaries)     |  |
+            |  |     otel = BFF-only; web consumes VITE_OTEL_*    |  |
+            |  |     env vars once V3.x browser RUM ships         |  |
             |  +------------------------------------------------+  |
             +-------------------------------------------------------+
 ```
