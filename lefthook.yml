@@ -1,8 +1,11 @@
 # lefthook: fast polyglot git hooks manager.
 # Docs: https://lefthook.dev/configuration/
 #
-# V1 keeps the local hook surface tiny on purpose - we don't want to slow
-# down `git commit`. Heavy checks (typecheck, test, build) run in CI.
+# V3.1 expands the local hook surface: every push runs the full
+# pre-merge gate (typecheck + test + lint + chart lint) so obvious
+# breakage is caught before the round trip to CI. CI remains the
+# final authority; this is just to save the round trip when something
+# is clearly broken.
 
 commit-msg:
   commands:
@@ -16,6 +19,24 @@ pre-push:
   parallel: true
   commands:
     typecheck:
-      # Sanity check the touched package(s) before pushing. Full typecheck
-      # runs in CI; this is a quick local guard for the common case.
+      # Was the only pre-push gate in V1-V3.0. Still the cheapest
+      # check; runs first in the parallel block above.
       run: pnpm typecheck
+    test:
+      # Full suite. Cached when no source changed; cold runs take
+      # ~30s on a laptop. Bypass with `git push --no-verify` only
+      # in emergencies.
+      run: pnpm test
+    lint:
+      # eslint over the whole repo. Cheap, catches the imports /
+      # unused-vars class of mistakes that typecheck misses.
+      run: pnpm lint
+    chart:
+      # Helm chart strict lint (helm lint --strict + kubeconform).
+      # Requires helm + kubeconform on PATH; install via
+      #   brew install helm kubeconform
+      # on macOS, or see docs/development/production-platform.md for
+      # the Linux paths. The hook exits 0 if either tool is missing
+      # (with a warning) so contributors without the local toolchain
+      # aren't blocked -- CI catches it.
+      run: command -v helm >/dev/null 2>&1 && command -v kubeconform >/dev/null 2>&1 && pnpm chart:lint:strict || echo "[lefthook] helm/kubeconform not on PATH, skipping chart:lint:strict (CI will catch it)"
