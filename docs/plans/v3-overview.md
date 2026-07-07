@@ -42,6 +42,16 @@ acceptance shape, and a natural order relative to the others.
 | **I. Multi-tenant data model** | `@dt/contracts`, `@dt/bff`, new `@dt/tenant` | Workspace isolation in API contracts, BFF route scoping, RLS at the storage layer. Depends on F (auth) for tenant identity. |
 | **J. Plugin marketplace + persistence** | `@dt/plugin-runtime`, `@dt/app-shell`, new `@dt/plugin-registry` | V2.2 ships the contract (manifest, registry, extension types). V3 adds persistence, signed plugin artifacts, remote install/upgrade. |
 
+### Per-track status (live)
+
+| Track | Release | Status | Closure |
+| --- | --- | --- | --- |
+| F. Real auth (OIDC) | V3.0 | **Shipped** | [ADR 0013](../adr/0013-v3.0-closure.md) |
+| G. Production platform | V3.1 | Proposed | — |
+| H. Tauri release pipeline | V3.2 | Proposed | — |
+| I. Multi-tenant data model | V3.3 | Proposed | — |
+| J. Plugin marketplace + persistence | V3.4 | Proposed | — |
+
 CI checks (lint / typecheck / test / build / smoke) and the
 cross-cutting observability surface (structured logs, request
 id) are already in place across V1 + V2 and continue as
@@ -87,12 +97,18 @@ plan (`docs/plans/v3.N-implementation-plan.md`) decomposed
 into bite-sized tasks with exact files, code, tests, and
 verification commands, following the V2 plan convention.
 
-## First V3 track: F (real auth)
+## First V3 track: F (real auth) — shipped in V3.0
 
-The first concrete V3 work is Track F: implement the
-`AUTH_PROVIDER=oidc` branch that V2.3's env gate was carved
-out for. Acceptance sketch (final shape lands in the V3.0
-implementation plan):
+Track F was the first concrete V3 work. V3.0 ships it: the
+`AUTH_PROVIDER=oidc` branch is functional end-to-end, with
+JWKS verification, the V2.1 permission union, the dev IdP
+for CI, and a full e2e smoke (`pnpm smoke:oidc`). The
+implementation plan ([`docs/plans/v3.0-implementation-plan.md`](./v3.0-implementation-plan.md))
+is **Accepted**; the closure record is at
+[`docs/adr/0013-v3.0-closure.md`](../adr/0013-v3.0-closure.md).
+
+The original V3 track sketch (final shape landed in the V3.0
+plan, which now supersedes this section):
 
 - `apps/bff` boots with `AUTH_PROVIDER=oidc` and a real OIDC
   issuer URL; the env gate passes (`readAppEnv` returns OK).

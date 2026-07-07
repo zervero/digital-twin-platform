@@ -267,6 +267,8 @@ When you delegate a task to an AI agent:
 - [Local development](./local-dev.md) — how to run `pnpm dev` on a fresh checkout.
 - [Deployment](./deployment.md) — production-shape Dockerfiles, compose stack,
   env vars, health checks, graceful shutdown, pre-release pre-flight.
+- [OIDC](./oidc.md) — `AUTH_PROVIDER=oidc`, dev IdP, production env vars,
+  JWT claim shape, troubleshooting.
 - [Release playbook](./release-playbook.md) — release-please cadence, manifest,
   PR review and merge steps.
 - [V2 overview](../plans/v2-overview.md) — V2 (realtime + observability + auth +

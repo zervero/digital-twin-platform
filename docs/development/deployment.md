@@ -1,4 +1,4 @@
-# Deployment (V2.3)
+# Deployment (V2.3 + V3.0)
 
 > Scope: production-shape local stack (`docker compose`) and per-container
 > run instructions for `apps/bff` and `apps/web`.
@@ -29,7 +29,7 @@ Stop the stack with `docker compose down`.
 | `NODE_ENV` | no | `development` | `production` enables env validation + structured JSON logs |
 | `PORT` | no | `3001` | HTTP listen port |
 | `LOG_LEVEL` | no | `info` | `debug` / `info` / `warn` / `error` |
-| `AUTH_PROVIDER` | **yes in production** | unset in dev | `mock` (V2.3) or `oidc` (V3) |
+| `AUTH_PROVIDER` | **yes in production** | unset in dev | `mock` (V2.3) or `oidc` (V3.0) |
 
 In production, missing or invalid `AUTH_PROVIDER` causes `readAppEnv` to
 throw `EnvValidationError` at boot, which the BFF logs and exits 1 on.
@@ -38,6 +38,24 @@ as defense-in-depth, so a future refactor that drops the gate in
 `readAppEnv` still fails fast with a clear log line. See
 [`packages/config/src/index.ts`](../../packages/config/src/index.ts)
 and [`apps/bff/docker-entrypoint.sh`](../../apps/bff/docker-entrypoint.sh).
+
+#### OIDC env vars (V3.0, when `AUTH_PROVIDER=oidc`)
+
+| Var | Required | Default | Notes |
+| --- | --- | --- | --- |
+| `OIDC_ISSUER_URL` | yes | — | Issuer base URL; must match the JWT `iss` claim exactly |
+| `OIDC_CLIENT_ID` | yes | — | Client id sent on `/authorize` |
+| `OIDC_AUDIENCE` | yes | — | Must match the JWT `aud` claim |
+| `OIDC_SCOPES` | no | `openid profile` | Space-separated; permission-shaped scopes (`device:read`) are valid |
+| `OIDC_JWKS_URI` | no | `${OIDC_ISSUER_URL}/.well-known/jwks.json` | Override only if the IdP uses a non-standard path |
+| `OIDC_COOKIE_NAME` | no | `dt_oidc_session` | Cookie the BFF reads on `/api/auth/me` |
+| `OIDC_COOKIE_SECURE` | no | `true` in production | Set `false` only for local HTTP testing |
+| `OIDC_ALLOW_DEV_BYPASS` | no | `false` | **Dev only**. Skips JWT verification; never set in production |
+
+Missing or invalid `OIDC_ISSUER_URL` / `OIDC_AUDIENCE` in
+production throws `EnvValidationError` at boot. See
+[`docs/development/oidc.md`](./oidc.md) for the full env-var
+contract, the JWT claim shape, and the dev IdP setup.
 
 ### Web (nginx template)
 
@@ -162,8 +180,9 @@ image — it embeds the same `apps/web/dist/` build as its
 
 ## Pre-release pre-flight
 
-Before merging a release-please PR, the release captain runs
-`scripts/smoke-prod.sh` (T8) to verify the Dockerfiles still build
+Before merging a release-please PR for a production-shape
+release (V2.3+), the release captain runs `scripts/smoke-prod.sh`
+to verify the Dockerfiles still build
 and the compose stack still serves `/health`, `/ready`, and the
 `/api/` proxy end to end. The script is the gating check for V2.3
 acceptance #6, #7, #8.
@@ -174,22 +193,40 @@ error and the captain defers to a second machine. Do not skip the
 pre-flight — a release with a broken Dockerfile is worse than a
 delayed release.
 
-## What's not in V2.3
+For V3.0 and beyond, the release captain additionally runs
+`scripts/smoke-oidc.sh` (or the CI equivalent) to verify the
+OIDC path end-to-end against the dev IdP. A release with a
+broken OIDC code path is a P0.
 
-- Kubernetes manifests / Helm chart — V3.
-- TLS termination, ACME, cert provisioning — V3 (front the compose
-  stack with your own reverse proxy that terminates TLS).
-- Tauri release build CI (signed `.dmg` / `.msi` / `.AppImage`) — V3.
-- Real auth provider (OAuth, SAML, JWT signing) — V3.
+## What's not in V2.3 (and where each item went in V3+)
+
+- Kubernetes manifests / Helm chart — V3 (Track G in ADR 0012).
+- TLS termination, ACME, cert provisioning — V3 (front the
+  compose stack with your own reverse proxy that terminates
+  TLS until V3 ships its ingress story).
+- Tauri release build CI (signed `.dmg` / `.msi` / `.AppImage`)
+  — V3 (Track H).
 - Multi-region, CDN — V3+.
-- Metrics endpoint, OpenTelemetry traces — V3.
-- Persistent plugin storage, plugin marketplace — V3.
+- Metrics endpoint, OpenTelemetry traces — V3 (Track G).
+- Persistent plugin storage, plugin marketplace — V3 (Track J).
+
+Shipped in V3.0:
+
+- Real auth provider (OIDC) — V3.0 Track F. See
+  [`docs/development/oidc.md`](./oidc.md) and ADR 0013 (V3.0
+  closure). `AUTH_PROVIDER=oidc` is now functional end-to-end
+  with JWKS verification, the V2.1 permission union, and the
+  dev IdP for CI.
 
 ## Related guides
 
 - [Local development](./local-dev.md) — `pnpm dev`, prerequisites, troubleshooting.
 - [Contributing](./contributing.md) — workflow rules (branches, commits, hooks).
 - [Release playbook](./release-playbook.md) — release-please cadence and PR review.
+- [OIDC (V3.0)](./oidc.md) — `AUTH_PROVIDER=oidc`, dev IdP,
+  production env vars, JWT claim shape, troubleshooting.
 - [V2.3 closure ADR](../adr/0011-v2.3-closure.md) — the rationale for the
   tsx-at-runtime design choice documented above, plus the full
   acceptance matrix and deviations from the V2.3 plan.
+- [V3.0 closure ADR](../adr/0013-v3.0-closure.md) — Track F (OIDC)
+  acceptance matrix and deviations from the V3.0 plan.

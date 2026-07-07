@@ -95,6 +95,35 @@ Desktop (Tauri):
 
 - Standard Tauri env vars. See Tauri docs.
 
+## Running the dev stack with OIDC
+
+`pnpm dev` defaults to `AUTH_PROVIDER=mock` (V2.3 behavior).
+To exercise the V3.0 OIDC code path locally:
+
+```bash
+# Terminal 1: boot the dev OIDC IdP (default port 9999).
+pnpm dev:oidc
+
+# Terminal 2: boot the dev stack against the dev IdP.
+AUTH_PROVIDER=oidc \
+  OIDC_ISSUER_URL=http://localhost:9999 \
+  OIDC_CLIENT_ID=digital-twin \
+  OIDC_AUDIENCE=digital-twin-platform \
+  OIDC_SCOPES="openid profile device:read scene:read" \
+  pnpm dev
+```
+
+The login button now redirects to the dev IdP. Three built-in
+test users are selectable via the `?as=<email>` query param on
+the IdP authorize endpoint: `viewer@example.com`,
+`operator@example.com`, `admin@example.com`. See
+[`docs/development/oidc.md`](./oidc.md) for the full env-var
+contract and the JWT claim shape.
+
+`pnpm smoke:oidc` runs the full OIDC end-to-end against the dev
+IdP from CI; use it as a sanity check after editing any auth-
+related code.
+
 ## Project layout
 
 ```
@@ -124,3 +153,6 @@ docs/            # Architecture, ADRs, dev guides
 - **`pnpm install` fails on Node 20.x** - upgrade to Node 22.17.1 or
   newer (`nvm use` from the repo root). The 20.x line is not supported
   in V1; see [ADR 0004](../adr/0004-node-22-pin.md).
+- **`pnpm smoke:oidc` fails with "bff port 3001 already in use"** -
+  another process (often a leftover `pnpm dev`) is bound to 3001.
+  Kill it before re-running the smoke, or set `BFF_PORT=<other>`.
