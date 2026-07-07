@@ -2,9 +2,9 @@
 
 ## Status
 
-Proposed. The V3 scope and ordering proposed here depends on
-the plan in `docs/plans/v3-overview.md`; both move from
-Proposed to Accepted together when the first V3 track ships.
+Accepted. V3.0 (Track F) and V3.1 (Track G) shipped -
+see ADR 0013 and ADR 0014 for the per-track closure
+records.
 
 ## Context
 
@@ -103,12 +103,24 @@ warrants a fresh start, and V3 is qualitatively beyond V2's
 
 - V3 plan: [`docs/plans/v3-overview.md`](../plans/v3-overview.md)
 - V2 closure: [`docs/adr/0011-v2.3-closure.md`](./0011-v2.3-closure.md)
+- V3.0 closure: [`docs/adr/0013-v3.0-closure.md`](./0013-v3.0-closure.md)
+- V3.1 closure: [`docs/adr/0014-v3.1-closure.md`](./0014-v3.1-closure.md)
 - V2 roadmap ADR: [`docs/adr/0007-v2-roadmap.md`](./0007-v2-roadmap.md)
 - V1 closure: [`docs/adr/0006-v1-closure.md`](./0006-v1-closure.md)
 - V1 dev spec §8: `/Users/zengxiangrong/Desktop/digital-twin-platform-codex-dev-doc.md`
 
 ## Update history
 
+- 2026-07-07: V3.0 (Track F) shipped. Real auth (OIDC)
+  became the default `AUTH_PROVIDER`, JWT verification and
+  `requiresPermission` middleware wired across BFF + app-shell;
+  dev `mock` provider preserved behind env flag. See ADR 0013.
+- 2026-07-07: V3.1 (Track G) shipped. Effective version
+  `4.1.0` -- the `v3.1.0` / `v4.0.0` tags in the GitHub
+  Releases list are release-please artifacts and do not
+  reflect distinct work. Records V3.1 closure: 8 tasks, 10
+  acceptance items, 3 deliberate deviations, 1 release-please
+  artifact. Status flips to Accepted. See ADR 0014.
 - 2026-07-06: Initial. V3 roadmap proposed. 5 tracks (F-J)
   in the order auth -> platform -> desktop -> data ->
   marketplace. First concrete V3 work is Track F
