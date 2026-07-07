@@ -13,14 +13,15 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
+    "@dt/auth-oidc": "workspace:*",
     "@dt/config": "workspace:*",
     "@dt/contracts": "workspace:*",
     "@dt/observability": "workspace:*",
+    "@dt/otel": "workspace:*",
     "@dt/realtime": "workspace:*",
     "@hono/node-server": "^2.0.0",
     "hono": "^4.6.12",
-    "ws": "^8.18.0",
-    "@dt/auth-oidc": "workspace:*"
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
