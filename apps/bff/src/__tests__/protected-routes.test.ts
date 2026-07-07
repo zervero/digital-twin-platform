@@ -73,7 +73,7 @@ describe('GET /api/scene (V3.0 scene:read gate)', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns 200 for a viewer', async () => {
+  it('returns 200 for a viewer with the per-tenant scene', async () => {
     const token = await loginViewer(store);
     const app = new Hono();
     app.route('/api', sceneRoute(store));
@@ -81,8 +81,17 @@ describe('GET /api/scene (V3.0 scene:read gate)', () => {
       headers: authHeaders(token),
     });
     expect(res.status).toBe(200);
-    const body = (await res.json()) as { id: string; nodes: unknown[] };
-    expect(body.id).toBe('scene-factory-a');
+    const body = (await res.json()) as {
+      id: string;
+      tenantId: string;
+      nodes: unknown[];
+    };
+    // V3.3 T6: the scene id is now per-tenant (the mock
+    // store mints `acme-corp`). The legacy `scene-factory-a`
+    // literal lives on only in `DEMO_SCENE` and is exercised
+    // by the back-compat consumers (heartbeat + dev-source).
+    expect(body.id).toBe('acme-corp-scene');
+    expect(body.tenantId).toBe('acme-corp');
     expect(body.nodes.length).toBeGreaterThan(0);
   });
 });
@@ -93,7 +102,12 @@ describe('POST /api/commands (V3.0 command:send gate)', () => {
     store = new MockAuthStore();
   });
 
-  const validCmd = { id: 'c1', type: 'reset-view' };
+  // V3.3 T6: the contract requires `tenantId` on every
+  // DigitalTwinCommand, and the BFF compares it against
+  // the session's resolved tenant. MockAuthStore mints
+  // the default `acme-corp` tenant for every dev login,
+  // so a matching tenantId keeps the happy path green.
+  const validCmd = { id: 'c1', type: 'reset-view', tenantId: 'acme-corp' };
 
   it('returns 401 without a session', async () => {
     const app = new Hono();
