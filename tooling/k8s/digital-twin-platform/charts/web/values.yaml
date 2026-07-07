@@ -1,0 +1,34 @@
+# Subchart-local values for the web SPA.
+enabled: true
+replicaCount: 1
+image:
+  repository: ghcr.io/zervero/digital-twin-platform-web
+  tag: ""
+service:
+  type: ClusterIP
+  port: 80
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+config:
+  bffUpstream: http://bff:3001
+probes:
+  liveness:
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 30
+    timeoutSeconds: 3
+    failureThreshold: 3
+  readiness:
+    path: /
+    initialDelaySeconds: 2
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+serviceAccount:
+  create: true
+  name: ""

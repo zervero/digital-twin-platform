@@ -1,0 +1,32 @@
+apiVersion: v2
+name: digital-twin-platform
+description: |
+  Umbrella chart for the Digital Twin Platform (V3.1).
+
+  Bundles the BFF and the web SPA into one deployable
+  unit so `helm install dtp .` provisions the whole stack.
+  BFF and web remain separate subcharts so each workload
+  can be versioned, sized, and rolled independently.
+
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.27.0-0"
+
+home: https://github.com/zervero/digital-twin-platform
+sources:
+  - https://github.com/zervero/digital-twin-platform
+
+dependencies:
+  - name: bff
+    version: 0.1.0
+    repository: file://charts/bff
+    condition: bff.enabled
+  - name: web
+    version: 0.1.0
+    repository: file://charts/web
+    condition: web.enabled
+
+annotations:
+  category: Application
+  licenses: UNLICENSED

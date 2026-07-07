@@ -1,0 +1,102 @@
+{{/*
+BFF Deployment.
+
+Why the dynamic-looking env wiring:
+  - Non-secret vars come from a ConfigMap via envFrom.
+  - OIDC credentials come from a Secret via env.valueFrom.secretKeyRef
+    so missing keys fail loudly at startup rather than at first use.
+  - OIDC_ISSUER_URL / OIDC_AUDIENCE / OIDC_CLIENT_ID are intentionally
+    listed in BOTH the ConfigMap data and the Deployment env from
+    secret — the Deployment wires the secret ones; the ConfigMap
+    copy is documentation for whoever reads `kubectl describe cm`.
+*/}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bff.fullname" . }}
+  labels:
+    {{- include "bff.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "bff.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "bff.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "bff.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: bff
+          image: {{ include "bff.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "bff.fullname" . }}-config
+          env:
+            - name: OIDC_ISSUER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oidc.secretName }}
+                  key: OIDC_ISSUER_URL
+            - name: OIDC_AUDIENCE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oidc.secretName }}
+                  key: OIDC_AUDIENCE
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.oidc.secretName }}
+                  key: OIDC_CLIENT_ID
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.liveness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+          resources:
+            requests:
+              {{- toYaml .Values.resources.requests | nindent 14 }}
+            limits:
+              {{- toYaml .Values.resources.limits | nindent 14 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          # V2.3 graceful shutdown: a preStop sleep lets the load
+          # balancer drain this pod BEFORE the SIGTERM lands, so
+          # we don't 502 in-flight requests. terminationGracePeriodSeconds
+          # (on the pod spec below) caps the total drain + shutdown
+          # window; the 30s default gives ~25s of headroom after
+          # SIGTERM for the WS drain + OTel SDK flush.
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", "5"]

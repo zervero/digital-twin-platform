@@ -1,0 +1,14 @@
+{{/*
+ConfigMap for the only env var the web container actually
+needs: BFF_UPSTREAM, which the docker-entrypoint.sh runs
+through envsubst to render nginx.conf.template. No secrets,
+no JWTs — those live in the BFF only.
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "web.fullname" . }}-config
+  labels:
+    {{- include "web.labels" . | nindent 4 }}
+data:
+  BFF_UPSTREAM: {{ .Values.config.bffUpstream | quote }}

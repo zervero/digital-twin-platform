@@ -1,0 +1,11 @@
+apiVersion: v2
+name: bff
+description: |
+  BFF subchart (apps/bff). Owns the API + WebSocket + OIDC
+  termination layer. Sized for staging by default; bump
+  resources / replicaCount for production.
+
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.27.0-0"

@@ -1,0 +1,22 @@
+{{/*
+ConfigMap for non-secret env vars. The OIDC credentials
+(OIDC_ISSUER_URL, OIDC_AUDIENCE, OIDC_CLIENT_ID) go through
+env.valueFrom.secretKeyRef in the Deployment, never through
+this ConfigMap. AUTH_PROVIDER stays here because it's a
+deploy-time constant, not a secret.
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "bff.fullname" . }}-config
+  labels:
+    {{- include "bff.labels" . | nindent 4 }}
+data:
+  LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  NODE_ENV: {{ .Values.config.nodeEnv | quote }}
+  AUTH_PROVIDER: {{ .Values.config.authProvider | quote }}
+  PORT: {{ .Values.service.port | quote }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.config.otelExporterOtlpEndpoint | quote }}
+  OTEL_SERVICE_NAME: {{ .Values.config.otelServiceName | quote }}
+  OTEL_METRIC_EXPORT_INTERVAL: {{ .Values.config.otelMetricExportInterval | quote }}
+  OTEL_SDK_DISABLED: {{ .Values.config.otelSdkDisabled | quote }}

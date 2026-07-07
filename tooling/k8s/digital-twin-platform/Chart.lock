@@ -1,0 +1,9 @@
+dependencies:
+- name: bff
+  repository: file://charts/bff
+  version: 0.1.0
+- name: web
+  repository: file://charts/web
+  version: 0.1.0
+digest: sha256:4cb6428c9f9d3a76177ac9ea7e36a7385d813df02610535c69ebe2dd5ae2d65c
+generated: "2026-07-07T13:35:46.057837+08:00"

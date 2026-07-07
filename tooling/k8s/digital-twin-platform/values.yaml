@@ -1,0 +1,135 @@
+# Default values for digital-twin-platform.
+#
+# Override per-env via `helm install -f values-staging.yaml ...`.
+# Schema is enforced by values.schema.json; values not declared
+# there are rejected by `helm lint --strict` and rejected again
+# at runtime by helm's own coercion.
+
+namespace:
+  # Name of the Namespace every resource in this chart lives in.
+  # Override to `digital-twin-platform-staging` etc. for parallel
+  # envs on the same cluster.
+  name: digital-twin-platform
+  create: true
+
+image:
+  # Shared registry for both subcharts. Each subchart's
+  # `image.repository` is the full path: <registry>/<repo>.
+  registry: ghcr.io/zervero
+  pullPolicy: IfNotPresent
+
+# BFF (apps/bff). The BFF is the API + WebSocket + OIDC
+# termination layer. 1 replica is enough for staging; bump
+# `replicaCount` for production. Secrets (OIDC_*) are NOT
+# in this file — they live in an externally-managed Secret
+# referenced by `bff.oidc.secretName`.
+bff:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/zervero/digital-twin-platform-bff
+    # Empty tag → falls back to .Chart.AppVersion from the
+    # release pipeline. Override per-env only when you need
+    # to pin a specific build (e.g. canary).
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3001
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  config:
+    logLevel: info
+    nodeEnv: production
+    authProvider: oidc
+    # BFF-side OIDC. These are the ISSUER + AUDIENCE used
+    # to look up JWKS. CLIENT_ID is used for the auth code
+    # flow on /oidc/start. All three are validated against
+    # values.bff.oidc.* in the Deployment template.
+    oidcIssuerUrl: ""
+    oidcAudience: ""
+    oidcClientId: ""
+    # OTEL_* (T3). Override per-env to point at the right
+    # collector; default below assumes a sidecar collector
+    # in the same namespace.
+    otelExporterOtlpEndpoint: http://otel-collector.observability:4318
+    otelServiceName: digital-twin-platform-bff
+    otelMetricExportInterval: "30000"
+    otelSdkDisabled: "false"
+  oidc:
+    # Name of an externally-created Secret containing the
+    # OIDC credentials. The chart does NOT generate this
+    # secret — production users provision it via sealed-secrets
+    # or external-secrets; dev users can set `create: true`
+    # to let the chart scaffold a placeholder Secret.
+    secretName: bff-oidc-secret
+    create: false
+    issuerUrl: ""
+    audience: ""
+    clientId: ""
+  probes:
+    liveness:
+      path: /health
+      initialDelaySeconds: 10
+      periodSeconds: 30
+      timeoutSeconds: 3
+      failureThreshold: 3
+    readiness:
+      path: /ready
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  serviceAccount:
+    create: true
+    name: ""
+
+# Web (apps/web). The web SPA + nginx reverse proxy. Talks
+# to the BFF in-cluster at bff:3001 by default; override
+# `config.bffUpstream` if the BFF is reachable via a
+# different DNS name.
+web:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ghcr.io/zervero/digital-twin-platform-web
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  config:
+    # The URL nginx reverse-proxies /api/* to. Must be
+    # reachable from the web pod's network namespace.
+    # `http://bff:3001` works because the BFF Service is
+    # named `bff` in-cluster (see charts/bff/templates/service.yaml).
+    bffUpstream: http://bff:3001
+  probes:
+    liveness:
+      path: /
+      initialDelaySeconds: 5
+      periodSeconds: 30
+      timeoutSeconds: 3
+      failureThreshold: 3
+    readiness:
+      path: /
+      initialDelaySeconds: 2
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+  serviceAccount:
+    create: true
+    name: ""

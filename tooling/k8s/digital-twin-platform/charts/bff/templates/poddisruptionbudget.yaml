@@ -1,0 +1,20 @@
+{{/*
+PodDisruptionBudget. Default minAvailable=1 keeps at least one
+replica alive across voluntary disruptions (node drains, helm
+uninstall, cluster autoscaler scale-down). For V3.1 with
+replicaCount=1 this still protects against pod-level restarts
+during voluntary disruption windows.
+*/}}
+{{- if .Values.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "bff.fullname" . }}
+  labels:
+    {{- include "bff.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "bff.selectorLabels" . | nindent 6 }}
+{{- end }}

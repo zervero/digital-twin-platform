@@ -1,0 +1,11 @@
+apiVersion: v2
+name: web
+description: |
+  Web subchart (apps/web). nginx + SPA. Reverse-proxies
+  /api/* to the BFF in-cluster at bff:3001. Ingress
+  (TLS via cert-manager) lands in V3.1 T5.
+
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.27.0-0"
