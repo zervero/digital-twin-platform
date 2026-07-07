@@ -16,6 +16,13 @@
  * `logout` clears the session cookie (Max-Age=0). The BFF's
  * `authRoute` is mounted in both modes; for OIDC the
  * `POST /api/auth/logout` handler should call this method.
+ *
+ * V3.3 tenant claim: `verified.tenantId` (populated by
+ * `@dt/auth-oidc` in T3) is copied onto the returned
+ * `AuthSession.tenantId` so `requiresTenantScope` can
+ * resolve it via the dev registry. If the JWT carries
+ * no tenant claim, `tenantId` stays `undefined` and the
+ * middleware returns 401 `AUTH_NO_TENANT`.
  */
 
 import { createOidcResolver, verifyJwtWithResolver, type VerifiedSession } from '@dt/auth-oidc';
@@ -151,5 +158,11 @@ function toAuthSession(verified: VerifiedSession): AuthSession {
     token: 'opaque-session',
     expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
     permissions: verified.permissions,
+    // V3.3: pass the tenant claim through. `undefined` when
+    // the JWT has no claim; `requiresTenantScope` will turn
+    // that into a 401 `AUTH_NO_TENANT`. Conditional spread
+    // keeps the JSON shape identical to V3.0 for callers
+    // that don't care about tenancy.
+    ...(verified.tenantId ? { tenantId: verified.tenantId } : {}),
   };
 }

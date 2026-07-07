@@ -25,6 +25,7 @@ import { withTimestamp } from '@dt/contracts';
 
 import { httpLogger } from './middleware/logger.js';
 import { requestId } from './middleware/request-id.js';
+import { requiresTenantScope } from './middleware/requires-tenant.js';
 import { authRoute } from './routes/auth.js';
 import { commandsRoute } from './routes/commands.js';
 import { devicesRoute } from './routes/devices.js';
@@ -78,9 +79,14 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
   const authStore = createAuthStore(env);
 
   // Every auth-gated route module is a factory that takes
-  // the AuthStore; the requiresPermission middleware inside
+  // the AuthStore; the requiresTenantScope middleware inside
   // reads it for every request, so the store has to exist
-  // before any route is mounted.
+  // before any route is mounted. V3.3: devices / scene /
+  // commands / stream all use the tenant-scoped middleware
+  // so a request without a registered tenant is rejected at
+  // the gate (401 AUTH_NO_TENANT) instead of leaking global
+  // data. /api/auth/* stays on its existing surface because
+  // those routes run before any tenant is known.
   app.route('/api', devicesRoute(authStore));
   app.route('/api', sceneRoute(authStore));
   app.route('/api', commandsRoute(authStore));
@@ -92,6 +98,11 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
 
   app.get(
     '/api/stream',
+    // V3.3: the WebSocket upgrade is gated on a tenant scope.
+    // The permission is `scene:read` (viewer has it) so the
+    // existing dev loop keeps working; T7 will filter events
+    // to the caller's tenant at broadcast time.
+    requiresTenantScope(authStore, 'scene:read'),
     upgradeWebSocket(() => {
       let cleanup: (() => void) | null = null;
       return {

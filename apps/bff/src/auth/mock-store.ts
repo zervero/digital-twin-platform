@@ -19,6 +19,14 @@
  *   raise the same typed error from `login()` without a
  *   cross-module import (and so the test suite can import it
  *   from a single place).
+ *
+ * V3.3 tenant claim: every minted session gets the dev
+ * default `tenantId: 'acme-corp'`. The existing `smoke:v2`
+ * and `smoke:oidc` smokes depend on this so they keep
+ * passing under the new `requiresTenantScope` middleware
+ * without changes. Test fixtures that probe the
+ * `AUTH_NO_TENANT` path construct an `AuthSession` directly
+ * with `tenantId` omitted.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -60,6 +68,13 @@ export class MockAuthStore implements AuthStore {
       user,
       token: `mock-${randomUUID()}`,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      // V3.3: every dev session gets the default tenant so
+      // existing smokes / dev loops keep working under
+      // `requiresTenantScope`. T5 splits this into 3
+      // tenants via the `LoginRequest` (out of scope for
+      // T4; the mock store does not yet accept a tenantId
+      // parameter because no smoke needs it).
+      tenantId: 'acme-corp',
     };
     this.sessions.set(session.token, session);
     return { session };

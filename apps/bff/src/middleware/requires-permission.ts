@@ -1,5 +1,5 @@
 /**
- * requiresPermission — V2.1 baseline, V3.0 update.
+ * requiresPermission — V2.1 baseline, V3.0 update, V3.3 scope note.
  *
  * Reads the request headers via the AuthStore, computes the
  * session's effective permissions (direct from `session.permissions`
@@ -15,6 +15,16 @@
  * - `c.var.permissions` is the V3.0 source of truth for
  *   "what this request can do"; downstream handlers should
  *   read from it instead of recomputing.
+ *
+ * V3.3 scope note: V3.3 introduces `requiresTenantScope`
+ * (see `requires-tenant.ts`). Routes that need tenant
+ * isolation (`/api/devices`, `/api/scene`, `/api/commands`,
+ * `/api/stream`) now use the tenant-scoped middleware.
+ * `requiresPermission` is kept for routes that need
+ * authentication but no tenant scope -- the dev `/health`
+ * route, `/api/auth/*` (login / me / logout run before any
+ * tenant is known), and `/api/auth/oidc/*` (the IdP
+ * redirect flow happens pre-session).
  */
 
 import type { MiddlewareHandler } from 'hono';

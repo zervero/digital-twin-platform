@@ -1,10 +1,13 @@
 /**
  * /api/commands — V3.0 gated on `command:send`.
  *
- * V2.1 was open; V3.0 attaches `requiresPermission`. The
- * permission union from @dt/contracts uses `command:send`
- * (singular), matching the contract that the SPA already
- * checks via @dt/app-shell's usePermission composable.
+ * V3.0 attached `requiresPermission`; V3.3 switches to
+ * `requiresTenantScope`. The permission union from
+ * `@dt/contracts` uses `command:send` (singular), matching
+ * the contract that the SPA already checks via
+ * `@dt/app-shell`'s `usePermission` composable. V3.3 also
+ * adds the tenant-id presence check on the command body
+ * (T6 will add the cross-tenant 403 check).
  */
 
 import { Hono } from 'hono';
@@ -12,7 +15,7 @@ import { Hono } from 'hono';
 import { type CommandAcceptedResponse, type DigitalTwinCommand } from '@dt/contracts';
 
 import type { AuthStore } from '../auth/store.js';
-import { requiresPermission } from '../middleware/requires-permission.js';
+import { requiresTenantScope } from '../middleware/requires-tenant.js';
 
 function isDigitalTwinCommand(value: unknown): value is DigitalTwinCommand {
   if (typeof value !== 'object' || value === null) return false;
@@ -31,7 +34,7 @@ function isDigitalTwinCommand(value: unknown): value is DigitalTwinCommand {
 
 export function commandsRoute(store: AuthStore): Hono {
   const app = new Hono();
-  app.post('/commands', requiresPermission(store, 'command:send'), async (c) => {
+  app.post('/commands', requiresTenantScope(store, 'command:send'), async (c) => {
     const body = await c.req.json().catch(() => null);
     if (!isDigitalTwinCommand(body)) {
       return c.json(

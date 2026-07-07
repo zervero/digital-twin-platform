@@ -19,6 +19,7 @@
     "@dt/observability": "workspace:*",
     "@dt/otel": "workspace:*",
     "@dt/realtime": "workspace:*",
+    "@dt/tenant": "workspace:*",
     "@hono/node-server": "^2.0.0",
     "hono": "^4.6.12",
     "ws": "^8.18.0"

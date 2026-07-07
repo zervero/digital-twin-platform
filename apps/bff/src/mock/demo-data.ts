@@ -4,14 +4,32 @@
  * One factory, one area, four machines, and a sensor per machine. The sensor
  * inherits its machine's status so the UI can show consistent colors.
  *
- * V3.3 T1 deviation: every node and device carries an `acme-corp` tenant
- * placeholder so the contract-required `tenantId` field is satisfied and
- * the user's pre-push typecheck gate stays green. T5 (BFF mock data split
- * into 3 tenants) replaces this single-tenant shim with a proper
- * `acme-corp` + `globex-ind` + `initech-llc` registry.
+ * V3.3: the demo scene + devices carry `tenantId: 'acme-corp'` to
+ * match the single-tenant placeholder in `DEMO_TENANTS`. T5
+ * splits both the registry and the per-node / per-device data
+ * into the proper three-tenant model.
  */
 
 import type { Device, SceneSnapshot } from '@dt/contracts';
+import type { Tenant } from '@dt/tenant';
+
+/**
+ * V3.3 T4 placeholder: single-tenant registry so the
+ * `requiresTenantScope` middleware can resolve a tenant
+ * id from `AuthSession.tenantId`. T5 expands this to a
+ * proper three-tenant registry (`acme-corp` + `globex-ind`
+ * + `initech-llc`); the supersession is invisible to callers
+ * because `resolveTenant` looks up by `id`.
+ */
+export const DEMO_TENANTS: readonly Tenant[] = [
+  {
+    id: 'acme-corp',
+    name: 'Acme Corporation',
+    slug: 'acme-corp',
+    plan: 'enterprise',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+];
 
 export const DEMO_SCENE: SceneSnapshot = {
   id: 'scene-factory-a',

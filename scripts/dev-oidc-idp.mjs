@@ -17,6 +17,15 @@
  * emails to fixed permission sets. Unknown emails get the
  * viewer set.
  *
+ * V3.3 tenant claim: every minted id_token carries the
+ * namespaced `https://api.digital-twin-platform.local/tenant_id`
+ * claim with the default value `acme-corp`. This keeps the
+ * existing V3.0 smoke (`smoke:oidc`) green under the new
+ * `requiresTenantScope` middleware (V3.3 T4) without
+ * changing the smoke script. T8 adds a `--tenant` flag
+ * (and a new `smoke:tenant` script) for minting tokens
+ * scoped to specific tenants.
+ *
  * This script is NOT for production. It uses an in-memory
  * RSA key pair generated at startup and never persists
  * anything. It exists so the V3.0 smoke (smoke:oidc) can
@@ -32,6 +41,15 @@ import { generateKeyPair, exportJWK, SignJWT } from 'jose';
 
 const PORT = Number(process.env.DEV_OIDC_PORT || '9999');
 const ISSUER = `http://localhost:${PORT}`;
+
+// V3.3: the canonical namespaced tenant claim, mirrored from
+// `@dt/tenant`'s TENANT_ID_CLAIM constant. Hard-coded here
+// (no env-var lookup) because the dev IdP is local-only and
+// should match what the BFF verifies; the BFF reads
+// OIDC_TENANT_CLAIM but defaults to this same value.
+const TENANT_ID_CLAIM =
+  'https://api.digital-twin-platform.local/tenant_id';
+const DEFAULT_TENANT = 'acme-corp';
 
 // User → permissions map. Add new test users here. The
 // `viewer` and `admin` names mirror the @dt/contracts roles
@@ -100,6 +118,9 @@ async function issueIdToken({ email, permissions }) {
     scope: permissions.join(' '),
     permissions,
     email,
+    // V3.3: every dev id_token carries the namespaced tenant
+    // claim. See file-level JSDoc for why.
+    [TENANT_ID_CLAIM]: DEFAULT_TENANT,
   })
     .setProtectedHeader({ alg: 'RS256', kid: publicJwk.kid })
     .setIssuer(ISSUER)

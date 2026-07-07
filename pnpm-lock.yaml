@@ -74,6 +74,9 @@ importers:
       '@dt/realtime':
         specifier: workspace:*
         version: link:../../packages/realtime
+      '@dt/tenant':
+        specifier: workspace:*
+        version: link:../../packages/tenant
       '@hono/node-server':
         specifier: ^2.0.0
         version: 2.0.8(hono@4.12.27)
