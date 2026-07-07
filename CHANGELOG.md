@@ -7,6 +7,14 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.1.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.0.0...digital-twin-platform-v4.1.0) (2026-07-07)
+
+
+### Features
+
+* **helm:** cert-manager ingress + tls termination (V3.1 T5) ([8fe12b0](https://github.com/zervero/digital-twin-platform/commit/8fe12b07a83678474cde85c79da54443310299b6))
+* **helm:** prod/staging/oidc value overlays + secret template (V3.1 T6) ([6c2dc52](https://github.com/zervero/digital-twin-platform/commit/6c2dc5266b93347adca2bbc238c9e3c4e6fa09ab))
+
 ## [4.0.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v3.1.0...digital-twin-platform-v4.0.0) (2026-07-07)
 
 

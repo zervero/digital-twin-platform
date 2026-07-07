@@ -1,6 +1,6 @@
 {
   "name": "digital-twin-platform",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "private": true,
   "description": "Industrial digital twin platform starter - V1",
   "packageManager": "pnpm@11.7.0",
