@@ -73,6 +73,63 @@ jobs:
           PORT: 3001
 
 
+  smoke_tenant:
+    name: Smoke · Tenant isolation
+    # V3.3 T8: end-to-end multi-tenant isolation smoke.
+    # Boots the dev OIDC IdP + the BFF in OIDC mode, mints
+    # a JWT for each of the three dev tenants plus one
+    # without the tenant claim, and asserts that every
+    # tenant-scoped route returns only that tenant's data,
+    # cross-tenant writes are rejected, and a JWT without
+    # the tenant claim is rejected at the gate.
+    #
+    # Action versions, permissions, and timeout follow
+    # AGENTS.md § 5: pinned `@v5`, minimum permissions
+    # (`contents: read` only; the job does not push,
+    # comment, or open PRs), timeout-minutes well above
+    # the actual ~10s runtime. The workflow-level
+    # `concurrency` group already cancels in-progress
+    # runs on the same ref, so no job-level concurrency
+    # override is needed.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    env:
+      # Match the verify job: pnpm version comes from
+      # package.json's packageManager field, not a hardcoded
+      # number, and corepack never prompts interactively.
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.17.1
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        # The smoke boots the BFF against the freshly built
+        # repo via `pnpm --filter @dt/bff dev`, which runs
+        # the source through `tsx watch`; no separate build
+        # step is required for that path. We still need a
+        # workspace build so package consumers (contracts,
+        # config, etc.) have their dist artifacts.
+        run: pnpm build
+
+      - name: Run V3.3 tenant isolation smoke
+        run: pnpm smoke:tenant
+        env:
+          PORT: 3001
+
   chart:
     name: Helm chart lint / render / kubeconform
     runs-on: ubuntu-latest
