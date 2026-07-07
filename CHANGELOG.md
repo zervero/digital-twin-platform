@@ -7,6 +7,20 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [3.1.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v3.0.0...digital-twin-platform-v3.1.0) (2026-07-07)
+
+
+### Features
+
+* **bff:** otel sdk lifecycle in bootstrap (V3.1 T2) ([68da4f9](https://github.com/zervero/digital-twin-platform/commit/68da4f9b2d5efed0d379472aac4fb93f5488396f))
+* **helm:** umbrella chart with bff + web subcharts (V3.1 T4) ([692cd68](https://github.com/zervero/digital-twin-platform/commit/692cd683d0a144477f2dfc3945622de46300abb7))
+* **otel:** new package @dt/otel (V3.1 T1) ([7b97780](https://github.com/zervero/digital-twin-platform/commit/7b9778019d8d6d7de4e6640ba767c055fd0dc4fa))
+
+
+### Bug Fixes
+
+* **otel:** pin resources to 1.x to match sdk-node internal api ([e26e204](https://github.com/zervero/digital-twin-platform/commit/e26e2045d068fa74b0c66a7c212b95e83279af59))
+
 ## [3.0.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v2.3.0...digital-twin-platform-v3.0.0) (2026-07-07)
 
 
