@@ -408,6 +408,19 @@ importers:
         specifier: ^2.1.5
         version: 2.1.5(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)
 
+  packages/tenant:
+    dependencies:
+      '@dt/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.5
+        version: 2.1.5(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)
+
   packages/ui-kit:
     dependencies:
       '@dt/contracts':

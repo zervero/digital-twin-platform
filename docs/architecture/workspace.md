@@ -34,6 +34,7 @@ plugin-runtime -> contracts
 ai-agent       -> contracts
 observability  -> contracts
 config         -> contracts
+@dt/tenant     -> contracts
 ```
 
 Forbidden edges:
@@ -42,6 +43,11 @@ Forbidden edges:
 - `ui-kit` must not depend on `api-client` or `engine-sdk`.
 - Domain packages must not depend on Vue or Three.js.
 - `engine-sdk` must not depend on Vue, the BFF, or any app code.
+- `@dt/tenant` must not depend on `@dt/auth-oidc` (or any
+  other package that does I/O); the BFF composes the two
+  at the route layer. This keeps the package a pure
+  types-and-helper module that can be imported from a
+  worker / Edge runtime without dragging `jose` along.
 
 ## Package-by-package ownership
 
@@ -59,6 +65,7 @@ Forbidden edges:
 | `@dt/ai-agent` | V3 | contracts | Intent types. |
 | `@dt/observability` | V2 | contracts | Console logger. |
 | `@dt/config` | Platform | contracts | Env parsing helpers. |
+| `@dt/tenant` | Platform | contracts | V3.3 tenant types + `getTenantIdFromClaims` claim extractor. |
 
 ## Turbo pipelines
 
