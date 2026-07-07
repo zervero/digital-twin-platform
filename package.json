@@ -21,7 +21,8 @@
     "smoke:v2": "bash scripts/smoke-v2.sh",
     "smoke:prod": "bash scripts/smoke-prod.sh",
     "prepare": "lefthook install || true",
-    "clean": "turbo run clean && rm -rf node_modules"
+    "clean": "turbo run clean && rm -rf node_modules",
+    "smoke:permissions": "bash scripts/smoke-permissions.sh"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",

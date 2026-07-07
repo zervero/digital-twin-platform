@@ -61,15 +61,21 @@ app.use('*', httpLogger(logger));
 let isShuttingDown = false;
 app.route('/', healthRoute({ isShuttingDown: () => isShuttingDown }));
 
-app.route('/api', devicesRoute);
-app.route('/api', sceneRoute);
-
 // V3.0: pick the auth store from the env. createAuthStore
 // returns MockAuthStore for AUTH_PROVIDER=mock and
 // OidcAuthStore for AUTH_PROVIDER=oidc (when the OIDC env
 // vars are complete; in dev, missing OIDC vars fall back to
 // mock with a warning).
 const authStore = createAuthStore(env);
+
+// Every auth-gated route module is a factory that takes the
+// AuthStore; the requiresPermission middleware inside reads
+// it for every request, so the store has to exist before
+// any route is mounted.
+app.route('/api', devicesRoute(authStore));
+app.route('/api', sceneRoute(authStore));
+app.route('/api', commandsRoute(authStore));
+
 app.route('/api/auth', authRoute(authStore));
 
 // OIDC redirect flow. Only mounted when the OIDC provider is
@@ -80,8 +86,6 @@ app.route('/api/auth', authRoute(authStore));
 if (env.authProvider === 'oidc' && env.oidc) {
   app.route('/api/auth/oidc', oidcRoute({ config: env.oidc }));
 }
-
-app.route('/api', commandsRoute);
 
 app.get(
   '/api/stream',

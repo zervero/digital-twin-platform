@@ -99,6 +99,14 @@ export type AuthState =
 
 export interface LoginRequest {
   email: string;
+  /**
+   * V3.0: optional roles to attach to the created session.
+   * Mock provider honors this; real OIDC providers do not
+   * (the IdP is the source of truth). Production never sets
+   * this; the dev BFF does so that the smoke can verify
+   * permission enforcement without spinning up an IdP.
+   */
+  roles?: readonly Role[];
 }
 
 export interface LoginResponse {

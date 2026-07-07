@@ -28,6 +28,7 @@ import {
   type LoginRequest,
   type LoginResponse,
   type MeResponse,
+  type Role,
   type User,
 } from '@dt/contracts';
 
@@ -42,11 +43,18 @@ export class MockAuthStore implements AuthStore {
     if (!EMAIL_RE.test(req.email)) {
       throw new AuthError('AUTH_INVALID_CREDENTIALS', 'Email is not well-formed');
     }
+    // V3.0: callers may pass `roles` (e.g. the smoke) to
+    // drive permission tests. The mock trusts the value; a
+    // real OIDC provider would never honor this — the IdP
+    // issues claims, not the client. Production never sets
+    // it; the dev BFF / smoke does.
+    const roles: readonly Role[] =
+      req.roles && req.roles.length > 0 ? req.roles : ['viewer'];
     const user: User = {
       id: `user-${req.email}`,
       displayName: req.email.split('@')[0]!,
       email: req.email,
-      roles: ['viewer'],
+      roles: [...roles],
     };
     const session: AuthSession = {
       user,
