@@ -106,3 +106,58 @@ jobs:
           releaseBody: "See CHANGELOG.md for details."
           releaseDraft: true
           prerelease: false
+
+  # Windows: .msi signed via Windows Authenticode. WINDOWS_CERTIFICATE
+  # is optional in V3.2 (an unsigned .msi is allowed for dev / contributor
+  # releases; SmartScreen warns but does not block first-party installs).
+  # The required env vars mirror the macOS job's updater ones so the
+  # signed `latest.json` is produced even when the .msi is unsigned.
+  # The windows-latest runner ships with the Windows SDK + signtool
+  # preinstalled; tauri-action invokes the right toolchain internally.
+  windows:
+    name: Desktop / Windows (.msi)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        # Version read from `packageManager` in package.json so the
+        # root manifest stays the single source of truth.
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.17.1
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build + sign (.msi)
+        # tauri-action orchestrates the Tauri build and signing in
+        # one step. If WINDOWS_CERTIFICATE is unset the bundle is
+        # built unsigned; this is intentional so a contributor can
+        # run a dev release without a code-signing cert. Production
+        # releases (release-please-driven) should always have the
+        # cert set; see docs/development/desktop-signing.md.
+        uses: tauri-apps/tauri-action@v0
+        env:
+          # Authenticode signing; both from GH secrets. Optional in
+          # V3.2 - see the per-job comment above.
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+          # Updater keypair from T3. Same macOS-keychain quirk note
+          # applies on windows-latest runners too: if the key has no
+          # password, the GH secret should still be set to an empty
+          # string. See desktop-signing.md "Known quirks".
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "digital-twin-platform ${{ github.ref_name }}"
+          releaseBody: "See CHANGELOG.md for details."
+          releaseDraft: true
+          prerelease: false
