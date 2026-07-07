@@ -53,7 +53,7 @@
       "endpoints": [
         "https://github.com/zervero/digital-twin-platform/releases/latest/download/latest.json"
       ],
-      "pubkey": "REPLACE_WITH_OUTPUT_OF_TAURI_SIGNER_GENERATE"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQ1NTdFNzBCRjgyMkMyRDcKUldUWHdpTDRDK2RYUlE4NjB2RTB6YkVMYXJONnJyd2tWUmhQb0dOcm9IRExpVkVydkxCS1FUQTEK"
     }
   }
 }

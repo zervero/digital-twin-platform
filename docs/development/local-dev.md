@@ -141,6 +141,23 @@ docs/            # Architecture, ADRs, dev guides
    `packages/*`, so this is automatic).
 4. Import it via the workspace alias: `"@dt/<name>": "workspace:*"`.
 
+## Generating a Tauri updater keypair (local only)
+
+If you are testing the desktop update flow end-to-end on your own
+machine (V3.2 Track H), you need a local updater keypair. Run:
+
+```bash
+pnpm --filter @dt/desktop exec tauri signer generate -w ~/.tauri/dtp.key -p <your-password>
+```
+
+Then paste the contents of `~/.tauri/dtp.key.pub` into
+`apps/desktop/src-tauri/tauri.conf.json` `plugins.updater.pubkey`.
+Do **not** commit the `.key` file - the repo's `.gitignore` excludes
+it, and the private key belongs in GitHub Actions secrets for CI use.
+Full operator handoff, including macOS / Windows code-signing secrets
+and rotation procedure, lives in
+[desktop-signing.md](./desktop-signing.md).
+
 ## Troubleshooting
 
 - **Vite dev server won't start** - check that port 5173 is free.
