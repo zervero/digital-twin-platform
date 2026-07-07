@@ -7,6 +7,33 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [3.0.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v2.3.0...digital-twin-platform-v3.0.0) (2026-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* **release:** AuthStore interface refactored to be headers-based; AuthSession.permissions is now optional; @dt/auth-oidc is the canonical OIDC integration surface.
+
+### Features
+
+* **app-shell:** useOIDCStart composable + LoginButton (V3.0 T6) ([de33fa8](https://github.com/zervero/digital-twin-platform/commit/de33fa894f31a0e03d4a572b299dc526557d5ff6))
+* **auth-oidc:** new package @dt/auth-oidc + ALL_PERMISSIONS export ([f98e6d1](https://github.com/zervero/digital-twin-platform/commit/f98e6d1087ef1e1975da3df73679f8d2d2457ee8))
+* **bff:** oidc auth store + headers-based AuthStore (V3.0 T3) ([01c5786](https://github.com/zervero/digital-twin-platform/commit/01c5786b9cb0239630b490cb131fe12291db412d))
+* **bff:** oidc redirect routes /start + /callback (V3.0 T4) ([db6e863](https://github.com/zervero/digital-twin-platform/commit/db6e863d9b6822ca68cb6c86ed2e74feab6b5034))
+* **bff:** permission gates on /devices, /scene, /commands (V3.0 T5) ([75f92b5](https://github.com/zervero/digital-twin-platform/commit/75f92b59513b459aaa6ed0af08ab86dcab17ed96))
+* **config:** oidc env vars + OidcConfig on AppEnv (V3.0 T2) ([cd68c8f](https://github.com/zervero/digital-twin-platform/commit/cd68c8fe66f96c79682549c8fc1ed57822d87a69))
+* **tools:** dev oidc idp + e2e smoke (V3.0 T7) ([b6a5e4f](https://github.com/zervero/digital-twin-platform/commit/b6a5e4f60be0ce2f96d160ef9b9d2b92122d835f))
+
+
+### Bug Fixes
+
+* **lint:** clean ci lint blockers from V3.0 work ([af8aafc](https://github.com/zervero/digital-twin-platform/commit/af8aafcb2afc398ccb3286c85a198922628eac6b))
+
+
+### Documentation
+
+* **release:** mark v3.0.0 transition for the real-auth release ([3c0a53b](https://github.com/zervero/digital-twin-platform/commit/3c0a53bf402a4040b1be29d8995e9cae8edcae70))
+
 ## [2.3.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v2.2.0...digital-twin-platform-v2.3.0) (2026-07-06)
 
 
