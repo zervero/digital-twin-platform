@@ -9,6 +9,9 @@
 - **V1** - 可运行的起步工程（当前版本）：monorepo、带 mock 数据的 BFF、Engine SDK、Web 应用、Tauri 桌面骨架、V2/V3 边界占位。
 - **V2** - 企业级平台底座：命令总线、实时数据、插件、可观测性、认证。
 - **V3** - 工业产品层：AI 智能体、协同、插件市场、多租户、审计。
+  - **V3.0** - 已发布：真实认证（OIDC）、Helm Chart、OTel 接入。
+  - **V3.1** - 已发布：production-platform 指南、Chart 静态检查 CI。
+  - **V3.2** - 开发中：签名版桌面安装包与自动更新通道。详见 [docs/development/desktop-releases.md](docs/development/desktop-releases.md)。
 
 高层设计见 [docs/architecture/overview.md](docs/architecture/overview.md)，本地开发见 [docs/development/local-dev.md](docs/development/local-dev.md)。
 

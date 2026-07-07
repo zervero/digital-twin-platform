@@ -169,6 +169,32 @@ git add <doc-file>
 git commit -m "docs: capture <lesson> from v<X.Y.Z> release"
 ```
 
+### Step 10 - Desktop release (when shipping a desktop build)
+
+This is an **opt-in** step. Run it only when the release-please
+PR's `feat`/`fix` set actually changes the desktop app (anything
+under `apps/desktop/` or a Tauri/Rust toolchain bump). For a
+BFF-only or web-only release, skip this step.
+
+If you do need it, the end-to-end flow is in
+[desktop-releases.md](desktop-releases.md). Quick summary:
+
+- release-please pushes the `vX.Y.Z` tag as usual in Step 4
+- The tag triggers `.github/workflows/desktop-build.yml`,
+  which builds + signs the macOS, Windows, and Linux
+  artifacts and uploads them to the same GitHub Release
+- The T7 release-consolidation job promotes the draft to
+  "latest" so the in-app updater sees it
+- Auto-update verification is documented in desktop-releases.md
+  under "Auto-update verification" - do it once per platform
+  the first time the pipeline runs against a new OS
+
+The desktop release has no extra manual gating beyond what
+the V3.2 doc calls out: the operator must have provisioned
+the macOS / Windows / updater secrets in
+[desktop-signing.md](desktop-signing.md) before the first real
+release. After that, the pipeline is fire-and-forget.
+
 ## Common pitfalls
 
 | Symptom | Cause | Fix |

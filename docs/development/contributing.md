@@ -252,6 +252,8 @@ after I'm done?**
 | New prod deployment concern (Dockerfile, env, health, shutdown) | `docs/development/deployment.md` |
 | Helm chart / values / template change | `docs/development/production-platform.md` (and run `pnpm chart:lint:strict` before pushing) |
 | OpenTelemetry env var or wiring change | `apps/bff/.env.example.otel` (and `production-platform.md` if cluster-side) |
+| Desktop app / Tauri release | `docs/development/desktop-releases.md` |
+| Desktop code-signing setup | `docs/development/desktop-signing.md` |
 | Anything else | the commit message (Conventional Commits) |
 
 The full rule lives in `AGENTS.md` at the repo root. Both must stay in

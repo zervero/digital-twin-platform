@@ -16,6 +16,7 @@ product that can run in the browser, on macOS, and on Windows.
             |  |  |    layout)     +-------------+                  |  |
             |  |  |                                                |  |
             |  |  +-- engine-sdk -- three.js (Three.js renderer)   |  |
+            |  |  +-- desktop updater -- @tauri-apps/plugin-updater |  |
             |  |  +-- api-client -- fetch wrapper                |  |
             |  |  +-- contracts -- shared DTOs & events           |  |
             |  |  +-- device-domain, scene-domain (pure)          |  |
