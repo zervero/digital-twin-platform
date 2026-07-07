@@ -81,6 +81,15 @@ export interface AuthSession {
   user: User;
   token: string;
   expiresAt: string;
+  /**
+   * V3.0: permissions granted to the session, sourced from
+   * the IdP directly when available. When present, consumers
+   * SHOULD use this field instead of `permissionsFor(user.roles)`
+   * so role changes in `ROLE_PERMISSIONS` don't silently widen
+   * what an already-issued token can do. When absent, the
+   * consumer falls back to role-based derivation.
+   */
+  permissions?: readonly Permission[];
 }
 
 export type AuthState =

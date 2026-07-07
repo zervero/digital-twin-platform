@@ -39,7 +39,7 @@ import { devicesRoute } from './routes/devices.js';
 import { healthRoute } from './routes/health.js';
 import { sceneRoute } from './routes/scene.js';
 import { RealtimeBroadcaster } from './realtime/broadcaster.js';
-import { MockAuthStore } from './auth/mock-store.js';
+import { createAuthStore } from './auth/index.js';
 import { DevMockSource } from './realtime/dev-source.js';
 
 const env = readAppEnv();
@@ -63,17 +63,13 @@ app.route('/', healthRoute({ isShuttingDown: () => isShuttingDown }));
 app.route('/api', devicesRoute);
 app.route('/api', sceneRoute);
 
-// AUTH_PROVIDER: in production the env validator has already ensured
-// this is set; in dev it's optional and we default to the mock store.
-if (!env.production || env.authProvider === 'mock') {
-  const authStore = new MockAuthStore();
-  app.route('/api/auth', authRoute(authStore));
-} else if (env.production && env.authProvider === 'oidc') {
-  // Reserved for V3. We log + throw so a misconfiguration is loud
-  // at boot rather than silent at request time.
-  logger.error('AUTH_PROVIDER=oidc is reserved for V3; V2.3 only supports mock');
-  throw new Error('AUTH_PROVIDER=oidc is reserved for V3');
-}
+// V3.0: pick the auth store from the env. createAuthStore
+// returns MockAuthStore for AUTH_PROVIDER=mock and
+// OidcAuthStore for AUTH_PROVIDER=oidc (when the OIDC env
+// vars are complete; in dev, missing OIDC vars fall back to
+// mock with a warning).
+const authStore = createAuthStore(env);
+app.route('/api/auth', authRoute(authStore));
 
 app.route('/api', commandsRoute);
 
@@ -136,7 +132,11 @@ const server = serve(
     websocket: { server: wss },
   },
   (info) => {
-    logger.info('listening', { port: info.port, authProvider: env.authProvider ?? 'unset' });
+    logger.info('listening', {
+      port: info.port,
+      authProvider: env.authProvider ?? 'unset',
+      oidcConfigured: env.oidc ? true : false,
+    });
   },
 );
 

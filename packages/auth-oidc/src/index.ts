@@ -9,9 +9,11 @@
  */
 
 export {
+  createOidcResolver,
   extractPermissions,
   verifyJwt,
   verifyJwtWithResolver,
+  type OidcResolverOptions,
   type OidcVerifyConfig,
   type VerifiedSession,
   type VerifyResult,

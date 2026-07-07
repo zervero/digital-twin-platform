@@ -1,36 +1,29 @@
 /**
- * /api/auth/* — V2.1 mock auth endpoints.
+ * /api/auth/* — V2.1 mock auth endpoints, V3.0 headers-based.
  *
- * Wires `MockAuthStore` to Hono. The real provider drops in here
- * behind the same `AuthStore` interface in V3.
+ * The route is provider-agnostic. MockAuthStore handles
+ * `POST /api/auth/login` (email -> bearer). OidcAuthStore's
+ * `login` throws; the OIDC provider mounts its own start /
+ * callback routes in `routes/oidc.ts` instead.
  *
- * The `/_protected` route is the demo target for `requiresPermission`.
- * In V2.2 it can move into a real route module once plugin
- * permissions are defined.
+ * `GET /api/auth/me` and `POST /api/auth/logout` work for
+ * both providers — they just hand the request headers to the
+ * store and let each implementation read its own credential
+ * shape.
  */
 
 import { Hono } from 'hono';
 
-import {
-  type LoginRequest,
-  type MeResponse,
-} from '@dt/contracts';
+import { type LoginRequest, type MeResponse } from '@dt/contracts';
 
-import { AuthError, type AuthStore } from '../auth/mock-store.js';
+import { AuthError, type AuthStore } from '../auth/store.js';
 import { requiresPermission } from '../middleware/requires-permission.js';
-
-function extractBearer(header: string | undefined): string {
-  if (!header) return '';
-  const trimmed = header.trim();
-  return trimmed.toLowerCase().startsWith('bearer ') ? trimmed.slice('Bearer '.length) : '';
-}
 
 export function authRoute(store: AuthStore): Hono {
   const app = new Hono();
 
   app.get('/me', async (c) => {
-    const token = extractBearer(c.req.header('authorization'));
-    const me: MeResponse = await store.getMe(token);
+    const me: MeResponse = await store.getMe(c.req.raw.headers);
     return c.json(me);
   });
 
@@ -46,13 +39,16 @@ export function authRoute(store: AuthStore): Hono {
       if (err instanceof AuthError) {
         return c.json({ error: err.code, message: err.message }, 401);
       }
-      throw err;
+      // OIDC store throws here in V3.0 because it has no direct
+      // login endpoint. Surface a 400 with a clear hint rather
+      // than letting the framework render a 500.
+      const message = err instanceof Error ? err.message : 'login failed';
+      return c.json({ error: 'AUTH_INVALID_CREDENTIALS', message }, 400);
     }
   });
 
   app.post('/logout', async (c) => {
-    const token = extractBearer(c.req.header('authorization'));
-    await store.logout(token);
+    await store.logout(c.req.raw.headers);
     return c.body(null, 204);
   });
 

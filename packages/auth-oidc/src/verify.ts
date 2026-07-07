@@ -30,6 +30,33 @@ const DEFAULT_JWKS_TTL_MS = 5 * 60 * 1000;
 /** Cooldown after a JWKS fetch failure (30 seconds). */
 const DEFAULT_JWKS_COOLDOWN_MS = 30 * 1000;
 
+/**
+ * Resolver options used by `createOidcResolver` to build a
+ * remote JWKS resolver. Tests inject a `createLocalJWKSet`
+ * instead via `verifyJwtWithResolver` so no HTTP server is
+ * required.
+ */
+export interface OidcResolverOptions {
+  issuerUrl: string;
+  jwksUri?: string;
+  jwksTtlMs?: number;
+  jwksCooldownMs?: number;
+}
+
+/**
+ * Build a remote JWKS resolver from the issuer URL. Production
+ * code path; tests skip this and use `verifyJwtWithResolver`
+ * with a local resolver instead.
+ */
+export function createOidcResolver(opts: OidcResolverOptions): JWTVerifyGetKey {
+  const jwksEndpoint =
+    opts.jwksUri ?? new URL('/.well-known/jwks.json', opts.issuerUrl).href;
+  return createRemoteJWKSet(new URL(jwksEndpoint), {
+    cacheMaxAge: opts.jwksTtlMs ?? DEFAULT_JWKS_TTL_MS,
+    cooldownDuration: opts.jwksCooldownMs ?? DEFAULT_JWKS_COOLDOWN_MS,
+  });
+}
+
 export interface OidcVerifyConfig {
   /** The issuer URL — must match the JWT `iss` claim exactly. */
   issuerUrl: string;

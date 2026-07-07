@@ -19,13 +19,15 @@
     "@dt/realtime": "workspace:*",
     "@hono/node-server": "^2.0.0",
     "hono": "^4.6.12",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "@dt/auth-oidc": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "@types/ws": "^8.5.12",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.5"
+    "vitest": "^2.1.5",
+    "jose": "^5.9.6"
   }
 }
