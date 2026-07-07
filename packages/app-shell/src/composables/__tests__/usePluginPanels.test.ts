@@ -15,7 +15,7 @@ function fakeApi(): ApiClient {
   return {
     getHealth: async () => ({ ok: true }),
     getDevices: async () => [],
-    getScene: async () => ({ id: 'x', name: 'x', nodes: [] }),
+    getScene: async () => ({ id: 'x', tenantId: 'acme-corp', name: 'x', nodes: [] }),
     sendCommand: async () => ({ accepted: true as const, commandId: 'c' }),
     getMe: async () => ({ session: null }),
     login: (async () => ({

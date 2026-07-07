@@ -16,6 +16,7 @@ import {
 function makeDevice(overrides: Partial<Device> = {}): Device {
   return {
     id: 'd-1',
+    tenantId: 'fixture-tenant',
     name: 'CNC-01',
     status: 'online',
     sceneNodeId: 'node-1',

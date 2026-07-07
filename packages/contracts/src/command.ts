@@ -6,9 +6,17 @@
  * `id` for traceability.
  */
 
+/**
+ * V3.3: every variant carries a required `tenantId` so the
+ * BFF can reject cross-tenant commands with 403
+ * TENANT_FORBIDDEN. The BFF's `isDigitalTwinCommand`
+ * runtime validator (in `apps/bff/src/routes/commands.ts`)
+ * is the enforcement point; the contract is the type-level
+ * enforcement.
+ */
 export type DigitalTwinCommand =
-  | { id: string; type: 'select'; nodeId: string }
-  | { id: string; type: 'focus'; nodeId: string }
-  | { id: string; type: 'reset-view' };
+  | { id: string; tenantId: string; type: 'select'; nodeId: string }
+  | { id: string; tenantId: string; type: 'focus'; nodeId: string }
+  | { id: string; tenantId: string; type: 'reset-view' };
 
 export type DigitalTwinCommandType = DigitalTwinCommand['type'];

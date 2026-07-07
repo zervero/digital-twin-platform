@@ -67,9 +67,17 @@ describe('useDeviceStream', () => {
       const store = useDeviceStore();
       expect(store.devices).toEqual([]);
       emit({
+        tenantId: 'fixture-tenant',
         type: 'device:list-updated',
         payload: [
-          { id: 'd1', name: 'n1', status: 'online', sceneNodeId: 's', updatedAt: '2026-01-01T00:00:00.000Z' },
+          {
+            id: 'd1',
+            tenantId: 'fixture-tenant',
+            name: 'n1',
+            status: 'online',
+            sceneNodeId: 's',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          },
         ],
         timestamp: new Date().toISOString(),
       });
@@ -85,15 +93,31 @@ describe('useDeviceStream', () => {
       useDeviceStream({ url: 'ws://x' });
       const store = useDeviceStore();
       emit({
+        tenantId: 'fixture-tenant',
         type: 'device:list-updated',
         payload: [
-          { id: 'd1', name: 'n1', status: 'online', sceneNodeId: 's', updatedAt: '2026-01-01T00:00:00.000Z' },
+          {
+            id: 'd1',
+            tenantId: 'fixture-tenant',
+            name: 'n1',
+            status: 'online',
+            sceneNodeId: 's',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          },
         ],
         timestamp: new Date().toISOString(),
       });
       emit({
+        tenantId: 'fixture-tenant',
         type: 'device:updated',
-        payload: { id: 'd1', name: 'n1', status: 'warning', sceneNodeId: 's', updatedAt: '2026-02-01T00:00:00.000Z' },
+        payload: {
+          id: 'd1',
+          tenantId: 'fixture-tenant',
+          name: 'n1',
+          status: 'warning',
+          sceneNodeId: 's',
+          updatedAt: '2026-02-01T00:00:00.000Z',
+        },
         timestamp: new Date().toISOString(),
       });
       expect(store.devices).toHaveLength(1);

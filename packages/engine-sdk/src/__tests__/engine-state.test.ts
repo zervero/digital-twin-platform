@@ -17,11 +17,12 @@ import { applySelection, buildSceneGraph } from '../scene-factory.js';
 
 const scene: SceneSnapshot = {
   id: 'scene-1',
+  tenantId: 'fixture-tenant',
   name: 'Test',
   nodes: [
-    { id: 'm-1', name: 'M-1', type: 'machine', position: [0, 0, 0], status: 'online' },
-    { id: 'm-2', name: 'M-2', type: 'machine', position: [2, 0, 0], status: 'alarm' },
-    { id: 's-1', name: 'S-1', type: 'sensor', position: [0, 1, 0], status: 'warning' },
+    { id: 'm-1', tenantId: 'fixture-tenant', name: 'M-1', type: 'machine', position: [0, 0, 0], status: 'online' },
+    { id: 'm-2', tenantId: 'fixture-tenant', name: 'M-2', type: 'machine', position: [2, 0, 0], status: 'alarm' },
+    { id: 's-1', tenantId: 'fixture-tenant', name: 'S-1', type: 'sensor', position: [0, 1, 0], status: 'warning' },
   ],
 };
 
@@ -69,8 +70,11 @@ describe('@dt/engine-sdk state', () => {
   it('falls back to offline color when status is missing', () => {
     const partial: SceneSnapshot = {
       id: 's',
+      tenantId: 'fixture-tenant',
       name: 's',
-      nodes: [{ id: 'x', name: 'X', type: 'machine', position: [0, 0, 0] }],
+      nodes: [
+        { id: 'x', tenantId: 'fixture-tenant', name: 'X', type: 'machine', position: [0, 0, 0] },
+      ],
     };
     const built = buildSceneGraph(partial);
     const mesh = built.nodes.get('x')?.material as MeshStandardMaterial;

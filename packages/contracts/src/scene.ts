@@ -11,6 +11,13 @@ export type SceneNodeType = 'factory' | 'area' | 'machine' | 'sensor';
 
 export interface SceneNode {
   id: string;
+  /**
+   * V3.3: owning tenant ID. Required on every SceneNode so
+   * the BFF can filter a scene response to the caller's
+   * tenant and so realtime events carry the tenant context
+   * the broadcaster uses to filter subscribers.
+   */
+  tenantId: string;
   name: string;
   type: SceneNodeType;
   position: [number, number, number];
@@ -19,6 +26,12 @@ export interface SceneNode {
 
 export interface SceneSnapshot {
   id: string;
+  /**
+   * V3.3: owning tenant ID. The snapshot itself is tenant-
+   * scoped; the BFF rejects `/api/scene` requests whose
+   * session tenant does not match the snapshot's tenant.
+   */
+  tenantId: string;
   name: string;
   nodes: SceneNode[];
 }

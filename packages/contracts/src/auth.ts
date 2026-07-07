@@ -90,6 +90,16 @@ export interface AuthSession {
    * consumer falls back to role-based derivation.
    */
   permissions?: readonly Permission[];
+  /**
+   * V3.3: tenant ID carried on the session. Sourced from the
+   * OIDC JWT's namespaced `tenant_id` claim (see `@dt/tenant`
+   * for the default claim name and the `OIDC_TENANT_CLAIM`
+   * env-var override). Optional on the type so dev mock
+   * providers can mint sessions without a tenant, but the
+   * BFF's `requiresTenantScope` middleware rejects sessions
+   * with no `tenantId` as 401 `AUTH_NO_TENANT`.
+   */
+  tenantId?: string;
 }
 
 export type AuthState =
@@ -120,4 +130,22 @@ export type MeResponse =
 export type AuthErrorCode =
   | 'AUTH_INVALID_CREDENTIALS'
   | 'AUTH_SESSION_EXPIRED'
-  | 'AUTH_FORBIDDEN';
+  | 'AUTH_FORBIDDEN'
+  /**
+   * V3.3: the session is authenticated but has no tenant
+   * claim (or the claim is not a registered tenant). The
+   * BFF returns 401 on every tenant-scoped route when this
+   * fires. Distinct from `AUTH_FORBIDDEN` (which is the
+   * "you have a session but lack the required permission"
+   * case) so a dev / smoke script can tell the two apart.
+   */
+  | 'AUTH_NO_TENANT'
+  /**
+   * V3.3: the request targets a tenant the caller's session
+   * is not part of. Returned by `/api/commands` when the
+   * command's `tenantId` does not match the session tenant.
+   * Distinct from `AUTH_FORBIDDEN` (permission) so the UI
+   * can show a different error message for cross-tenant
+   * attempts vs missing-permission attempts.
+   */
+  | 'TENANT_FORBIDDEN';

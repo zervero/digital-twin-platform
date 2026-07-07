@@ -26,6 +26,7 @@ describe('@dt/contracts', () => {
   it('builds a valid Device', () => {
     const device: Device = {
       id: 'd-1',
+      tenantId: 'fixture-tenant',
       name: 'CNC-01',
       status: 'online',
       sceneNodeId: 'node-1',
@@ -37,17 +38,28 @@ describe('@dt/contracts', () => {
   it('builds a valid SceneSnapshot with typed positions', () => {
     const node: SceneNode = {
       id: 'node-1',
+      tenantId: 'fixture-tenant',
       name: 'CNC-01',
       type: 'machine',
       position: [0, 0, 0],
       status: 'online',
     };
-    const scene: SceneSnapshot = { id: 'scene-1', name: 'Factory A', nodes: [node] };
+    const scene: SceneSnapshot = {
+      id: 'scene-1',
+      tenantId: 'fixture-tenant',
+      name: 'Factory A',
+      nodes: [node],
+    };
     expect(scene.nodes[0]?.position).toEqual([0, 0, 0]);
   });
 
   it('narrows DigitalTwinCommand by type', () => {
-    const cmd: DigitalTwinCommand = { id: 'c-1', type: 'select', nodeId: 'node-1' };
+    const cmd: DigitalTwinCommand = {
+      id: 'c-1',
+      tenantId: 'fixture-tenant',
+      type: 'select',
+      nodeId: 'node-1',
+    };
     if (cmd.type === 'select') {
       expect(cmd.nodeId).toBe('node-1');
     }
@@ -59,6 +71,7 @@ describe('@dt/contracts', () => {
 
   it('narrows DigitalTwinEvent by type', () => {
     const event: DigitalTwinEvent = {
+      tenantId: 'fixture-tenant',
       type: 'scene:node-selected',
       payload: { nodeId: 'node-1' },
       timestamp: '2026-07-05T00:00:00.000Z',

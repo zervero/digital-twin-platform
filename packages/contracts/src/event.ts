@@ -15,15 +15,23 @@ import type { Device } from './device.js';
 
 type WithTimestamp<T> = T & { timestamp: string };
 
+/**
+ * V3.3: every variant carries a required `tenantId` so the
+ * realtime broadcaster can filter events to subscribers
+ * for the matching tenant (see `RealtimeBroadcaster.subscribeClient`
+ * in `apps/bff/src/realtime/broadcaster.ts`). The contract
+ * is the type-level enforcement; the broadcaster is the
+ * runtime enforcement.
+ */
 export type DigitalTwinEvent =
-  | WithTimestamp<{ type: 'device:updated'; payload: Device }>
-  | WithTimestamp<{ type: 'device:list-updated'; payload: Device[] }>
-  | WithTimestamp<{ type: 'scene:loaded'; payload: { sceneId: string; nodeCount: number } }>
-  | WithTimestamp<{ type: 'scene:node-selected'; payload: { nodeId: string | null } }>
-  | WithTimestamp<{ type: 'command:accepted'; payload: { commandId: string } }>
-  | WithTimestamp<{ type: 'command:rejected'; payload: { commandId: string; reason: string } }>
-  | WithTimestamp<{ type: 'ping'; payload: { nonce: string } }>
-  | WithTimestamp<{ type: 'pong'; payload: { nonce: string } }>;
+  | WithTimestamp<{ tenantId: string; type: 'device:updated'; payload: Device }>
+  | WithTimestamp<{ tenantId: string; type: 'device:list-updated'; payload: Device[] }>
+  | WithTimestamp<{ tenantId: string; type: 'scene:loaded'; payload: { sceneId: string; nodeCount: number } }>
+  | WithTimestamp<{ tenantId: string; type: 'scene:node-selected'; payload: { nodeId: string | null } }>
+  | WithTimestamp<{ tenantId: string; type: 'command:accepted'; payload: { commandId: string } }>
+  | WithTimestamp<{ tenantId: string; type: 'command:rejected'; payload: { commandId: string; reason: string } }>
+  | WithTimestamp<{ tenantId: string; type: 'ping'; payload: { nonce: string } }>
+  | WithTimestamp<{ tenantId: string; type: 'pong'; payload: { nonce: string } }>;
 
 export type DigitalTwinEventType = DigitalTwinEvent['type'];
 

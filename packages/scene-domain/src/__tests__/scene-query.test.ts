@@ -9,13 +9,18 @@ import {
 } from '../index.js';
 
 const baseNodes: SceneNode[] = [
-  { id: 'factory-1', name: 'Factory A', type: 'factory', position: [0, 0, 0] },
-  { id: 'area-1', name: 'Area 1', type: 'area', position: [5, 0, 0] },
-  { id: 'machine-1', name: 'CNC-01', type: 'machine', position: [6, 0, 1], status: 'online' },
-  { id: 'machine-2', name: 'CNC-02', type: 'machine', position: [7, 0, 1], status: 'alarm' },
+  { id: 'factory-1', tenantId: 'fixture-tenant', name: 'Factory A', type: 'factory', position: [0, 0, 0] },
+  { id: 'area-1', tenantId: 'fixture-tenant', name: 'Area 1', type: 'area', position: [5, 0, 0] },
+  { id: 'machine-1', tenantId: 'fixture-tenant', name: 'CNC-01', type: 'machine', position: [6, 0, 1], status: 'online' },
+  { id: 'machine-2', tenantId: 'fixture-tenant', name: 'CNC-02', type: 'machine', position: [7, 0, 1], status: 'alarm' },
 ];
 
-const scene: SceneSnapshot = { id: 'scene-1', name: 'Main', nodes: baseNodes };
+const scene: SceneSnapshot = {
+  id: 'scene-1',
+  tenantId: 'fixture-tenant',
+  name: 'Main',
+  nodes: baseNodes,
+};
 
 describe('@dt/scene-domain', () => {
   it('finds a node by id', () => {
@@ -34,10 +39,17 @@ describe('@dt/scene-domain', () => {
   it('normalizes a snapshot, filling defaults', () => {
     const partial: SceneSnapshot = {
       id: 's',
+      tenantId: 'fixture-tenant',
       name: 'S',
       nodes: [
-        { id: 'a', name: 'A', type: 'area', position: [1, 2, 3] },
-        { id: 'b', name: 'B', type: 'area', position: [4, 5] as unknown as [number, number, number] },
+        { id: 'a', tenantId: 'fixture-tenant', name: 'A', type: 'area', position: [1, 2, 3] },
+        {
+          id: 'b',
+          tenantId: 'fixture-tenant',
+          name: 'B',
+          type: 'area',
+          position: [4, 5] as unknown as [number, number, number],
+        },
       ],
     };
     const normalized = normalizeSceneSnapshot(partial);

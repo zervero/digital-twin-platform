@@ -56,7 +56,7 @@ export class DevMockSource {
       if (DEMO_DEVICES.length === 0) return;
       const next = DEMO_DEVICES.map(jitterDevice);
       this.opts.broadcaster.publish(
-        withTimestamp({ type: 'device:list-updated', payload: next }),
+        withTimestamp({ tenantId: 'acme-corp', type: 'device:list-updated', payload: next }),
       );
     }, interval);
   }

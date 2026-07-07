@@ -35,7 +35,12 @@ function fakeFetch(url: string): Promise<Response> {
     return Promise.resolve(new Response(JSON.stringify([]), { status: 200 }));
   }
   if (url.endsWith('/api/scene')) {
-    return Promise.resolve(new Response(JSON.stringify({ id: 'x', name: 'x', nodes: [] }), { status: 200 }));
+    return Promise.resolve(
+      new Response(
+        JSON.stringify({ id: 'x', tenantId: 'acme-corp', name: 'x', nodes: [] }),
+        { status: 200 },
+      ),
+    );
   }
   return Promise.resolve(new Response('not found', { status: 404 }));
 }

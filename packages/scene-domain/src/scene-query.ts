@@ -26,13 +26,23 @@ export function findSceneNodesByType(
  * Defensive normalizer that fills in defaults for missing optional fields.
  * The BFF in V1 already returns complete data, but this guards the engine
  * SDK against partial responses from future realtime sources.
+ *
+ * V3.3: `tenantId` is a required field on both SceneNode and
+ * SceneSnapshot, so the normalizer carries it through from the
+ * input. The normalizer does not synthesize a default value; if
+ * the caller hands us an object without a tenant, the upstream
+ * type system already prevented that. This is intentional, so
+ * a missing tenant at runtime surfaces as `undefined` rather
+ * than silently inventing a tenant the caller never approved.
  */
 export function normalizeSceneSnapshot(input: SceneSnapshot): SceneSnapshot {
   return {
     id: input.id,
+    tenantId: input.tenantId,
     name: input.name,
     nodes: input.nodes.map((node) => ({
       id: node.id,
+      tenantId: node.tenantId,
       name: node.name,
       type: node.type,
       position: [

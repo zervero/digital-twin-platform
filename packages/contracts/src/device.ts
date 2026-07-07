@@ -10,6 +10,15 @@ export type DeviceStatus = 'online' | 'offline' | 'warning' | 'alarm';
 
 export interface Device {
   id: string;
+  /**
+   * V3.3: owning tenant ID. Required on every Device; the BFF
+   * scopes `/api/devices` responses to the caller's tenant
+   * and rejects cross-tenant writes with 403 TENANT_FORBIDDEN.
+   * Resolved from the OIDC JWT's namespaced `tenant_id` claim
+   * (see `@dt/tenant` for the default claim name and the
+   * `OIDC_TENANT_CLAIM` env-var override).
+   */
+  tenantId: string;
   name: string;
   status: DeviceStatus;
   sceneNodeId: string;

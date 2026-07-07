@@ -20,6 +20,7 @@ function makeJsonResponse(body: unknown, status = 200): Response {
 const sampleDevices: Device[] = [
   {
     id: 'd-1',
+    tenantId: 'fixture-tenant',
     name: 'CNC-01',
     status: 'online',
     sceneNodeId: 'machine-1',
@@ -29,9 +30,16 @@ const sampleDevices: Device[] = [
 
 const sampleScene: SceneSnapshot = {
   id: 'scene-1',
+  tenantId: 'fixture-tenant',
   name: 'Factory A',
   nodes: [
-    { id: 'factory-a', name: 'Factory A', type: 'factory', position: [0, 0, 0] },
+    {
+      id: 'factory-a',
+      tenantId: 'fixture-tenant',
+      name: 'Factory A',
+      type: 'factory',
+      position: [0, 0, 0],
+    },
   ],
 };
 
@@ -63,7 +71,12 @@ describe('@dt/api-client', () => {
       makeJsonResponse({ accepted: true, commandId: 'c-1' } satisfies CommandAcceptedResponse),
     );
     const client = createApiClient({ baseUrl: 'http://example.test', fetchImpl });
-    const cmd: DigitalTwinCommand = { id: 'c-1', type: 'select', nodeId: 'machine-1' };
+    const cmd: DigitalTwinCommand = {
+      id: 'c-1',
+      tenantId: 'fixture-tenant',
+      type: 'select',
+      nodeId: 'machine-1',
+    };
     const res = await client.sendCommand(cmd);
     expect(res).toEqual({ accepted: true, commandId: 'c-1' });
     const [, init] = fetchImpl.mock.calls[0]!;
