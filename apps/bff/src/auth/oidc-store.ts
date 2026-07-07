@@ -18,7 +18,7 @@
  * `POST /api/auth/logout` handler should call this method.
  */
 
-import { createOidcResolver, verifyJwtWithResolver } from '@dt/auth-oidc';
+import { createOidcResolver, verifyJwtWithResolver, type VerifiedSession } from '@dt/auth-oidc';
 import {
   type AuthSession,
   type LoginRequest,
@@ -67,12 +67,10 @@ export class OidcAuthStore implements AuthStore {
       // Verification failed: signature, expiry, audience, issuer.
       // We treat all of these as "no session" so callers can
       // cleanly differentiate "anonymous" from "broken config".
-      // The BFF logs the code + message from the result for
-      // observability.
       return { session: null };
     }
     return {
-      session: toAuthSession(result.session, this.config),
+      session: toAuthSession(result.session),
     };
   }
 
@@ -122,20 +120,27 @@ export class OidcAuthStore implements AuthStore {
   }
 }
 
-function toAuthSession(
-  verified: { subject: string; permissions: readonly import('@dt/contracts').Permission[] },
-  config: OidcConfig,
-): AuthSession {
-  // OIDC `sub` is opaque to us; we synthesize a user id from
-  // it so the AuthSession shape stays stable across providers.
-  // displayName / email come from the token claims when present
-  // (T4 will read them in the callback). V3.0 keeps them out
-  // of this layer to avoid coupling to claim shape decisions
-  // that are still being finalized.
+function toAuthSession(verified: VerifiedSession): AuthSession {
+  // Prefer the standard OIDC claims (`email`, `name`,
+  // `preferred_username`) for the AuthSession display fields.
+  // Fall back to `sub` for dev IdPs that put the email in the
+  // subject (the dev-oidc-idp script in scripts/ does this).
+  // We deliberately do NOT synthesize `email` from
+  // `${sub}@${issuer}`; that produced nonsense addresses
+  // like `admin@example.com@localhost:9999` for any IdP
+  // whose subject is already an email.
+  const claims = verified.claims;
+  const email = typeof claims.email === 'string' && claims.email
+    ? claims.email
+    : verified.subject;
+  const displayName =
+    (typeof claims.name === 'string' && claims.name) ||
+    (typeof claims.preferred_username === 'string' && claims.preferred_username) ||
+    email;
   const user: User = {
     id: `oidc:${verified.subject}`,
-    displayName: verified.subject,
-    email: `${verified.subject}@${new URL(config.issuerUrl).host}`,
+    displayName,
+    email,
     // Roles are derived from the OIDC permissions in the
     // middleware via permissionsFor; we don't synthesize roles
     // here so the OIDC token stays the source of truth.

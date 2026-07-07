@@ -22,7 +22,9 @@
     "smoke:prod": "bash scripts/smoke-prod.sh",
     "prepare": "lefthook install || true",
     "clean": "turbo run clean && rm -rf node_modules",
-    "smoke:permissions": "bash scripts/smoke-permissions.sh"
+    "smoke:permissions": "bash scripts/smoke-permissions.sh",
+    "dev:oidc": "node scripts/dev-oidc-idp.mjs",
+    "smoke:oidc": "bash scripts/smoke-oidc.sh"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",
@@ -38,7 +40,8 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.15.0",
     "vue-eslint-parser": "^9.4.3",
-    "ws": "^8.21.0"
+    "ws": "^8.21.0",
+    "jose": "^5.9.6"
   },
   "license": "MIT",
   "author": "zengxiangrong <zengxiangrong@nxin.com>",

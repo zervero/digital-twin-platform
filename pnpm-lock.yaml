@@ -26,6 +26,9 @@ importers:
       eslint-plugin-vue:
         specifier: ^9.31.0
         version: 9.31.0(eslint@9.39.4(jiti@1.19.1))
+      jose:
+        specifier: ^5.9.6
+        version: 5.9.6
       lefthook:
         specifier: ^1.13.0
         version: 1.13.0
