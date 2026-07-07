@@ -1,8 +1,10 @@
 # V3 Overview
 
 > Active. Records the scope and ordering for V3 work, with
-> per-track ship status. V3 is **proposed**: tracks are scoped
-> and ordered here; the first V3 release is not yet cut.
+> per-track ship status. V3.0 (Track F: real auth / OIDC) is
+> **shipped** (see [ADR 0013](../adr/0013-v3.0-closure.md));
+> V3.1 (Track G: production platform) is **active** — see
+> [`docs/plans/v3.1-implementation-plan.md`](./v3.1-implementation-plan.md).
 >
 > V2 closed as `digital-twin-platform@2.3.0` (see ADR 0011); the
 > V2 spec items all landed across V2.0 -> V2.3. The remaining
@@ -47,7 +49,7 @@ acceptance shape, and a natural order relative to the others.
 | Track | Release | Status | Closure |
 | --- | --- | --- | --- |
 | F. Real auth (OIDC) | V3.0 | **Shipped** | [ADR 0013](../adr/0013-v3.0-closure.md) |
-| G. Production platform | V3.1 | Proposed | — |
+| G. Production platform | V3.1 | **Active** | [plan](./v3.1-implementation-plan.md) |
 | H. Tauri release pipeline | V3.2 | Proposed | — |
 | I. Multi-tenant data model | V3.3 | Proposed | — |
 | J. Plugin marketplace + persistence | V3.4 | Proposed | — |
@@ -137,6 +139,20 @@ plan, which now supersedes this section):
   defers these to V3+.
 - **High-availability / multi-region active-active**. V3
   ships a single-region deployment story; HA is V4+.
+
+## Track G is active
+
+V3.1 (Track G: production platform) is the second V3 release
+and the first after V3.0 ships. The implementation plan lives at
+[`docs/plans/v3.1-implementation-plan.md`](./v3.1-implementation-plan.md).
+It covers the Helm chart, cert-manager-managed TLS, the
+`@dt/otel` package + BFF wiring, and the CI gates that lint +
+render + kubeconform-validate the chart before merge.
+
+The V3-era major-version policy (ADR 0012) means V3.1 is a
+**major** bump (3.0.0 → 3.1.0) even though the public API
+surface is largely additive — closing a V3 track is the
+trigger.
 
 ## Open questions
 
