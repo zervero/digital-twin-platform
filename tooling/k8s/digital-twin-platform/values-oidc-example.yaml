@@ -1,0 +1,36 @@
+# OIDC env-var example overlay. Drop the AUTH_PROVIDER switch
+# and the OIDC_* values into your env overlay (or `--set` them)
+# so the BFF can boot against a real OIDC provider.
+#
+# This file does NOT include secret values (client secrets,
+# signing keys). Those go into a Secret via secrets.example.yaml
+# and the BFF mounts them via env.valueFrom.secretKeyRef.
+#
+#   helm install dtp tooling/k8s/digital-twin-platform \
+#     -f values-prod.yaml \
+#     -f values-oidc-example.yaml \
+#     --set bff.config.oidcIssuerUrl=https://your-issuer/ \
+#     --set bff.config.oidcAudience=... \
+#     --set bff.config.oidcClientId=...
+#
+# Auth0 example:
+#   oidcIssuerUrl:  https://your-tenant.auth0.com/
+#   oidcAudience:   https://digital-twin-platform
+#   oidcClientId:   <from Auth0 application settings>
+#
+# Keycloak example:
+#   oidcIssuerUrl:  https://keycloak.example.com/realms/dtp
+#   oidcAudience:   digital-twin-platform
+#   oidcClientId:   digital-twin-platform-bff
+#
+# Okta example:
+#   oidcIssuerUrl:  https://your-org.okta.com/oauth2/default
+#   oidcAudience:   api://default
+#   oidcClientId:   <from Okta application settings>
+
+bff:
+  config:
+    authProvider: oidc
+    oidcIssuerUrl: ""
+    oidcAudience: ""
+    oidcClientId: ""

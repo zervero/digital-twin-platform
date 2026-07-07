@@ -1,0 +1,59 @@
+# Production values overlay.
+#
+#   helm install dtp tooling/k8s/digital-twin-platform \
+#     -f values-prod.yaml \
+#     --set bff.oidc.secretName=<your-real-secret>
+#
+# Pair with secrets.example.yaml for the OIDC Secret shape.
+
+bff:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  config:
+    logLevel: info
+    nodeEnv: production
+    authProvider: oidc
+
+web:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 96Mi
+    limits:
+      cpu: 400m
+      memory: 384Mi
+
+# Public ingress. Replace the host with your real DNS name;
+# the chart will derive dnsNames for the Certificate from
+# this list.
+global:
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/proxy-body-size: 16m
+    hosts:
+      - host: digital-twin.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - digital-twin.example.com
+        secretName: digital-twin-platform-tls
+
+  certManager:
+    enabled: true
+    staging: false
+    email: ops@example.com
