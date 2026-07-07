@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia';
 
 import { DtButton, DtToolbar } from '@dt/ui-kit';
 
+import LoginButton from './LoginButton.vue';
 import { useSceneStore } from '../stores/scene-store.js';
 
 const sceneStore = useSceneStore();
@@ -24,6 +25,7 @@ function onReset(): void {
       <span class="meta__divider">·</span>
       <span>{{ snapshot.nodes.length }} 节点</span>
     </div>
+    <LoginButton />
   </DtToolbar>
 </template>
 

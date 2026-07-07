@@ -28,9 +28,12 @@ export { default as TopToolbar } from './components/TopToolbar.vue';
 export { default as PluginPanelHost } from './components/PluginPanelHost.vue';
 export { useDeviceStream } from './composables/useDeviceStream.js';
 export { useCurrentUser } from './composables/useCurrentUser.js';
+export { useOIDCStart, AuthModeKey, BffBaseUrlKey } from './composables/useOIDCStart.js';
+export type { AuthMode } from './composables/useOIDCStart.js';
 export { usePermission } from './composables/usePermission.js';
 export { usePluginPanels } from './composables/usePluginPanels.js';
 export { usePluginMenu } from './composables/usePluginMenu.js';
+export { default as LoginButton } from './components/LoginButton.vue';
 
 /**
  * Bootstrap helper. Creates a Vue app, installs Pinia, provides the API

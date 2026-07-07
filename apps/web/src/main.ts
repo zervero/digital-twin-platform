@@ -2,17 +2,23 @@
  * Web entry point.
  *
  * Boots the shared app shell with a real ApiClient. The BFF URL comes from
- * `VITE_BFF_URL` and falls back to localhost.
+ * `VITE_BFF_URL` and falls back to localhost. The auth mode comes from
+ * `VITE_AUTH_MODE` (mock | oidc).
  *
  * V2.2 wires the sample `helloPlugin` into the shell so the
  * extension-point surface is exercised on every dev run. Remove
  * the `plugins:` line to ship a plugin-free web build.
+ *
+ * V3.0: VITE_AUTH_MODE=oidc swaps the LoginButton to a redirect
+ * to /api/auth/oidc/start instead of the dev login form. The
+ * auth store still rehydrates from /api/auth/me on mount so the
+ * cookie set by the OIDC callback is picked up.
  */
 
 import { createApp } from 'vue';
 import '@dt/ui-kit/styles';
 
-import { AppShell, provideApiClient } from '@dt/app-shell';
+import { AppShell, provideApiClient, useOIDCStart } from '@dt/app-shell';
 import { createApiClient } from '@dt/api-client';
 import { createPinia } from 'pinia';
 
@@ -20,23 +26,36 @@ import { helloPlugin } from './plugins/hello/index.js';
 import { readEnv } from './env.js';
 
 async function main(): Promise<void> {
-  const { bffUrl } = readEnv();
+  const { bffUrl, authMode } = readEnv();
   const apiClient = createApiClient({ baseUrl: bffUrl });
 
-  // Pre-create the Vue app + pinia so the rest of the boot
-  // (auth hydration, plugin activation) shares the same
-  // instances. `bootstrapAppShell` mounts the same root
-  // component the V1 path did.
   const app = createApp(AppShell);
   const pinia = createPinia();
   app.use(pinia);
   provideApiClient(app, apiClient);
-  // Avoid the dual-pinia path: bootstrapAppShell installs its
-  // own pinia when given a host. We reuse ours via direct
-  // store calls here.
-  const authStore = (
-    await import('@dt/app-shell')
-  ).useAuthStore(pinia);
+  const { useAuthStore } = await import('@dt/app-shell');
+  const authStore = useAuthStore(pinia);
+
+  // V3.0: OIDC mode wires the login button to a redirect via
+  // useOIDCStart. Mock mode keeps the dev login form. The
+  // auth store handles both refresh paths the same way
+  // (cookie vs bearer token).
+  app.provide('dt:authMode', authMode);
+  app.provide('dt:bffBaseUrl', bffUrl);
+
+  // V3.0: detect OIDC callback errors. The BFF redirects to
+  // /?oidc_error=...&oidc_error_description=... on failure;
+  // we surface the description in the auth store's error
+  // ref so the LoginButton can show it.
+  const params = new URLSearchParams(window.location.search);
+  const oidcError = params.get('oidc_error');
+  if (oidcError) {
+    authStore.error = params.get('oidc_error_description') ?? oidcError;
+    // Strip the query so a refresh doesn't replay the error.
+    const clean = window.location.pathname;
+    window.history.replaceState({}, '', clean);
+  }
+
   await authStore.refresh();
 
   const { usePluginStore } = await import('@dt/app-shell');
@@ -51,5 +70,9 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  console.error('[web] bootstrap failed', err);
+  console.error('[web] boot failed', err);
+  const root = document.getElementById('app');
+  if (root) {
+    root.textContent = `Boot failed: ${err instanceof Error ? err.message : String(err)}`;
+  }
 });
