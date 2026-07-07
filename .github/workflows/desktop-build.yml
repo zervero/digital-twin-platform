@@ -221,3 +221,59 @@ jobs:
           releaseBody: "See CHANGELOG.md for details."
           releaseDraft: true
           prerelease: false
+
+  # release: finalization job. Runs after macos, windows, and
+  # linux all succeed. Each platform's tauri-action step
+  # uploads its artifacts to the SAME draft GitHub Release
+  # (they share `tagName`), so when this job runs the draft
+  # already has all three sets of artifacts attached. The job:
+  #
+  # 1. Verifies the draft exists, has the right tag, and is
+  #    still in draft state (sanity check).
+  # 2. Promotes the draft to a public release
+  #    (`gh release edit --draft=false`). This makes the
+  #    release visible on the GitHub Releases page and the
+  #    `latest` JSON manifest that the Tauri updater polls
+  #    starts resolving to it.
+  #
+  # Failure mode (plan T7 Step 7.1): if any of the three
+  # platform jobs fails, this job skips via the `if` chain
+  # and the draft stays as a draft. The operator then decides
+  # whether to delete the draft, retry the failing platform,
+  # or cut a fresh release once the underlying issue is fixed.
+  release:
+    name: Desktop / Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: [macos, windows, linux]
+    timeout-minutes: 5
+    # `always()` is needed because we want to evaluate the
+    # success-chain even when a needed job failed; combined
+    # with the explicit `result == 'success'` checks, this
+    # makes the job skip on any partial failure.
+    if: ${{ always() && needs.macos.result == 'success' && needs.windows.result == 'success' && needs.linux.result == 'success' }}
+    steps:
+      - name: Verify draft release exists
+        # Sanity check that tauri-action uploaded the draft
+        # release. If this fails the operator should look at
+        # the failing platform job(s) before retrying.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --json isDraft,name,tagName
+
+      - name: Promote draft to public release
+        # Flips the release from draft to public so end users
+        # see it on the GitHub Releases page and the in-app
+        # updater's `releases/latest/download/latest.json`
+        # endpoint starts returning the new version. The
+        # `--draft=false` flag is the only change; we leave
+        # `prerelease` as `false` (already set by the
+        # platform jobs) so the release is treated as stable.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --draft=false
