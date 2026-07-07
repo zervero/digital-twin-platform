@@ -21,7 +21,9 @@ product that can run in the browser, on macOS, and on Windows.
             |  |  +-- contracts -- shared DTOs & events           |  |
             |  |  +-- device-domain, scene-domain (pure)          |  |
             |  |  +-- realtime, plugin-runtime, ai-agent,        |  |
-            |  |     observability, config, otel (boundaries)     |  |
+            |  |     observability, config, otel, tenant          |  |
+            |  |     (boundaries; @dt/tenant ships types + claim   |  |
+            |  |      extractor only, no I/O -- see V3.3 docs)     |  |
             |  |     otel = BFF-only; web consumes VITE_OTEL_*    |  |
             |  |     env vars once V3.x browser RUM ships         |  |
             |  +------------------------------------------------+  |
@@ -54,4 +56,6 @@ V1 is intentionally small. The boundaries that already exist are:
 - No plugin loading. Plugin runtime exports the manifest and registration
   contract only.
 - No AI. The `ai-agent` package exports types only.
-- No marketplace, no tenancy, no audit log.
+- No marketplace, no tenancy beyond the V3.3 dev mock registry,
+  no audit log. See `docs/development/multi-tenant.md` for the
+  V3.3 model and the production follow-ups it implies.

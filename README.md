@@ -12,6 +12,7 @@ Industrial digital twin platform starter. Web + Desktop, Vue 3 + Three.js, BFF s
   - **V3.0** - Shipped: real auth (OIDC), Helm chart, OTel wiring.
   - **V3.1** - Shipped: production-platform guide, chart lint CI.
   - **V3.2** - In development: signed desktop installers + auto-update channel. See [docs/development/desktop-releases.md](docs/development/desktop-releases.md).
+  - **V3.3** - In development: multi-tenant data model + dev IdP `--tenant` flag + isolation smoke. See [docs/development/multi-tenant.md](docs/development/multi-tenant.md).
 
 See [docs/architecture/overview.md](docs/architecture/overview.md) for the high-level design and [docs/development/local-dev.md](docs/development/local-dev.md) for the local development guide.
 

@@ -289,3 +289,6 @@ When you delegate a task to an AI agent:
 - [V3 overview](../plans/v3-overview.md) — V3 (real auth + production platform +
   Tauri releases + multi-tenant + plugin marketplace) tracks, ordering,
   open questions.
+- [Multi-tenant data model](./multi-tenant.md) — V3.3 model, JWT claim
+  shape, dev IdP `mint` flow, troubleshooting tree for the four
+  tenant-boundary error codes.

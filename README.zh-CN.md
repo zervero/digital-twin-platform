@@ -12,6 +12,7 @@
   - **V3.0** - 已发布：真实认证（OIDC）、Helm Chart、OTel 接入。
   - **V3.1** - 已发布：production-platform 指南、Chart 静态检查 CI。
   - **V3.2** - 开发中：签名版桌面安装包与自动更新通道。详见 [docs/development/desktop-releases.md](docs/development/desktop-releases.md)。
+  - **V3.3** - 开发中：多租户数据模型 + 开发 IdP 的 `--tenant` 参数 + 隔离 smoke。详见 [docs/development/multi-tenant.md](docs/development/multi-tenant.md)。
 
 高层设计见 [docs/architecture/overview.md](docs/architecture/overview.md)，本地开发见 [docs/development/local-dev.md](docs/development/local-dev.md)。
 
