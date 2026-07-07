@@ -3,7 +3,7 @@
 > Active. Records the scope and ordering for V3 work, with
 > per-track ship status. V3.0 (Track F: real auth / OIDC) is
 > **shipped** (see [ADR 0013](../adr/0013-v3.0-closure.md));
-> V3.1 (Track G: production platform) is **active** — see
+> V3.2 (Track H: Tauri release pipeline) is **active** — see
 > [`docs/plans/v3.1-implementation-plan.md`](./v3.1-implementation-plan.md).
 >
 > V2 closed as `digital-twin-platform@2.3.0` (see ADR 0011); the
@@ -49,8 +49,8 @@ acceptance shape, and a natural order relative to the others.
 | Track | Release | Status | Closure |
 | --- | --- | --- | --- |
 | F. Real auth (OIDC) | V3.0 | **Shipped** | [ADR 0013](../adr/0013-v3.0-closure.md) |
-| G. Production platform | V3.1 | **Active** | [plan](./v3.1-implementation-plan.md) |
-| H. Tauri release pipeline | V3.2 | Proposed | — |
+| G. Production platform | V3.1 | **Shipped** | [plan](./v3.1-implementation-plan.md), [ADR 0014](../adr/0014-v3.1-closure.md) |
+| H. Tauri release pipeline | V3.2 | **Active** | [plan](./v3.2-implementation-plan.md) |
 | I. Multi-tenant data model | V3.3 | Proposed | — |
 | J. Plugin marketplace + persistence | V3.4 | Proposed | — |
 
@@ -140,19 +140,27 @@ plan, which now supersedes this section):
 - **High-availability / multi-region active-active**. V3
   ships a single-region deployment story; HA is V4+.
 
-## Track G is active
+## Track H is active
 
-V3.1 (Track G: production platform) is the second V3 release
-and the first after V3.0 ships. The implementation plan lives at
-[`docs/plans/v3.1-implementation-plan.md`](./v3.1-implementation-plan.md).
-It covers the Helm chart, cert-manager-managed TLS, the
-`@dt/otel` package + BFF wiring, and the CI gates that lint +
-render + kubeconform-validate the chart before merge.
+V3.2 (Track H: Tauri release pipeline) is the third V3 release.
+Track F (auth) shipped as V3.0 and Track G (production platform)
+shipped as V3.1 -- both are recorded in their closure ADRs
+([ADR 0013](../adr/0013-v3.0-closure.md) and
+[ADR 0014](../adr/0014-v3.1-closure.md)). The implementation
+plan for V3.2 lives at
+[`docs/plans/v3.2-implementation-plan.md`](./v3.2-implementation-plan.md).
+It covers Tauri config + updater plugin wiring, the updater
+keypair + signing-secrets operator handoff, three platform
+build jobs (macOS .dmg signed + notarized, Windows .msi signed,
+Linux .AppImage + .deb + .rpm unsigned), GitHub Releases
+upload + tag-trigger wiring, and the desktop release docs.
 
-The V3-era major-version policy (ADR 0012) means V3.1 is a
-**major** bump (3.0.0 → 3.1.0) even though the public API
-surface is largely additive — closing a V3 track is the
-trigger.
+The V3-era major-version policy (ADR 0012) means V3.2 is a
+**major** bump (4.1.0 → 5.0.0 per the artifact-aware manifest)
+even though the public surface is largely additive -- closing
+a V3 track is the trigger. Per the deviation recorded in ADR
+0014, the actual release-please tag may end up on a different
+patch; the closure ADR captures the effective version.
 
 ## Open questions
 
