@@ -31,7 +31,7 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
-import { resourceFromAttributes } from '@opentelemetry/resources';
+import { Resource } from '@opentelemetry/resources';
 import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
@@ -65,11 +65,16 @@ export interface OtelConfig {
 /**
  * Build the OTel resource. Pulled out so the test can verify
  * the attribute shape without starting a real SDK.
+ *
+ * Uses the 1.x Resource API; sdk-node@0.57 bundles
+ * @opentelemetry/resources@1.30 internally, and the 2.x
+ * interface-based Resource does not interoperate with the
+ * 1.x Resource class that sdk-node's `merge()` expects.
  */
 export function buildOtelResource(
   config: Pick<OtelConfig, 'serviceName' | 'serviceVersion' | 'environment' | 'instanceId'>,
-): ReturnType<typeof resourceFromAttributes> {
-  return resourceFromAttributes({
+): Resource {
+  return new Resource({
     [ATTR_SERVICE_NAME]: config.serviceName,
     [ATTR_SERVICE_VERSION]: config.serviceVersion,
     'deployment.environment.name': config.environment,
