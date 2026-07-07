@@ -18,17 +18,56 @@ image:
   registry: ghcr.io/zervero
   pullPolicy: IfNotPresent
 
+global:
+  # Cross-chart knobs. Anything in `global:` is readable by
+  # both the umbrella and every subchart. Use this for
+  # settings that span more than one chart (TLS, observability,
+  # cert-manager) -- not for things that only one workload cares
+  # about, those live under `bff.` / `web.`.
+
+  ingress:
+    # Public-facing HTTPS endpoint. Off by default; turn on
+    # via `-f values-certmanager-example.yaml` or override here.
+    enabled: false
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/proxy-body-size: 16m
+    hosts: []
+    # tls[].secretName must match the name referenced by the
+    # Certificate in templates/certificate.yaml. The chart
+    # does NOT generate this Secret -- cert-manager does,
+    # after the HTTP-01 challenge succeeds.
+    tls: []
+
+  certManager:
+    # Owned at the umbrella level because the ClusterIssuer +
+    # Certificate are cluster-scoped resources that wrap the
+    # Ingress. chart-managed by default would be nice, but in
+    # practice every cluster admin runs cert-manager themselves
+    # with their own version + RBAC, so we just consume the
+    # CRDs.
+    enabled: false
+    # Use the Let's Encrypt STAGING issuer (no rate limits,
+    # untrusted certs) for dev / first-time setup. Flip to
+    # false for production. Only takes effect when
+    # certManager.enabled is true.
+    staging: false
+    # ACME registration email. Required by Let's Encrypt;
+    # passed to the ClusterIssuer's spec.acme.email.
+    email: ""
+
 # BFF (apps/bff). The BFF is the API + WebSocket + OIDC
 # termination layer. 1 replica is enough for staging; bump
 # `replicaCount` for production. Secrets (OIDC_*) are NOT
-# in this file — they live in an externally-managed Secret
+# in this file -- they live in an externally-managed Secret
 # referenced by `bff.oidc.secretName`.
 bff:
   enabled: true
   replicaCount: 1
   image:
     repository: ghcr.io/zervero/digital-twin-platform-bff
-    # Empty tag → falls back to .Chart.AppVersion from the
+    # Empty tag -> falls back to .Chart.AppVersion from the
     # release pipeline. Override per-env only when you need
     # to pin a specific build (e.g. canary).
     tag: ""
@@ -63,7 +102,7 @@ bff:
   oidc:
     # Name of an externally-created Secret containing the
     # OIDC credentials. The chart does NOT generate this
-    # secret — production users provision it via sealed-secrets
+    # secret -- production users provision it via sealed-secrets
     # or external-secrets; dev users can set `create: true`
     # to let the chart scaffold a placeholder Secret.
     secretName: bff-oidc-secret
@@ -133,3 +172,37 @@ web:
   serviceAccount:
     create: true
     name: ""
+
+# Ingress -- public-facing HTTPS endpoint. Lives in the web
+# subchart because that's the workload the cluster ingress
+# controller routes to. Off by default; turn on via
+# `-f values-certmanager-example.yaml` or override here.
+ingress:
+  enabled: false
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: 16m
+  hosts: []
+  # tls[].secretName must match the name referenced by the
+  # Certificate in templates/certificate.yaml. The chart
+  # does NOT generate this Secret -- cert-manager does, after
+  # the HTTP-01 challenge succeeds.
+  tls: []
+
+# cert-manager -- owned at the umbrella level because the
+# ClusterIssuer + Certificate are cluster-scoped resources
+# that wrap the Ingress. chart-managed by default would be
+# nice, but in practice every cluster admin runs cert-manager
+# themselves with their own version + RBAC, so we just
+# consume the CRDs.
+certManager:
+  enabled: false
+  # Use the Let's Encrypt STAGING issuer (no rate limits,
+  # untrusted certs) for dev / first-time setup. Flip to
+  # false for production. Only takes effect when
+  # certManager.enabled is true.
+  staging: false
+  # ACME registration email. Required by Let's Encrypt; passed
+  # to the ClusterIssuer's spec.acme.email.
+  email: ""

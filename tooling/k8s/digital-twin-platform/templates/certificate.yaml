@@ -1,0 +1,36 @@
+{{/*
+Certificate -- emitted only when both certManager AND ingress
+are enabled. dnsNames is built from ingress.hosts[] so adding
+a host to values.yaml is enough to get a cert for it.
+
+Why we emit this in addition to the ingress annotation:
+  - The cert-manager Ingress shim auto-creates a Certificate
+    when it sees cert-manager.io/cluster-issuer. But shim
+    support varies by cert-manager version. Emitting an
+    explicit Certificate CRD makes the chart's behavior
+    version-independent.
+  - An explicit Certificate gives us a single named resource
+    for `kubectl describe certificate` debugging.
+
+The secretName MUST match values.ingress.tls[].secretName or
+the Ingress will reference a secret that doesn't exist.
+*/}}
+{{- if and .Values.global.certManager.enabled .Values.global.ingress.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: digital-twin-platform-tls
+  namespace: {{ include "dtp.namespace" . }}
+  labels:
+    {{- include "dtp.labels" . | nindent 4 }}
+spec:
+  secretName: digital-twin-platform-tls
+  issuerRef:
+    name: {{ if .Values.global.certManager.staging }}letsencrypt-staging{{ else }}letsencrypt-prod{{ end }}
+    kind: ClusterIssuer
+    group: cert-manager.io
+  dnsNames:
+    {{- range $h := .Values.global.ingress.hosts }}
+    - {{ $h.host | quote }}
+    {{- end }}
+{{- end }}

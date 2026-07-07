@@ -1,0 +1,55 @@
+{{/*
+Public-facing Ingress for the web SPA.
+
+Why it's in the web subchart:
+  - The Ingress routes /api/* through the BFF Service via the
+    Service's cluster DNS name (bff:3001). The TLS path is
+    terminated here so the BFF never sees raw HTTPS.
+  - The web subchart owns this workload's lifecycle (scale,
+    rollout, canary). Keeping the Ingress here means a web
+    rollout that swaps the IngressClass / annotations does
+    not require touching the BFF.
+
+Why cert-manager.io/cluster-issuer is the ingress annotation
+(not the Certificate CRD annotation):
+  - cert-manager's Ingress-shim auto-creates the Certificate
+    from this single annotation. Without the shim, we'd need
+    a separate Certificate resource per host (T5 creates one
+    for the cluster-level cert as a belt-and-suspenders
+    fallback for clusters without the shim).
+*/}}
+{{- if .Values.global.ingress.enabled }}
+{{- $fullName := include "web.fullname" . }}
+{{- $svcPort  := .Values.service.port }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "web.labels" . | nindent 4 }}
+  {{- with .Values.global.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.global.ingress.className }}
+  {{- with .Values.global.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range $i, $h := .Values.global.ingress.hosts }}
+    - host: {{ $h.host | quote }}
+      http:
+        paths:
+          {{- range $p := $h.paths }}
+          - path: {{ $p.path }}
+            pathType: {{ $p.pathType }}
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+          {{- end }}
+    {{- end }}
+{{- end }}

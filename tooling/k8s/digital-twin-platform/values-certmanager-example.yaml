@@ -1,0 +1,38 @@
+# Example values overlay: turn on the TLS path with cert-manager.
+#
+#   helm install dtp tooling/k8s/digital-twin-platform \
+#     -f values-certmanager-example.yaml \
+#     --set global.ingress.hosts[0].host=dtp.your-domain.example
+#
+# Before you do this:
+#   1. cert-manager must already be installed in the cluster
+#      (https://cert-manager.io/docs/installation/). The chart
+#      only consumes the ClusterIssuer API, it does not install
+#      cert-manager itself.
+#   2. The DNS name you set must resolve to the cluster's
+#      ingress controller IP, otherwise the HTTP-01 challenge
+#      will hang and the Certificate will stay in "Pending".
+#   3. Start with certManager.staging=true so a typo in the
+#      DNS setup doesn't burn Let's Encrypt rate limits.
+
+global:
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/proxy-body-size: 16m
+    hosts:
+      - host: digital-twin.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - digital-twin.example.com
+        secretName: digital-twin-platform-tls
+
+  certManager:
+    enabled: true
+    staging: false
+    email: ops@example.com

@@ -1,0 +1,46 @@
+{{/*
+ClusterIssuer -- one Let's Encrypt issuer per cluster, owned
+at the umbrella level. Two flavors:
+  - letsencrypt-prod (default when certManager.staging=false)
+  - letsencrypt-staging (when certManager.staging=true)
+Both use the HTTP-01 challenge which requires port 80 open
+to the internet from the ingress controller.
+
+Why a ClusterIssuer (not a Namespace-scoped Issuer):
+  - The Certificate CRD references it by name from anywhere.
+    Namespace-scoped Issuers would force us to redeploy the
+    cert into each namespace we install into.
+
+The chart does NOT install cert-manager itself. Operators
+install it once per cluster (typically via its own helm
+chart or operator) and the chart just consumes the CRDs.
+
+Why the key is `certManager` (camelCase) and not
+`cert-manager` (kebab-case): helm's template parser
+treats the dash in dotted identifiers (`cert-manager.enabled`)
+as an action modifier, so we round-trip through camelCase.
+The example file is named `values-certmanager-example.yaml`
+to match.
+*/}}
+{{- if .Values.global.certManager.enabled }}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ if .Values.global.certManager.staging }}letsencrypt-staging{{ else }}letsencrypt-prod{{ end }}
+  labels:
+    {{- include "dtp.labels" . | nindent 4 }}
+spec:
+  acme:
+    {{- if .Values.global.certManager.staging }}
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    {{- else }}
+    server: https://acme-v02.api.letsencrypt.org/directory
+    {{- end }}
+    email: {{ required "certManager.email is required when certManager.enabled=true" .Values.global.certManager.email }}
+    privateKeySecretRef:
+      name: {{ if .Values.global.certManager.staging }}letsencrypt-staging-account-key{{ else }}letsencrypt-prod-account-key{{ end }}
+    solvers:
+      - http01:
+          ingress:
+            class: {{ .Values.global.ingress.className | default "nginx" }}
+{{- end }}
