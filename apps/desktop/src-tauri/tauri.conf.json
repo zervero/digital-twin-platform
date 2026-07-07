@@ -37,6 +37,23 @@
     ],
     "macOS": {
       "minimumSystemVersion": "10.15"
+    },
+    "publisher": "Digital Twin Platform",
+    "copyright": [
+      "Copyright (c) 2026 Digital Twin Platform"
+    ],
+    "category": "DeveloperTool",
+    "shortDescription": "Digital twin platform desktop shell",
+    "longDescription": "Vue 3 + Three.js shell for the digital-twin-platform web app, packaged as a native desktop binary."
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "dialog": true,
+      "endpoints": [
+        "https://github.com/zervero/digital-twin-platform/releases/latest/download/latest.json"
+      ],
+      "pubkey": "REPLACE_WITH_OUTPUT_OF_TAURI_SIGNER_GENERATE"
     }
   }
 }
