@@ -18,7 +18,7 @@
 import { createApp } from 'vue';
 import '@dt/ui-kit/styles';
 
-import { AppShell, provideApiClient, useOIDCStart } from '@dt/app-shell';
+import { AppShell, provideApiClient } from '@dt/app-shell';
 import { createApiClient } from '@dt/api-client';
 import { createPinia } from 'pinia';
 

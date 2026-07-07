@@ -20,11 +20,18 @@ export default tseslint.config(
     plugins: { vue: vuePlugin },
     rules: {
       'vue/multi-word-component-names': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
   {
     rules: {
+      // Apply the underscore-prefix ignore globally so .ts
+      // files (where this convention is heavily used for
+      // intentionally-unused callback params and the like)
+      // behave the same as .vue files.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
     },

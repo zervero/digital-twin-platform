@@ -87,10 +87,9 @@ function redirect(res, location) {
 
 function randomString(bytes = 32) {
   const buf = new Uint8Array(bytes);
-  // The Node crypto global is available without import; use
-  // it directly so we don't need to add `node:` prefixes that
-  // the linter may flag.
-  // eslint-disable-next-line no-undef
+  // globalThis.crypto is the Web Crypto surface Node exposes
+  // by default since v15; no import needed and the `node:`
+  // prefix would trip the linter in this script's .mjs config.
   globalThis.crypto.getRandomValues(buf);
   return Buffer.from(buf).toString('base64url');
 }

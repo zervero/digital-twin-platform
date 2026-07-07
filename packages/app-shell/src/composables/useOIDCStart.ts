@@ -13,12 +13,12 @@
  * the LoginButton doesn't have to read env vars directly.
  */
 
-import { computed, type ComputedRef, inject } from 'vue';
+import { computed, type ComputedRef, type InjectionKey, inject } from 'vue';
 
 export type AuthMode = 'mock' | 'oidc';
 
-export const AuthModeKey = Symbol('dt:authMode') as unknown as import('vue').InjectionKey<AuthMode>;
-export const BffBaseUrlKey = Symbol('dt:bffBaseUrl') as unknown as import('vue').InjectionKey<string>;
+export const AuthModeKey: InjectionKey<AuthMode> = Symbol('dt:authMode');
+export const BffBaseUrlKey: InjectionKey<string> = Symbol('dt:bffBaseUrl');
 
 export interface OidcStartResult {
   loginHref: ComputedRef<string>;

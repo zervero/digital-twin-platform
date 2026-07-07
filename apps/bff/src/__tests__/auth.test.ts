@@ -5,7 +5,6 @@ import {
   type AuthSession,
   type LoginRequest,
   type MeResponse,
-  type User,
 } from '@dt/contracts';
 
 import { AuthError } from '../auth/store.js';
@@ -120,7 +119,6 @@ describe('requiresPermission (V2.1 + V3.0 headers)', () => {
     // directly and the middleware must trust them over
     // the role-derived permissions. We hand-craft a session
     // here so the test is independent of the OIDC store.
-    const store = new MockAuthStore();
     const session: AuthSession = {
       user: {
         id: 'oidc:test',
