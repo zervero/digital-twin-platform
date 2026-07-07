@@ -17,14 +17,36 @@
  * emails to fixed permission sets. Unknown emails get the
  * viewer set.
  *
- * V3.3 tenant claim: every minted id_token carries the
- * namespaced `https://api.digital-twin-platform.local/tenant_id`
- * claim with the default value `acme-corp`. This keeps the
+ * Two run modes:
+ *
+ *   - Server mode (default): listens on $DEV_OIDC_PORT and
+ *     serves the OIDC Authorization Code + PKCE flow used
+ *     by the V3.0 `smoke:oidc` script and by `pnpm dev`
+ *     when `AUTH_PROVIDER=oidc`.
+ *
+ *   - Mint mode (`mint` subcommand): signs an id_token with
+ *     the in-memory RSA key and prints it to stdout, then
+ *     exits. Used by the V3.3 `smoke:tenant` script to
+ *     mint JWTs for specific tenants without driving the
+ *     full OAuth dance. Flags:
+ *
+ *         node scripts/dev-oidc-idp.mjs mint \
+ *           --tenant acme-corp      # default if neither flag is given
+ *         node scripts/dev-oidc-idp.mjs mint --no-tenant  # missing-claim path
+ *         node scripts/dev-oidc-idp.mjs mint --as viewer@example.com
+ *
+ *     The minted token's `iss` claim is the same value the
+ *     server-mode listener advertises (`http://localhost:$DEV_OIDC_PORT`),
+ *     so a BFF started against the same `OIDC_ISSUER_URL`
+ *     will verify either path.
+ *
+ * V3.3 tenant claim: every minted id_token (server or mint
+ * mode) carries the namespaced
+ * `https://api.digital-twin-platform.local/tenant_id` claim
+ * unless `--no-tenant` is passed to `mint`. This keeps the
  * existing V3.0 smoke (`smoke:oidc`) green under the new
- * `requiresTenantScope` middleware (V3.3 T4) without
- * changing the smoke script. T8 adds a `--tenant` flag
- * (and a new `smoke:tenant` script) for minting tokens
- * scoped to specific tenants.
+ * `requiresTenantScope` middleware (V3.3 T4) without changing
+ * that smoke script.
  *
  * This script is NOT for production. It uses an in-memory
  * RSA key pair generated at startup and never persists
@@ -35,12 +57,25 @@
  * Node's built-in http module.
  */
 
+import fs from 'node:fs/promises';
 import http from 'node:http';
+import os from 'node:os';
+import path from 'node:path';
 import { URL } from 'node:url';
-import { generateKeyPair, exportJWK, SignJWT } from 'jose';
+import { generateKeyPair, exportJWK, importJWK, SignJWT } from 'jose';
 
 const PORT = Number(process.env.DEV_OIDC_PORT || '9999');
 const ISSUER = `http://localhost:${PORT}`;
+// V3.3 T8: persist the in-memory RSA keypair to a file so
+// the CLI `mint` subcommand and the server mode (separate
+// processes) share the same key. Without this, every mint
+// invocation would generate a fresh keypair the BFF cannot
+// verify against the JWKS the server exposes. Override with
+// DEV_OIDC_KEY_FILE; the default lives in the OS tmpdir and
+// is recreated on first run.
+const KEY_FILE =
+  process.env.DEV_OIDC_KEY_FILE ||
+  path.join(os.tmpdir(), 'dev-oidc-keypair.json');
 
 // V3.3: the canonical namespaced tenant claim, mirrored from
 // `@dt/tenant`'s TENANT_ID_CLAIM constant. Hard-coded here
@@ -75,7 +110,41 @@ const DEFAULT_PERMISSIONS = ['device:read', 'scene:read'];
 const codes = new Map();
 const CODE_TTL_MS = 60 * 1000;
 
-const { publicKey, privateKey } = await generateKeyPair('RS256');
+/**
+ * Load the RSA keypair from `KEY_FILE`, or generate a fresh
+ * one and persist it. V3.3 T8: shared between the server
+ * listener and the CLI mint subcommand so the JWKS exposed
+ * at `/.well-known/jwks.json` matches the keys used to sign
+ * CLI-minted tokens.
+ */
+async function loadOrCreateKeyPair() {
+  try {
+    const raw = await fs.readFile(KEY_FILE, 'utf8');
+    const data = JSON.parse(raw);
+    const privateKey = await importJWK(data.privateKey, 'RS256');
+    const publicKey = await importJWK(data.publicKey, 'RS256');
+    return { privateKey, publicKey };
+  } catch {
+    const kp = await generateKeyPair('RS256');
+    const privateJwk = await exportJWK(kp.privateKey);
+    const publicJwk = await exportJWK(kp.publicKey);
+    await fs.writeFile(
+      KEY_FILE,
+      JSON.stringify(
+        {
+          privateKey: privateJwk,
+          publicKey: publicJwk,
+          generatedAt: new Date().toISOString(),
+        },
+        null,
+        2,
+      ),
+    );
+    return kp;
+  }
+}
+
+const { publicKey, privateKey } = await loadOrCreateKeyPair();
 const publicJwk = {
   ...(await exportJWK(publicKey)),
   kid: 'dev-oidc-kid',
@@ -112,15 +181,37 @@ function randomString(bytes = 32) {
   return Buffer.from(buf).toString('base64url');
 }
 
-async function issueIdToken({ email, permissions }) {
+/**
+ * Sign an id_token.
+ *
+ * V3.3: the `tenantId` argument controls whether the
+ * namespaced tenant claim is included. Pass `undefined`
+ * to omit the claim entirely (the `--no-tenant` mint
+ * flag); pass `null` to default to `DEFAULT_TENANT` (the
+ * server-mode flow); pass a string to use that tenant.
+ *
+ * The claim is added via a computed-key spread so an
+ * `undefined` value never lands in the payload (jose would
+ * happily serialize it, but downstream consumers should
+ * not have to defend against `undefined` claims).
+ */
+async function issueIdToken({ email, permissions, tenantId }) {
+  // V3.3 T8: `tenantId` is the literal value the caller
+  // passes -- no ES6 default, which would otherwise
+  // replace an explicit `undefined` with `DEFAULT_TENANT`
+  // and silently re-introduce the tenant claim on a
+  // `--no-tenant` mint. `null` and `undefined` both
+  // mean "omit the claim entirely".
+  const tenantClaim =
+    tenantId === undefined || tenantId === null
+      ? {}
+      : { [TENANT_ID_CLAIM]: tenantId };
   const now = Math.floor(Date.now() / 1000);
   return new SignJWT({
     scope: permissions.join(' '),
     permissions,
     email,
-    // V3.3: every dev id_token carries the namespaced tenant
-    // claim. See file-level JSDoc for why.
-    [TENANT_ID_CLAIM]: DEFAULT_TENANT,
+    ...tenantClaim,
   })
     .setProtectedHeader({ alg: 'RS256', kid: publicJwk.kid })
     .setIssuer(ISSUER)
@@ -129,6 +220,51 @@ async function issueIdToken({ email, permissions }) {
     .setIssuedAt(now)
     .setExpirationTime(now + 5 * 60)
     .sign(privateKey);
+}
+
+
+// V3.3 T8: mint subcommand. Sign an id_token with the same
+// in-process RSA key the server would use, print to stdout,
+// exit. Does NOT start the HTTP listener.
+//
+// Implemented at top-level with `await` so the script
+// terminates here before the server-mode block below
+// registers an HTTP listener. A `.then().catch()` chain
+// would race against `server.listen` and emit a stray
+// "[dev-oidc] listening" line to stdout, which would
+// break the smoke shell script's token capture.
+if (process.argv[2] === 'mint') {
+  const args = process.argv.slice(3);
+  const tenantIdx = args.indexOf('--tenant');
+  const tenantId = tenantIdx !== -1 ? args[tenantIdx + 1] : undefined;
+  const noTenant = args.includes('--no-tenant');
+  const asIdx = args.indexOf('--as');
+  // Default to admin permissions so smoke:tenant can
+  // exercise the `command:send` path; `--as` lets tests
+  // override for permission-coverage scenarios.
+  const email = asIdx !== -1 ? args[asIdx + 1] : 'admin@example.com';
+  const permissions =
+    USER_PERMISSIONS[email] ?? USER_PERMISSIONS['admin@example.com'];
+  // If neither --tenant nor --no-tenant was passed, default
+  // to DEFAULT_TENANT so the smoke can keep its old behavior
+  // when the flag is forgotten.
+  const resolvedTenantId = noTenant
+    ? undefined
+    : tenantId ?? DEFAULT_TENANT;
+  try {
+    const token = await issueIdToken({
+      email,
+      permissions,
+      tenantId: resolvedTenantId,
+    });
+    process.stdout.write(token);
+    process.exit(0);
+  } catch (e) {
+    process.stderr.write(
+      `mint failed: ${e instanceof Error ? e.message : String(e)}\n`,
+    );
+    process.exit(1);
+  }
 }
 
 const server = http.createServer(async (req, res) => {
