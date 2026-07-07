@@ -1,10 +1,12 @@
 # V3 Overview
 
 > Active. Records the scope and ordering for V3 work, with
-> per-track ship status. V3.0 (Track F: real auth / OIDC) is
-> **shipped** (see [ADR 0013](../adr/0013-v3.0-closure.md));
-> V3.2 (Track H: Tauri release pipeline) is **active** — see
-> [`docs/plans/v3.1-implementation-plan.md`](./v3.1-implementation-plan.md).
+> per-track ship status. V3.0 (Track F: real auth / OIDC) and
+> V3.2 (Track H: Tauri release pipeline) are **shipped** (see
+> [ADR 0013](../adr/0013-v3.0-closure.md) and
+> [ADR 0015](../adr/0015-v3.2-closure.md)). V3.3 (Track I:
+> multi-tenant data model) is **active** -- see
+> [`docs/plans/v3.3-implementation-plan.md`](./v3.3-implementation-plan.md).
 >
 > V2 closed as `digital-twin-platform@2.3.0` (see ADR 0011); the
 > V2 spec items all landed across V2.0 -> V2.3. The remaining
@@ -50,8 +52,8 @@ acceptance shape, and a natural order relative to the others.
 | --- | --- | --- | --- |
 | F. Real auth (OIDC) | V3.0 | **Shipped** | [ADR 0013](../adr/0013-v3.0-closure.md) |
 | G. Production platform | V3.1 | **Shipped** | [plan](./v3.1-implementation-plan.md), [ADR 0014](../adr/0014-v3.1-closure.md) |
-| H. Tauri release pipeline | V3.2 | **Active** | [plan](./v3.2-implementation-plan.md) |
-| I. Multi-tenant data model | V3.3 | Proposed | — |
+| H. Tauri release pipeline | V3.2 | **Shipped** | [plan](./v3.2-implementation-plan.md), [ADR 0015](../adr/0015-v3.2-closure.md) |
+| I. Multi-tenant data model | V3.3 | **Active** | [plan](./v3.3-implementation-plan.md) |
 | J. Plugin marketplace + persistence | V3.4 | Proposed | — |
 
 CI checks (lint / typecheck / test / build / smoke) and the
@@ -140,27 +142,30 @@ plan, which now supersedes this section):
 - **High-availability / multi-region active-active**. V3
   ships a single-region deployment story; HA is V4+.
 
-## Track H is active
+## Track I is active
 
-V3.2 (Track H: Tauri release pipeline) is the third V3 release.
-Track F (auth) shipped as V3.0 and Track G (production platform)
-shipped as V3.1 -- both are recorded in their closure ADRs
-([ADR 0013](../adr/0013-v3.0-closure.md) and
-[ADR 0014](../adr/0014-v3.1-closure.md)). The implementation
-plan for V3.2 lives at
-[`docs/plans/v3.2-implementation-plan.md`](./v3.2-implementation-plan.md).
-It covers Tauri config + updater plugin wiring, the updater
-keypair + signing-secrets operator handoff, three platform
-build jobs (macOS .dmg signed + notarized, Windows .msi signed,
-Linux .AppImage + .deb + .rpm unsigned), GitHub Releases
-upload + tag-trigger wiring, and the desktop release docs.
+V3.3 (Track I: multi-tenant data model) is the fourth V3
+release. Tracks F (auth), G (production platform), and H
+(Tauri release pipeline) shipped as V3.0, V3.1, and V3.2 --
+their closure ADRs are
+[ADR 0013](../adr/0013-v3.0-closure.md),
+[ADR 0014](../adr/0014-v3.1-closure.md), and
+[ADR 0015](../adr/0015-v3.2-closure.md). The implementation
+plan for V3.3 lives at
+[`docs/plans/v3.3-implementation-plan.md`](./v3.3-implementation-plan.md).
+It covers the `@dt/tenant` package, the `tenantId` field on
+every scoped DTO, JWT claim extraction in `@dt/auth-oidc`, the
+BFF `requiresTenantScope` middleware, tenant-scoped routes, a
+tenant-aware realtime broadcaster, a dev IdP that mints
+per-tenant tokens, a `pnpm smoke:tenant` end-to-end smoke, and
+the multi-tenant operator doc.
 
-The V3-era major-version policy (ADR 0012) means V3.2 is a
-**major** bump (4.1.0 → 5.0.0 per the artifact-aware manifest)
-even though the public surface is largely additive -- closing
-a V3 track is the trigger. Per the deviation recorded in ADR
-0014, the actual release-please tag may end up on a different
-patch; the closure ADR captures the effective version.
+The V3-era major-version policy (ADR 0012) means V3.3 is a
+**major** bump (effective 5.0.0 → 6.0.0 per the artifact-aware
+manifest) because it closes a V3 track. Per the deviation
+recorded in ADR 0014, the actual release-please tag may end up
+on a different patch; the closure ADR captures the effective
+version.
 
 ## Open questions
 
@@ -172,17 +177,21 @@ not here:
 3. TLS cert management: cert-manager + Let's Encrypt, manual,
    or external (e.g. cloud load balancer terminates TLS)?
 4. OTel export: OTLP, Prometheus scrape, or both?
-5. Multi-tenant model: shared DB with row-level security, or
-   separate DBs per tenant (database-per-tenant pattern)?
+5. Multi-tenant model: **shared DB with row-level security**
+   (decided in V3.3 plan). Database-per-tenant is a V3.3.x
+   follow-up if a tenant needs hard isolation.
 6. Plugin marketplace storage: self-hosted registry, GitHub
    Releases, or external repo (npm-style)?
-7. Workspace identity source: same OIDC issuer as Track F, or
-   a separate workspace-scoped service?
+7. Workspace identity source: **same OIDC issuer as Track
+   F**, sourced from a namespaced JWT claim
+   (`https://api.digital-twin-platform.local/tenant_id` by
+   default, overridable via `OIDC_TENANT_CLAIM` env var).
+   Decided in V3.3 plan.
 
 ## Cross-references
 
 - V3 roadmap ADR: `docs/adr/0012-v3-roadmap.md`
-- V3.0 (planned): `docs/plans/v3.0-implementation-plan.md` (TBD)
+- V3.0 (shipped): [ADR 0013](../adr/0013-v3.0-closure.md)
 - V2.3 closure: `docs/adr/0011-v2.3-closure.md`
 - V2 roadmap ADR: `docs/adr/0007-v2-roadmap.md`
 - V1 closure: `docs/adr/0006-v1-closure.md`
