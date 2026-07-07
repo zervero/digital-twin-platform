@@ -15,6 +15,19 @@ from [Conventional Commits](https://www.conventionalcommits.org/) history.
 * **helm:** cert-manager ingress + tls termination (V3.1 T5) ([8fe12b0](https://github.com/zervero/digital-twin-platform/commit/8fe12b07a83678474cde85c79da54443310299b6))
 * **helm:** prod/staging/oidc value overlays + secret template (V3.1 T6) ([6c2dc52](https://github.com/zervero/digital-twin-platform/commit/6c2dc5266b93347adca2bbc238c9e3c4e6fa09ab))
 
+> **Note:** `4.0.0` is a release-please state-machine artifact,
+> not an intentional major bump. The previous release-please PR (#12,
+> which produced `3.1.0`) merged with an empty body and didn't update
+> the tool's "consumed commits" state, so the next run (#13) re-scanned
+> from `3.0.0` and re-emitted the V3.0 BREAKING CHANGE footers
+> (`AuthStore interface refactored to headers-based`,
+> `DigitalTwinEvent variants now require a timestamp field`).
+> Those same breaking changes are already documented under
+> [3.0.0](#300) below -- this section is a duplicate. The actual
+> feature work for V3.1 is in [3.1.0](#310) (T1-T4) and
+> [4.1.0](#410) (T5-T6). The release notes for T7/T8 are queued
+> for the next release-please run.
+
 ## [4.0.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v3.1.0...digital-twin-platform-v4.0.0) (2026-07-07)
 
 
