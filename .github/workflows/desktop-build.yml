@@ -161,3 +161,63 @@ jobs:
           releaseBody: "See CHANGELOG.md for details."
           releaseDraft: true
           prerelease: false
+
+  # Linux: .AppImage + .deb + .rpm. ALL UNSIGNED in V3.2 -
+  # GPG signing for Linux artifacts is a V3.2.x follow-up.
+  # Trust relies on GitHub Release provenance, not artifact
+  # signatures. The updater payload (`latest.json` + `.sig`)
+  # IS still signed via the same TAURI_SIGNING_PRIVATE_KEY
+  # env vars as the other platforms, because that signature
+  # is what makes the in-app update channel trustworthy.
+  linux:
+    name: Desktop / Linux (.AppImage + .deb + .rpm)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        # Version read from `packageManager` in package.json so
+        # the root manifest stays the single source of truth.
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.17.1
+          cache: pnpm
+
+      - name: Install system deps
+        # Tauri 2 Linux needs webkit2gtk-4.1 + a handful of
+        # supporting libs. The pinned package names match
+        # Tauri's official Linux build guide
+        # (https://v2.tauri.app/start/prerequisites/#linux);
+        # a Tauri minor version bump is the only thing that
+        # would invalidate this list.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y             libwebkit2gtk-4.1-dev             build-essential             curl             wget             file             libxdo-dev             libssl-dev             libayatana-appindicator3-dev             librsvg2-dev
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (.AppImage + .deb + .rpm)
+        # bundle.targets: "all" in tauri.conf.json makes
+        # tauri-action emit all three formats. Artifacts are
+        # unsigned in V3.2 - intentional, see job comment.
+        uses: tauri-apps/tauri-action@v0
+        env:
+          # Updater keypair from T3. NO Linux code-signing
+          # secrets (WINDOWS_*, APPLE_*) - all three Linux
+          # bundle formats are unsigned in V3.2. The updater
+          # payload is still signed here so installed copies
+          # detect the new release via the in-app updater.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "digital-twin-platform ${{ github.ref_name }}"
+          releaseBody: "See CHANGELOG.md for details."
+          releaseDraft: true
+          prerelease: false
