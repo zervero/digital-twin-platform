@@ -5,4 +5,5 @@ packages:
 allowBuilds:
   esbuild: true
   lefthook: true
+  protobufjs: true
   vue-demi: true
