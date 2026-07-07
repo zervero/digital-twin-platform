@@ -73,6 +73,55 @@ jobs:
           PORT: 3001
 
 
+  chart:
+    name: Helm chart lint / render / kubeconform
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        # Same as the verify job: read the version from package.json's
+        # `packageManager` field. Keep them in sync or pnpm install
+        # fails with ERR_PNPM_BAD_PM_VERSION.
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.17.1
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Helm
+        # helm is a Go binary with no apt package on Ubuntu runners.
+        # Pull from the official installer script and pin to the same
+        # major version we test locally (4.x).
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 -o get_helm.sh
+          chmod +x get_helm.sh
+          ./get_helm.sh --version v4.2.2 --no-sudo
+          helm version
+
+      - name: Install kubeconform
+        # kubeconform is a Go binary distributed as a tarball. Download
+        # the matching linux-amd64 release and drop it on PATH.
+        run: |
+          curl -sSLo kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz
+          tar xf kubeconform.tar.gz
+          sudo mv kubeconform /usr/local/bin/kubeconform
+          kubeconform -v
+
+      - name: Validate chart (helm lint + kubeconform -strict)
+        # Gates the PR. Both the default and the cert-manager overlay
+        # paths must pass -- see scripts/chart-lint-strict.sh for the
+        # exact validation strategy.
+        run: pnpm chart:lint:strict
+
+
   windows:
     name: Windows · Lint / Typecheck / Test
     runs-on: windows-latest
