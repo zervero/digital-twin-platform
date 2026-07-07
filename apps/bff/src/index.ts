@@ -37,6 +37,7 @@ import { authRoute } from './routes/auth.js';
 import { commandsRoute } from './routes/commands.js';
 import { devicesRoute } from './routes/devices.js';
 import { healthRoute } from './routes/health.js';
+import { oidcRoute } from './routes/oidc.js';
 import { sceneRoute } from './routes/scene.js';
 import { RealtimeBroadcaster } from './realtime/broadcaster.js';
 import { createAuthStore } from './auth/index.js';
@@ -70,6 +71,15 @@ app.route('/api', sceneRoute);
 // mock with a warning).
 const authStore = createAuthStore(env);
 app.route('/api/auth', authRoute(authStore));
+
+// OIDC redirect flow. Only mounted when the OIDC provider is
+// active AND we have a complete OIDC config (the factory
+// returns MockAuthStore in dev with AUTH_PROVIDER=oidc but
+// missing vars, and the mock does not need /start or
+// /callback).
+if (env.authProvider === 'oidc' && env.oidc) {
+  app.route('/api/auth/oidc', oidcRoute({ config: env.oidc }));
+}
 
 app.route('/api', commandsRoute);
 
