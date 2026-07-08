@@ -7,6 +7,28 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.2.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.1.0...digital-twin-platform-v4.2.0) (2026-07-08)
+
+
+### Features
+
+* **auth-oidc:** surface tenantId in VerifiedSession (V3.3 T3) ([9d9997a](https://github.com/zervero/digital-twin-platform/commit/9d9997a62c07675ee3c2f00c1997a2f1f3043c38))
+* **bff:** split mock data into three tenants (V3.3 T5) ([b78995c](https://github.com/zervero/digital-twin-platform/commit/b78995c58183dd944e03f8bdca4d3756c52e7384))
+* **bff:** tenant scope middleware + registry placeholder (V3.3 T4) ([14eeda3](https://github.com/zervero/digital-twin-platform/commit/14eeda3f20ffb2dbd5a11f1279fdf84c6e5e61de))
+* **bff:** tenant-scope realtime broadcaster (V3.3 T7) ([22b27e2](https://github.com/zervero/digital-twin-platform/commit/22b27e2f1362904be78d1c3eeef3b68020abc0b0))
+* **bff:** tenant-scope routes (V3.3 T6) ([2fafea5](https://github.com/zervero/digital-twin-platform/commit/2fafea5b0b235109959640b1205a0260ea159086))
+* **contracts:** add tenantId to scoped DTOs (V3.3 T1) ([aba38a3](https://github.com/zervero/digital-twin-platform/commit/aba38a3cb23309cf1f9dc9c18ec47ff66391ea56))
+* **desktop:** add tauri updater config + plugin deps (V3.2 T1) ([16b1ed4](https://github.com/zervero/digital-twin-platform/commit/16b1ed4d0bbc6e3fb37b464de7101a0b9fd8f650))
+* **desktop:** wire tauri updater plugin + frontend wrapper (V3.2 T2) ([78bb033](https://github.com/zervero/digital-twin-platform/commit/78bb03304f802e77e1f80f1ccd5b70d33f123d20))
+* **dev-oidc:** add mint subcommand + shared keypair ([ffcc79f](https://github.com/zervero/digital-twin-platform/commit/ffcc79fe5999bc5d6548218b6de51acac970365a))
+* **smoke:** tenant isolation smoke + ci job (V3.3 T8) ([118bb8b](https://github.com/zervero/digital-twin-platform/commit/118bb8b131bd370934bdd00b8cdee358f2b73bb4))
+* **tenant:** add @dt/tenant package (V3.3 T2) ([ce0a620](https://github.com/zervero/digital-twin-platform/commit/ce0a62041f053b577c5fd3f6f4d0e1912997cd60))
+
+
+### Bug Fixes
+
+* **smokes:** close V3.3 closure-time smoke regressions + update ADR 0016 ([6057ab6](https://github.com/zervero/digital-twin-platform/commit/6057ab6c5b35ce4a77495e68779ac5d7c151e55b))
+
 ## [4.1.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.0.0...digital-twin-platform-v4.1.0) (2026-07-07)
 
 
