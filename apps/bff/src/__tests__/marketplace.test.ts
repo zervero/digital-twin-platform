@@ -37,8 +37,12 @@
  * T3 tests assert the loose-gate behavior end-to-end.
  */
 
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import * as path from 'node:path';
+
 import { Hono } from 'hono';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import type { AuthSession, MeResponse } from '@dt/contracts';
 
@@ -47,6 +51,7 @@ import { DEMO_TENANTS } from '../mock/demo-data.js';
 import { marketplaceRoutes } from '../routes/marketplace.js';
 import { MemoryPluginStore } from '../plugins/store-memory.js';
 import { createInMemoryPluginIndex } from '@dt/plugin-registry';
+import { generateDevSigningSecret, resetSigningSecret } from '../plugins/signing.js';
 
 function authHeaders(token: string): Record<string, string> {
   // Return a plain record rather than a Headers instance.
@@ -135,7 +140,38 @@ function publishBody(version = '1.0.0'): string {
   });
 }
 
-describe('marketplace routes (V3.4 T3)', () => {
+describe('marketplace routes (V3.4 T3 + T6)', () => {
+  // V3.4 T5: writePluginArtifact needs PLUGIN_SIGNING_SECRET.
+  // V3.4 T4: writePluginArtifact reads PLUGIN_STORAGE_ROOT.
+  // Pin both to per-test tmp dirs so the route unit tests
+  // stay isolated and do not litter the workspace.
+  let tmpRoot: string;
+  let priorStorageRoot: string | undefined;
+  let priorSecret: string | undefined;
+
+  beforeEach(() => {
+    tmpRoot = mkdtempSync(path.join(tmpdir(), 'dtp-mp-test-'));
+    priorStorageRoot = process.env.PLUGIN_STORAGE_ROOT;
+    priorSecret = process.env.PLUGIN_SIGNING_SECRET;
+    process.env.PLUGIN_STORAGE_ROOT = tmpRoot;
+    process.env.PLUGIN_SIGNING_SECRET = generateDevSigningSecret();
+    resetSigningSecret();
+  });
+
+  afterEach(() => {
+    rmSync(tmpRoot, { recursive: true, force: true });
+    if (priorStorageRoot === undefined) {
+      delete process.env.PLUGIN_STORAGE_ROOT;
+    } else {
+      process.env.PLUGIN_STORAGE_ROOT = priorStorageRoot;
+    }
+    if (priorSecret === undefined) {
+      delete process.env.PLUGIN_SIGNING_SECRET;
+    } else {
+      process.env.PLUGIN_SIGNING_SECRET = priorSecret;
+    }
+    resetSigningSecret();
+  });
   // -- 1: empty list --
   it('GET /api/plugins returns an empty list for a fresh registry', async () => {
     const { app, tokens } = buildApp();
@@ -432,5 +468,137 @@ describe('marketplace routes (V3.4 T3)', () => {
       });
       expect(inst.status).toBe(201);
     }
+  });
+});
+
+describe('marketplace routes policy (V3.4 T6)', () => {
+  // V3.4 T5: writePluginArtifact needs PLUGIN_SIGNING_SECRET.
+  // V3.4 T4: writePluginArtifact reads PLUGIN_STORAGE_ROOT.
+  // Pin both to per-test tmp dirs so the route unit tests
+  // stay isolated and do not litter the workspace.
+  let tmpRoot: string;
+  let priorStorageRoot: string | undefined;
+  let priorSecret: string | undefined;
+
+  beforeEach(() => {
+    tmpRoot = mkdtempSync(path.join(tmpdir(), 'dtp-mp-t6-'));
+    priorStorageRoot = process.env.PLUGIN_STORAGE_ROOT;
+    priorSecret = process.env.PLUGIN_SIGNING_SECRET;
+    process.env.PLUGIN_STORAGE_ROOT = tmpRoot;
+    process.env.PLUGIN_SIGNING_SECRET = generateDevSigningSecret();
+    resetSigningSecret();
+  });
+
+  afterEach(() => {
+    rmSync(tmpRoot, { recursive: true, force: true });
+    if (priorStorageRoot === undefined) {
+      delete process.env.PLUGIN_STORAGE_ROOT;
+    } else {
+      process.env.PLUGIN_STORAGE_ROOT = priorStorageRoot;
+    }
+    if (priorSecret === undefined) {
+      delete process.env.PLUGIN_SIGNING_SECRET;
+    } else {
+      process.env.PLUGIN_SIGNING_SECRET = priorSecret;
+    }
+    resetSigningSecret();
+  });
+
+  it('admin can install for the caller\'s tenant', async () => {
+    const { app, tokens } = buildApp({ roles: ['admin'] });
+    // admin publishes...
+    const pub = await app.request('/api/plugins', {
+      method: 'POST',
+      headers: {
+        ...authHeaders(tokens['acme-corp']!),
+        'content-type': 'application/json',
+      },
+      body: publishBody('1.0.0'),
+    });
+    expect(pub.status).toBe(201);
+    // ...then installs.
+    const inst = await app.request('/api/plugins/hello-plugin/install', {
+      method: 'POST',
+      headers: {
+        ...authHeaders(tokens['acme-corp']!),
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ pluginId: 'hello-plugin', version: '1.0.0' }),
+    });
+    expect(inst.status).toBe(201);
+  });
+
+  it('operator install is denied with 403 PLUGIN_PERMISSION_DENIED', async () => {
+    // Operators have `plugin:read` but not `plugin:install`.
+    // The minimum gate passes them through; the explicit
+    // canInstallForTenant check is what returns 403.
+    // The plugin is not in the in-memory registry, but the
+    // policy gate fires before the registry lookup so the
+    // response is 403 (not 404).
+    const op = buildApp({ roles: ['operator'] });
+    const res = await op.app.request('/api/plugins/hello-plugin/install', {
+      method: 'POST',
+      headers: {
+        ...authHeaders(op.tokens['acme-corp']!),
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ pluginId: 'hello-plugin', version: '1.0.0' }),
+    });
+    expect(res.status).toBe(403);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe('PLUGIN_PERMISSION_DENIED');
+  });
+
+  it('viewer install is denied with 403 PLUGIN_PERMISSION_DENIED', async () => {
+    const v = buildApp({ roles: ['viewer'] });
+    const res = await v.app.request('/api/plugins/hello-plugin/install', {
+      method: 'POST',
+      headers: {
+        ...authHeaders(v.tokens['acme-corp']!),
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ pluginId: 'hello-plugin', version: '1.0.0' }),
+    });
+    expect(res.status).toBe(403);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe('PLUGIN_PERMISSION_DENIED');
+  });
+
+  it('operator can list plugins (200, plugin:read is enough)', async () => {
+    const op = buildApp({ roles: ['operator'] });
+    const res = await op.app.request('/api/plugins', {
+      headers: authHeaders(op.tokens['acme-corp']!),
+    });
+    expect(res.status).toBe(200);
+  });
+
+  it('operator publish is denied with 403 PLUGIN_PERMISSION_DENIED', async () => {
+    const op = buildApp({ roles: ['operator'] });
+    const res = await op.app.request('/api/plugins', {
+      method: 'POST',
+      headers: {
+        ...authHeaders(op.tokens['acme-corp']!),
+        'content-type': 'application/json',
+      },
+      body: publishBody('1.0.0'),
+    });
+    expect(res.status).toBe(403);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe('PLUGIN_PERMISSION_DENIED');
+  });
+
+  it('viewer publish is denied with 403 PLUGIN_PERMISSION_DENIED', async () => {
+    const v = buildApp({ roles: ['viewer'] });
+    const res = await v.app.request('/api/plugins', {
+      method: 'POST',
+      headers: {
+        ...authHeaders(v.tokens['acme-corp']!),
+        'content-type': 'application/json',
+      },
+      body: publishBody('1.0.0'),
+    });
+    expect(res.status).toBe(403);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toBe('PLUGIN_PERMISSION_DENIED');
   });
 });

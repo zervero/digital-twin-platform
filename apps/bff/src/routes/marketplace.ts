@@ -40,6 +40,7 @@ import type { RegistryIndex } from '@dt/plugin-registry';
 
 import type { AuthStore } from '../auth/store.js';
 import { requiresTenantScope } from '../middleware/requires-tenant.js';
+import { canInstallForTenant, canPublish } from '../plugins/policy.js';
 
 export interface MarketplaceRoutesOptions {
   authStore: AuthStore;
@@ -71,6 +72,17 @@ export function marketplaceRoutes(opts: MarketplaceRoutesOptions): Hono {
     '/plugins',
     requiresTenantScope(authStore, 'plugin:read'),
     async (c) => {
+      // V3.4 T6: operators / viewers have `plugin:read`
+      // but not `plugin:publish`. The minimum gate passes
+      // them through; the explicit `canPublish` check
+      // is what keeps publish behind admin.
+      const pubPolicy = await canPublish(authStore, c.req.raw.headers);
+      if (!pubPolicy.allowed) {
+        return c.json(
+          { error: 'PLUGIN_PERMISSION_DENIED', message: pubPolicy.reason },
+          403,
+        );
+      }
       const body = (await c.req.json()) as PublishPluginRequest;
       // Validate the manifest at the route layer so a
       // bad shape surfaces as 400 before reaching storage.
@@ -87,16 +99,21 @@ export function marketplaceRoutes(opts: MarketplaceRoutesOptions): Hono {
           400,
         );
       }
-      const now = new Date().toISOString();
-      const artifactPath = `.data/plugins/_registry/${body.manifest.id}/${body.manifest.version}/artifact.tgz`;
-      const signaturePath = `.data/plugins/_registry/${body.manifest.id}/${body.manifest.version}/signature.txt`;
+      // V3.4 T5/T6: write the on-disk artifact (signed
+      // HMAC + manifest.json + signature.txt) before
+      // admitting the version into the in-memory
+      // registry. The returned paths come from the
+      // storage layer so the on-disk shape and the
+      // registry view stay in lockstep.
+      const { writePluginArtifact } = await import('../plugins/storage.js');
+      const { artifactPath, signaturePath } = await writePluginArtifact(body);
       const published = await registryIndex.publish({
         pluginId: body.manifest.id,
         version: body.manifest.version,
         manifest: result.manifest,
         artifactPath,
         signaturePath,
-        publishedAt: now,
+        publishedAt: new Date().toISOString(),
       });
       return c.json(published, 201);
     },
@@ -126,6 +143,23 @@ export function marketplaceRoutes(opts: MarketplaceRoutesOptions): Hono {
       // requiresTenantScope sets c.var.tenant before next();
       // the non-null assertion is the explicit acknowledgement.
       const tenant = c.var.tenant!;
+      // V3.4 T6: operators / viewers have `plugin:read`
+      // but not `plugin:install`. The minimum gate passes
+      // them through; the explicit `canInstallForTenant`
+      // check is what keeps install behind admin and
+      // stops cross-tenant installs (the helper's
+      // tenantId equality check).
+      const instPolicy = await canInstallForTenant(
+        authStore,
+        c.req.raw.headers,
+        tenant.tenant.id,
+      );
+      if (!instPolicy.allowed) {
+        return c.json(
+          { error: 'PLUGIN_PERMISSION_DENIED', message: instPolicy.reason },
+          403,
+        );
+      }
       const id = c.req.param('id');
       const body = (await c.req.json()) as InstallPluginRequest;
       const plugin = await registryIndex.get(id);
@@ -184,6 +218,19 @@ export function marketplaceRoutes(opts: MarketplaceRoutesOptions): Hono {
     requiresTenantScope(authStore, 'plugin:read'),
     async (c) => {
       const tenant = c.var.tenant!;
+      // V3.4 T6: activation is a write -- gate on
+      // `plugin:install` for the caller's tenant.
+      const actPolicy = await canInstallForTenant(
+        authStore,
+        c.req.raw.headers,
+        tenant.tenant.id,
+      );
+      if (!actPolicy.allowed) {
+        return c.json(
+          { error: 'PLUGIN_PERMISSION_DENIED', message: actPolicy.reason },
+          403,
+        );
+      }
       const id = c.req.param('id');
       const body = (await c.req.json()) as ActivatePluginRequest;
       const versions = await pluginStore.listVersions(tenant.tenant.id, id);
@@ -208,6 +255,19 @@ export function marketplaceRoutes(opts: MarketplaceRoutesOptions): Hono {
     requiresTenantScope(authStore, 'plugin:read'),
     async (c) => {
       const tenant = c.var.tenant!;
+      // V3.4 T6: uninstall is a write -- gate on
+      // `plugin:install` for the caller's tenant.
+      const uninstPolicy = await canInstallForTenant(
+        authStore,
+        c.req.raw.headers,
+        tenant.tenant.id,
+      );
+      if (!uninstPolicy.allowed) {
+        return c.json(
+          { error: 'PLUGIN_PERMISSION_DENIED', message: uninstPolicy.reason },
+          403,
+        );
+      }
       const id = c.req.param('id');
       const version = c.req.param('version');
       const removed = await pluginStore.removeVersion(
