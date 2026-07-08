@@ -7,6 +7,25 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.3.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.2.1...digital-twin-platform-v4.3.0) (2026-07-08)
+
+
+### Features
+
+* **app-shell:** add v3.4 marketplace install UI + activation envelope ([15f7126](https://github.com/zervero/digital-twin-platform/commit/15f7126af243bfb79c60795925628cde65bdf525))
+* **bff:** add file-based plugin store + storage root gitignore ([b7248de](https://github.com/zervero/digital-twin-platform/commit/b7248dea402eef55861b09248778fed6e5641a3d))
+* **bff:** add v3.4 marketplace policy gate (install/publish admin-only) ([22fc52c](https://github.com/zervero/digital-twin-platform/commit/22fc52c683e54e411fd7ccb8e119bf367a123f19))
+* **bff:** add v3.4 marketplace routes + plugin permissions ([916ff80](https://github.com/zervero/digital-twin-platform/commit/916ff80be856767e593b3e1d4ec93e7ad1d6db8e))
+* **bff:** add v3.4 plugin artifact signing + dev secret bootstrap ([f0e4fe8](https://github.com/zervero/digital-twin-platform/commit/f0e4fe88266656440d2a92c564744c913030f4a8))
+* **plugin-registry:** add v3.4 marketplace data model ([f28298e](https://github.com/zervero/digital-twin-platform/commit/f28298e5596264afd91a7fb167ee7b88f0e85ed4))
+* **plugin-runtime:** add v3.4 persistence contracts ([4bb3acf](https://github.com/zervero/digital-twin-platform/commit/4bb3acfe773c1ef82b3b1ed10cb0bac84c417e15))
+* **smoke:** add v3.4 marketplace end-to-end smoke + docs ([2e84ddf](https://github.com/zervero/digital-twin-platform/commit/2e84ddf1863be829daf54d00b8d9cee08c06432d))
+
+
+### Bug Fixes
+
+* **bff:** unblock windows bootstrap tests (fileURLToPath + secret) ([19568d0](https://github.com/zervero/digital-twin-platform/commit/19568d06cb407e11da84d709f0b8791d050920ea))
+
 ## [4.2.1](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.2.0...digital-twin-platform-v4.2.1) (2026-07-08)
 
 
