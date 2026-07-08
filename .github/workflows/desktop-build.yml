@@ -18,12 +18,26 @@ defaults:
 
 on:
   push:
+    # V3.3 closure: release-please's actual tag pattern with
+    # `package-name: digital-twin-platform` is
+    # `digital-twin-platform-v*`, not `v*`. The original
+    # V3.2 T4 config used `v*` (the V3.2 plan's claim about
+    # release-please's pattern), which never matched because
+    # no tag was ever pushed during V3.2. V3.3 is the first
+    # release-please tag actually pushed
+    # (`digital-twin-platform-v4.2.0`), which exposed the
+    # gap. Both patterns are listed for safety: a future
+    # `v*`-style release-please config or a manual
+    # `git tag v4.2.0 && git push --tags` will still
+    # trigger the workflow. The canonical pattern is
+    # `digital-twin-platform-v*`.
     tags:
+      - 'digital-twin-platform-v*'
       - 'v*'
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to build (e.g. v5.0.0). Leave blank for HEAD.'
+        description: 'Tag to build (e.g. digital-twin-platform-v4.2.0). Leave blank for HEAD.'
         required: false
         default: ''
 

@@ -95,7 +95,13 @@ existing release-please machinery:
    - `CHANGELOG.md` lists the V3.2 tasks (T1-T8).
    - The `verify` and `chart` CI jobs are green.
 3. Merge the release PR. release-please pushes the
-   `vX.Y.Z` tag automatically.
+   `digital-twin-platform-vX.Y.Z` tag automatically
+   (the prefix comes from `package-name: digital-twin-platform`
+   in `release-please-config.json`; release-please also
+   accepts the unprefixed `vX.Y.Z` for manual / fallback
+   cuts). V3.3 closure fix: the desktop-build workflow
+   now triggers on BOTH `digital-twin-platform-v*` and
+   `v*` so both paths are covered.
 4. The tag triggers `.github/workflows/desktop-build.yml`.
    The macos / windows / linux jobs run in parallel
    (~10-15 min each, 30-min timeout).
