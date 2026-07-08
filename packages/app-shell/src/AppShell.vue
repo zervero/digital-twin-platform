@@ -6,6 +6,7 @@ import { useSceneStore } from './stores/scene-store.js';
 import { usePluginStore } from './stores/plugin-store.js';
 import { usePluginPanels, usePluginMenu } from './composables/index.js';
 import DevicePanel from './components/DevicePanel.vue';
+import MarketplacePanel from './components/MarketplacePanel.vue';
 import PluginPanelHost from './components/PluginPanelHost.vue';
 import SceneViewport from './components/SceneViewport.vue';
 import TopToolbar from './components/TopToolbar.vue';
@@ -57,6 +58,9 @@ onMounted(async () => {
       <main class="app-shell__viewport">
         <SceneViewport />
       </main>
+      <aside class="app-shell__marketplace">
+        <MarketplacePanel />
+      </aside>
     </div>
   </div>
 </template>
@@ -74,7 +78,13 @@ onMounted(async () => {
 .app-shell__body {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 280px 1fr 320px;
+  min-height: 0;
+}
+.app-shell__marketplace {
+  border-left: 1px solid var(--dt-border-default, #30363d);
+  padding: var(--dt-space-md, 12px);
+  overflow-y: auto;
   min-height: 0;
 }
 .app-shell__sidebar {

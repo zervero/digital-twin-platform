@@ -42,6 +42,13 @@ async function main(): Promise<void> {
   // (cookie vs bearer token).
   app.provide('dt:authMode', authMode);
   app.provide('dt:bffBaseUrl', bffUrl);
+  // V3.4 T7: the MarketplacePanel reads BffBaseUrlKey
+  // (the Symbol key exported by useOIDCStart) to build
+  // its fetch-based MarketplaceApi. The string-keyed
+  // 'dt:bffBaseUrl' above is kept for the legacy
+  // LoginButton consumer; both point at the same value.
+  const { BffBaseUrlKey } = await import('@dt/app-shell');
+  app.provide(BffBaseUrlKey, bffUrl);
 
   // V3.0: detect OIDC callback errors. The BFF redirects to
   // /?oidc_error=...&oidc_error_description=... on failure;

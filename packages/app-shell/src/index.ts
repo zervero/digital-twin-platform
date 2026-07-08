@@ -26,12 +26,21 @@ export { default as DevicePanel } from './components/DevicePanel.vue';
 export { default as SceneViewport } from './components/SceneViewport.vue';
 export { default as TopToolbar } from './components/TopToolbar.vue';
 export { default as PluginPanelHost } from './components/PluginPanelHost.vue';
+export { default as MarketplacePanel } from './components/MarketplacePanel.vue';
 export { useDeviceStream } from './composables/useDeviceStream.js';
 export { useCurrentUser } from './composables/useCurrentUser.js';
 export { useOIDCStart, AuthModeKey, BffBaseUrlKey } from './composables/useOIDCStart.js';
 export type { AuthMode } from './composables/useOIDCStart.js';
 export { usePermission } from './composables/usePermission.js';
 export { usePluginPanels } from './composables/usePluginPanels.js';
+export {
+  useMarketplaceInstall,
+  createFetchMarketplaceApi,
+} from './composables/useMarketplaceInstall.js';
+export type {
+  MarketplaceApi,
+  UseMarketplaceInstallHandle,
+} from './composables/useMarketplaceInstall.js';
 export { usePluginMenu } from './composables/usePluginMenu.js';
 export { default as LoginButton } from './components/LoginButton.vue';
 
