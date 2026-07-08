@@ -17,7 +17,17 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import type { InstalledPluginVersion } from '@dt/plugin-runtime';
 
-import { FilePluginStore } from './storage.js';
+import type { PublishPluginRequest } from '@dt/contracts';
+
+import {
+  FilePluginStore,
+  verifyArtifactSignature,
+  writePluginArtifact,
+} from './storage.js';
+import {
+  generateDevSigningSecret,
+  resetSigningSecret,
+} from './signing.js';
 
 function makeRecord(overrides: Partial<InstalledPluginVersion> = {}): InstalledPluginVersion {
   return {
@@ -160,5 +170,105 @@ describe('FilePluginStore (V3.4 T4)', () => {
     expect(records).toEqual([]);
     const versions = await store.listVersions('acme-corp', 'hello-plugin');
     expect(versions).toEqual([]);
+  });
+});
+
+
+describe('writePluginArtifact (V3.4 T5)', () => {
+  let root: string;
+  let prior: string | undefined;
+
+  let priorStorageRoot: string | undefined;
+
+  beforeEach(async () => {
+    root = mkdtempSync(path.join(tmpdir(), 'dtp-write-artifact-'));
+    priorStorageRoot = process.env.PLUGIN_STORAGE_ROOT;
+    // `writePluginArtifact` reads PLUGIN_STORAGE_ROOT
+    // directly (it has no constructor for the root, by
+    // design -- the registry root and the install root
+    // are the same directory tree). Point it at the
+    // test's tmp dir so the on-disk assertions match.
+    process.env.PLUGIN_STORAGE_ROOT = root;
+    prior = process.env.PLUGIN_SIGNING_SECRET;
+    // The sign/verify path needs a real secret; generate
+    // one per test so nothing leaks between runs.
+    process.env.PLUGIN_SIGNING_SECRET = generateDevSigningSecret();
+    resetSigningSecret();
+  });
+
+  afterEach(() => {
+    rmSync(root, { recursive: true, force: true });
+    if (priorStorageRoot === undefined) {
+      delete process.env.PLUGIN_STORAGE_ROOT;
+    } else {
+      process.env.PLUGIN_STORAGE_ROOT = priorStorageRoot;
+    }
+    if (prior === undefined) {
+      delete process.env.PLUGIN_SIGNING_SECRET;
+    } else {
+      process.env.PLUGIN_SIGNING_SECRET = prior;
+    }
+    resetSigningSecret();
+  });
+
+  it('writes manifest.json + artifact.tgz + signature.txt under _registry', async () => {
+    const body: PublishPluginRequest = {
+      manifest: {
+        id: 'hello-plugin',
+        name: 'Hello Plugin',
+        version: '1.0.0',
+        vendor: 'Acme',
+        permissions: ['device:read'],
+      },
+      artifact: Buffer.from('hello-plugin-payload-v1').toString('base64'),
+    };
+    const { artifactPath, signaturePath } = await writePluginArtifact(body);
+
+    // Paths live under <root>/_registry/<id>/<version>/.
+    expect(artifactPath).toBe(
+      path.join(root, '_registry', 'hello-plugin', '1.0.0', 'artifact.tgz'),
+    );
+    expect(signaturePath).toBe(
+      path.join(root, '_registry', 'hello-plugin', '1.0.0', 'signature.txt'),
+    );
+    // All three files exist.
+    const { promises: fs } = await import('node:fs');
+    await expect(fs.stat(artifactPath)).resolves.toBeDefined();
+    await expect(fs.stat(signaturePath)).resolves.toBeDefined();
+    await expect(
+      fs.stat(path.join(root, '_registry', 'hello-plugin', '1.0.0', 'manifest.json')),
+    ).resolves.toBeDefined();
+  });
+
+  it('round-trip: the on-disk artifact verifies with verifyArtifactSignature', async () => {
+    const body: PublishPluginRequest = {
+      manifest: {
+        id: 'hello-plugin',
+        name: 'Hello Plugin',
+        version: '1.0.0',
+        vendor: 'Acme',
+        permissions: ['device:read'],
+      },
+      artifact: Buffer.from('hello-plugin-payload-v1').toString('base64'),
+    };
+    const { artifactPath, signaturePath } = await writePluginArtifact(body);
+    await expect(verifyArtifactSignature(artifactPath, signaturePath)).resolves.toBe(true);
+  });
+
+  it('round-trip: tampering with artifact.tgz breaks the signature', async () => {
+    const body: PublishPluginRequest = {
+      manifest: {
+        id: 'hello-plugin',
+        name: 'Hello Plugin',
+        version: '1.0.0',
+        vendor: 'Acme',
+        permissions: ['device:read'],
+      },
+      artifact: Buffer.from('hello-plugin-payload-v1').toString('base64'),
+    };
+    const { artifactPath, signaturePath } = await writePluginArtifact(body);
+    const { promises: fs } = await import('node:fs');
+    await fs.writeFile(artifactPath, Buffer.from('tampered'));
+    await expect(verifyArtifactSignature(artifactPath, signaturePath)).resolves.toBe(false);
   });
 });

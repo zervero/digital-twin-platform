@@ -28,7 +28,14 @@ import {
   type StartOtelResult,
 } from '@dt/otel';
 
+import { promises as fs } from 'node:fs';
+import * as path from 'node:path';
+
 import { createServer, type ServerHandle } from './server.js';
+import {
+  generateDevSigningSecret,
+  loadSigningSecret,
+} from './plugins/signing.js';
 
 export interface BootstrapHandle {
   otel: StartOtelResult | null;
@@ -77,10 +84,56 @@ export interface BootstrapOptions {
   }) => StartOtelResult | null;
 }
 
+const DEV_SIGNING_SECRET_PATH = path.resolve(
+  // apps/bff/src/bootstrap.ts -> apps/bff/.data/dev-signing-secret
+  new URL('.', import.meta.url).pathname,
+  '../.data/dev-signing-secret',
+);
+
+/**
+ * Make sure `PLUGIN_SIGNING_SECRET` is set in `process.env`
+ * before the BFF tries to read it. In production a missing
+ * or short secret is a hard error. In dev a missing secret
+ * is auto-generated and written to a per-checkout file so
+ * the value survives across restarts but never leaves the
+ * machine.
+ */
+async function ensureSigningSecret(production: boolean): Promise<void> {
+  const existing = process.env['PLUGIN_SIGNING_SECRET'];
+  if (existing && existing.length >= 32) return;
+  if (production) {
+    throw new Error(
+      'PLUGIN_SIGNING_SECRET must be set to a 32-byte (or longer) string',
+    );
+  }
+  const secret = generateDevSigningSecret();
+  await fs.mkdir(path.dirname(DEV_SIGNING_SECRET_PATH), { recursive: true });
+  await fs.writeFile(DEV_SIGNING_SECRET_PATH, secret, 'utf8');
+  process.env['PLUGIN_SIGNING_SECRET'] = secret;
+  // Surface the path so an operator can find the file
+  // (e.g. when copying the dev value into a real
+  // environment).
+  console.log(
+    `[bff] generated dev signing secret at ${DEV_SIGNING_SECRET_PATH}`,
+  );
+}
+
 export async function bootstrap(opts: BootstrapOptions = {}): Promise<BootstrapHandle> {
   const { readAppEnv } = await import('@dt/config');
   const env = readAppEnv();
   const logger: Logger = createLogger({ level: env.logLevel });
+
+  // V3.4 T5: require a signing secret before the BFF
+  // starts. In dev a missing secret is filled in by
+  // writing a per-checkout random value to
+  // apps/bff/.data/dev-signing-secret (gitignored) so
+  // `pnpm dev` keeps working without manual setup. In
+  // production a missing or short secret throws and
+  // the BFF refuses to start -- the marketplace path
+  // is unreachable without a real secret.
+  await ensureSigningSecret(env.production);
+  loadSigningSecret();
+  logger.info('plugin signing secret loaded');
 
   const startOtelFn = opts.startOtelImpl ?? startOtel;
   const otel = startOtelFn({

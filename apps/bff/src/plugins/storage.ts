@@ -43,6 +43,8 @@ import type {
   PluginStore,
 } from '@dt/plugin-runtime';
 
+import { signArtifact, verifySignature } from './signing.js';
+
 const DEFAULT_STORAGE_ROOT = '.data/plugins';
 
 function resolveStorageRoot(): string {
@@ -262,17 +264,54 @@ async function readdirSafe(dir: string): Promise<string[]> {
 
 /**
  * Write the publish-time artifact to the registry root
- * (`<root>/_registry/<pluginId>/<version>/`). Called by
- * `POST /api/plugins` (T3); the T3 route currently
- * constructs the paths inline and skips the write --
- * T5 swaps the stub for the real implementation
- * (HMAC sign + manifest.json + artifact.tgz +
- * signature.txt). The signature step requires
- * `PLUGIN_SIGNING_SECRET`; until T5 lands, calling
- * this throws so the gap is loud rather than silent.
+ * (`<root>/_registry/<pluginId>/<version>/`). Decodes
+ * the base64 artifact body, HMAC-signs it with the
+ * secret loaded by `loadSigningSecret()`, and writes
+ * `manifest.json`, `artifact.tgz`, and `signature.txt`
+ * in the version dir.
+ *
+ * The T3 route is the only caller; T6 will route
+ * `publish` through this function so the on-disk
+ * shape and the in-memory registry stay in lockstep.
  */
 export async function writePluginArtifact(
-  _body: PublishPluginRequest,
+  body: PublishPluginRequest,
 ): Promise<{ artifactPath: string; signaturePath: string }> {
-  throw new Error('writePluginArtifact: implemented in T5');
+  const artifact = Buffer.from(body.artifact, 'base64');
+  const signature = signArtifact(artifact);
+  const dir = path.join(
+    resolveStorageRoot(),
+    '_registry',
+    body.manifest.id,
+    body.manifest.version,
+  );
+  await fs.mkdir(dir, { recursive: true });
+  const artifactPath = path.join(dir, 'artifact.tgz');
+  const signaturePath = path.join(dir, 'signature.txt');
+  const manifestPath = path.join(dir, 'manifest.json');
+  await Promise.all([
+    fs.writeFile(artifactPath, artifact),
+    fs.writeFile(signaturePath, signature),
+    fs.writeFile(manifestPath, JSON.stringify(body.manifest, null, 2)),
+  ]);
+  return { artifactPath, signaturePath };
+}
+
+/**
+ * Verify a signed artifact by recomputing the HMAC over
+ * the bytes on disk and comparing against `signature.txt`.
+ * Returns false (never throws) on a malformed signature,
+ * a missing file, or a length mismatch. The T6 publish
+ * route calls this on the install path to gate the
+ * `POST /api/plugins/:id/install` handler.
+ */
+export async function verifyArtifactSignature(
+  artifactPath: string,
+  signaturePath: string,
+): Promise<boolean> {
+  const [artifact, signature] = await Promise.all([
+    fs.readFile(artifactPath),
+    fs.readFile(signaturePath, 'utf8'),
+  ]);
+  return verifySignature(artifact, signature.trim());
 }

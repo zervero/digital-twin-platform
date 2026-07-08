@@ -4,3 +4,10 @@
 # runtime. The smoke (T8) and any local `pnpm dev` run
 # should not commit the transient artifacts.
 .data/plugins/
+
+# V3.4 T5: the dev signing secret is auto-generated
+# by `bootstrap.ts` on first boot in dev. It is
+# per-checkout (so test data does not leak across
+# machines) and must never be committed; production
+# sets PLUGIN_SIGNING_SECRET via a real secret store.
+.data/dev-signing-secret
