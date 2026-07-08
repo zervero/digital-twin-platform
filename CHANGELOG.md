@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.2.1](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.2.0...digital-twin-platform-v4.2.1) (2026-07-08)
+
+
+### Bug Fixes
+
+* **desktop-build:** widen tag pattern + record V3.3 published ([320612e](https://github.com/zervero/digital-twin-platform/commit/320612ebad592e621f2bcdeec5d3e5f7d32be77b))
+
 ## [4.2.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.1.0...digital-twin-platform-v4.2.0) (2026-07-08)
 
 
