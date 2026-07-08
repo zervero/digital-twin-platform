@@ -9,9 +9,24 @@
  * The permission check uses the V2.1 `Permission` union from
  * `@dt/contracts` as the source of truth. Adding a permission
  * to the union is enough to make it acceptable in a manifest.
+ * V3.4 added the three marketplace permissions (`plugin:read`,
+ * `plugin:install`, `plugin:publish`) to the runtime's known
+ * set so a manifest that declares one of them validates
+ * without a runtime upgrade.
+ *
+ * The `PluginManifest` shape itself moved to `@dt/contracts`
+ * in V3.4 T3 so the marketplace DTOs in `plugins.ts` can
+ * reference it without violating the `@dt/contracts`
+ * import-boundary rule. This file re-exports the type for
+ * V2.2-V3.3 back-compat.
  */
 
-import type { Permission } from '@dt/contracts';
+import type { Permission, PluginManifest } from '@dt/contracts';
+// V3.4: `PluginManifest` shape lives in `@dt/contracts`.
+// The runtime imports it locally for the validator and
+// re-exports it for V2.2-V3.3 back-compat (consumers can
+// still `import type { PluginManifest } from '@dt/plugin-runtime'`).
+export type { PluginManifest } from '@dt/contracts';
 
 const ID_RE = /^[a-z][a-z0-9-]*$/;
 const SEMVER_RE = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z-.]+)?(?:\+[0-9A-Za-z-.]+)?$/;
@@ -22,6 +37,9 @@ const KNOWN_PERMISSIONS: ReadonlySet<Permission> = new Set<Permission>([
   'scene:write',
   'command:send',
   'auth:login',
+  'plugin:read',
+  'plugin:install',
+  'plugin:publish',
 ]);
 
 export interface PluginManifestError {
@@ -33,16 +51,6 @@ export interface PluginManifestError {
     | 'INVALID_TYPE';
   message: string;
   field?: string;
-}
-
-export interface PluginManifest {
-  id: string;
-  name: string;
-  version: string;
-  vendor: string;
-  description?: string;
-  entry?: string;
-  permissions: readonly Permission[];
 }
 
 function asObject(v: unknown): Record<string, unknown> | null {

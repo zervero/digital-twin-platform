@@ -18,6 +18,8 @@
     "@dt/contracts": "workspace:*",
     "@dt/observability": "workspace:*",
     "@dt/otel": "workspace:*",
+    "@dt/plugin-registry": "workspace:*",
+    "@dt/plugin-runtime": "workspace:*",
     "@dt/realtime": "workspace:*",
     "@dt/tenant": "workspace:*",
     "@hono/node-server": "^2.0.0",

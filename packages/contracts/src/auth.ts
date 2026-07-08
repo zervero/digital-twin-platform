@@ -1,10 +1,18 @@
 /**
- * Auth contract for V2.1.
+ * Auth contract for V2.1, extended in V3.3 (tenant identity
+ * on `AuthSession`) and V3.4 (marketplace permissions).
  *
  * Discriminated `AuthState` keeps consumers honest about the three
  * real states the UI cares about (logged out, logged in, session
- * expired). `RolePermissionMap` is the single source of truth for
+ * expired). `ROLE_PERMISSIONS` is the single source of truth for
  * what each role grants; plugins and the BFF both read it.
+ *
+ * V3.4 extension is additive: the union grew from 6 to 9
+ * values, the `ALL_PERMISSIONS` tuple grew in step, and
+ * `ROLE_PERMISSIONS` adds the three new permissions to the
+ * roles that should grant them. Older auth contracts that
+ * exhaustively switch on the V3.3 union need a compile-time
+ * bump to add the new cases.
  */
 
 export type Role = 'admin' | 'operator' | 'viewer';
@@ -15,7 +23,16 @@ export type Permission =
   | 'scene:read'
   | 'scene:write'
   | 'command:send'
-  | 'auth:login';
+  | 'auth:login'
+  // V3.4: marketplace permissions, additive on the V3.3
+  // union. `plugin:read` is granted to all roles so the
+  // install UI can show "what is installed" without admin.
+  // `plugin:install` and `plugin:publish` are admin-only;
+  // the BFF's `canInstallForTenant` policy (V3.4 T6) is
+  // what enforces the gate at the route layer.
+  | 'plugin:read'
+  | 'plugin:install'
+  | 'plugin:publish';
 
 /**
  * Canonical, ordered list of every Permission value.
@@ -35,6 +52,9 @@ export const ALL_PERMISSIONS = [
   'scene:write',
   'command:send',
   'auth:login',
+  'plugin:read',
+  'plugin:install',
+  'plugin:publish',
 ] as const satisfies readonly Permission[];
 
 /**
@@ -47,15 +67,18 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     'device:read', 'device:write',
     'scene:read', 'scene:write',
     'command:send', 'auth:login',
+    'plugin:read', 'plugin:install', 'plugin:publish',
   ],
   operator: [
     'device:read', 'device:write',
     'scene:read',
     'command:send',
+    'plugin:read',
   ],
   viewer: [
     'device:read',
     'scene:read',
+    'plugin:read',
   ],
 };
 

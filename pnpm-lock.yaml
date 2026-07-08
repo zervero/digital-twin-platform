@@ -71,6 +71,12 @@ importers:
       '@dt/otel':
         specifier: workspace:*
         version: link:../../packages/otel
+      '@dt/plugin-registry':
+        specifier: workspace:*
+        version: link:../../packages/plugin-registry
+      '@dt/plugin-runtime':
+        specifier: workspace:*
+        version: link:../../packages/plugin-runtime
       '@dt/realtime':
         specifier: workspace:*
         version: link:../../packages/realtime
@@ -368,6 +374,22 @@ importers:
       '@types/node':
         specifier: ^22.10.0
         version: 22.20.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.5
+        version: 2.1.5(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)
+
+  packages/plugin-registry:
+    dependencies:
+      '@dt/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@dt/plugin-runtime':
+        specifier: workspace:*
+        version: link:../plugin-runtime
+    devDependencies:
       typescript:
         specifier: ^5.6.3
         version: 5.6.3

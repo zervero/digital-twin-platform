@@ -30,11 +30,17 @@ import { authRoute } from './routes/auth.js';
 import { commandsRoute } from './routes/commands.js';
 import { devicesRoute } from './routes/devices.js';
 import { healthRoute } from './routes/health.js';
+import { marketplaceRoutes } from './routes/marketplace.js';
 import { oidcRoute } from './routes/oidc.js';
 import { sceneRoute } from './routes/scene.js';
 import { RealtimeBroadcaster } from './realtime/broadcaster.js';
 import { createAuthStore } from './auth/index.js';
 import { DevMockSource } from './realtime/dev-source.js';
+// V3.4 T3: in-memory storage for the marketplace routes.
+// T4 swaps MemoryPluginStore for FilePluginStore; the
+// route handlers are agnostic to which is wired.
+import { MemoryPluginStore } from './plugins/store-memory.js';
+import { createInMemoryPluginIndex } from '@dt/plugin-registry';
 
 export interface ServerHandle {
   /** The underlying HTTP server; exposed for tests / introspection. */
@@ -91,6 +97,18 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
   app.route('/api', sceneRoute(authStore));
   app.route('/api', commandsRoute(authStore));
   app.route('/api/auth', authRoute(authStore));
+
+  // V3.4 T3: marketplace routes. Wired with in-memory
+  // storage + in-memory registry; T4 swaps the storage
+  // for FilePluginStore, and a future T4.x swaps the
+  // registry for a file-backed index. The route handlers
+  // do not change.
+  const pluginStore = new MemoryPluginStore();
+  const registryIndex = createInMemoryPluginIndex();
+  app.route(
+    '/api',
+    marketplaceRoutes({ authStore, pluginStore, registryIndex }),
+  );
 
   if (env.authProvider === 'oidc' && env.oidc) {
     app.route('/api/auth/oidc', oidcRoute({ config: env.oidc }));

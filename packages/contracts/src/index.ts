@@ -22,7 +22,7 @@ export type {
   CommandAcceptedResponse,
 } from './api.js';
 
-// Auth (V2.1)
+// Auth (V2.1, extended in V3.3 + V3.4)
 export type {
   AuthErrorCode,
   AuthSession,
@@ -35,3 +35,20 @@ export type {
   User,
 } from './auth.js';
 export { ALL_PERMISSIONS, ROLE_PERMISSIONS, permissionsFor } from './auth.js';
+
+// Plugin contract (V3.4: shape moved here from @dt/plugin-runtime
+// so the marketplace DTOs in `plugins.ts` can reference it without
+// violating the @dt/contracts import-boundary rule.)
+export type { PluginManifest } from './plugin.js';
+
+// Marketplace (V3.4)
+export type {
+  ActivatePluginRequest,
+  InstallPluginRequest,
+  InstalledPluginResponse,
+  MarketplaceErrorCode,
+  PluginPermission,
+  PublishPluginRequest,
+  PublishedPluginVersion,
+  UninstallPluginParams,
+} from './plugins.js';
