@@ -31,6 +31,7 @@ scene-domain   -> contracts
 ui-kit         -> contracts
 realtime       -> contracts
 plugin-runtime -> contracts
+@dt/plugin-registry -> contracts, plugin-runtime
 ai-agent       -> contracts
 observability  -> contracts
 config         -> contracts
@@ -48,6 +49,14 @@ Forbidden edges:
   at the route layer. This keeps the package a pure
   types-and-helper module that can be imported from a
   worker / Edge runtime without dragging `jose` along.
+- `@dt/plugin-registry` must not import `vue`, `three`,
+  `pinia`, `api-client`, `engine-sdk`, or any BFF /
+  app-side package. It is a pure-types + in-memory
+  factory module that depends on `@dt/plugin-runtime`'s
+  V2.2 contract and `@dt/contracts`'s `Permission`
+  union. The BFF wires a file-based `RegistryIndex`
+  implementation in V3.4 T4; the runtime stays
+  storage-agnostic.
 
 ## Package-by-package ownership
 
@@ -66,6 +75,7 @@ Forbidden edges:
 | `@dt/observability` | V2 | contracts | Console logger. |
 | `@dt/config` | Platform | contracts | Env parsing helpers. |
 | `@dt/tenant` | Platform | contracts | V3.3 tenant types + `getTenantIdFromClaims` claim extractor. |
+| `@dt/plugin-registry` | V3.4 | runtime, contracts | Plugin data model, in-memory `createInMemoryPluginIndex` factory for tests. |
 
 ## Turbo pipelines
 
