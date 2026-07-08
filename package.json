@@ -25,6 +25,7 @@
     "prepare": "lefthook install || true",
     "smoke:oidc": "bash scripts/smoke-oidc.sh",
     "smoke:tenant": "bash scripts/smoke-tenant.sh",
+    "smoke:marketplace": "bash scripts/smoke-marketplace.sh",
     "smoke:permissions": "bash scripts/smoke-permissions.sh",
     "smoke:prod": "bash scripts/smoke-prod.sh",
     "smoke:v2": "bash scripts/smoke-v2.sh",

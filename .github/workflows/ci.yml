@@ -130,6 +130,70 @@ jobs:
         env:
           PORT: 3001
 
+  smoke_marketplace:
+    name: Smoke · Marketplace
+    # V3.4 T8: end-to-end plugin marketplace smoke.
+    # Boots the BFF in mock auth mode with a generated
+    # dev signing secret, then exercises the full
+    # marketplace surface: admin publishes 1.0.0, operator
+    # is rejected from publish (403), admin installs for
+    # the caller's tenant, operator is rejected from
+    # install (403), admin lists installed (one row,
+    # active=true), admin publishes + installs 1.1.0 and
+    # activates it (side-by-side upgrade), admin
+    # uninstalls 1.0.0 then 1.1.0 (no rows remain).
+    #
+    # The smoke uses AUTH_PROVIDER=mock so it does not
+    # need the dev OIDC IdP. The mock store stamps every
+    # session with the default `acme-corp` tenantId, which
+    # is enough to exercise the policy gate.
+    #
+    # Action versions, permissions, and timeout follow
+    # AGENTS.md § 5: pinned `@v5`, minimum permissions
+    # (`contents: read` only; the job does not push,
+    # comment, or open PRs), timeout-minutes well above
+    # the actual ~10s runtime. The workflow-level
+    # `concurrency` group already cancels in-progress
+    # runs on the same ref, so no job-level concurrency
+    # override is needed.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    env:
+      # Match the verify job: pnpm version comes from
+      # package.json's packageManager field, not a hardcoded
+      # number, and corepack never prompts interactively.
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.17.1
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        # The smoke boots the BFF via `pnpm --filter @dt/bff dev`,
+        # which runs the source through `tsx watch`; no separate
+        # build step is required for that path. We still need
+        # a workspace build so package consumers (contracts,
+        # config, etc.) have their dist artifacts.
+        run: pnpm build
+
+      - name: Run V3.4 marketplace smoke
+        run: pnpm smoke:marketplace
+        env:
+          PORT: 3001
+
   chart:
     name: Helm chart lint / render / kubeconform
     runs-on: ubuntu-latest

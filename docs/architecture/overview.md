@@ -20,12 +20,16 @@ product that can run in the browser, on macOS, and on Windows.
             |  |  +-- api-client -- fetch wrapper                |  |
             |  |  +-- contracts -- shared DTOs & events           |  |
             |  |  +-- device-domain, scene-domain (pure)          |  |
-            |  |  +-- realtime, plugin-runtime, ai-agent,        |  |
-            |  |     observability, config, otel, tenant          |  |
-            |  |     (boundaries; @dt/tenant ships types + claim   |  |
-            |  |      extractor only, no I/O -- see V3.3 docs)     |  |
-            |  |     otel = BFF-only; web consumes VITE_OTEL_*    |  |
-            |  |     env vars once V3.x browser RUM ships         |  |
+            |  |  +-- realtime, plugin-runtime, plugin-registry,  |  |
+            |  |     ai-agent, observability, config, otel,        |  |
+            |  |     tenant                                       |  |
+            |  |     (boundaries; @dt/tenant ships types +         |  |
+            |  |      claim extractor only, no I/O -- see V3.3    |  |
+            |  |      docs; @dt/plugin-registry is the V3.4       |  |
+            |  |      marketplace data model -- see                |  |
+            |  |      docs/development/marketplace.md; otel =     |  |
+            |  |      BFF-only; web consumes VITE_OTEL_* env      |  |
+            |  |      vars once V3.x browser RUM ships)            |  |
             |  +------------------------------------------------+  |
             +-------------------------------------------------------+
 ```

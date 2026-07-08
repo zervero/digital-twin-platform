@@ -54,7 +54,7 @@ acceptance shape, and a natural order relative to the others.
 | G. Production platform | V3.1 | **Shipped** | [plan](./v3.1-implementation-plan.md), [ADR 0014](../adr/0014-v3.1-closure.md) |
 | H. Tauri release pipeline | V3.2 | **Shipped** | [plan](./v3.2-implementation-plan.md), [ADR 0015](../adr/0015-v3.2-closure.md) |
 | I. Multi-tenant data model | V3.3 | **Active** | [plan](./v3.3-implementation-plan.md) |
-| J. Plugin marketplace + persistence | V3.4 | Proposed | — |
+| J. Plugin marketplace + persistence | V3.4 | **Active** | [plan](./v3.4-implementation-plan.md) |
 
 CI checks (lint / typecheck / test / build / smoke) and the
 cross-cutting observability surface (structured logs, request

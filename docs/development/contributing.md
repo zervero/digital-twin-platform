@@ -248,6 +248,7 @@ after I'm done?**
 | New public API in `@dt/engine-sdk` | `docs/architecture/engine-sdk.md` |
 | New architecture decision | New ADR under `docs/adr/` |
 | New env var, new script, new dev step | `README.md` + `docs/development/local-dev.md` |
+| Marketplace / plugin persistence change (route, store, signing) | `docs/development/marketplace.md` (+ `contributing.md` if the dev loop changed) |
 | Process / workflow change | this file (`contributing.md`) |
 | New prod deployment concern (Dockerfile, env, health, shutdown) | `docs/development/deployment.md` |
 | Helm chart / values / template change | `docs/development/production-platform.md` (and run `pnpm chart:lint:strict` before pushing) |
@@ -292,3 +293,6 @@ When you delegate a task to an AI agent:
 - [Multi-tenant data model](./multi-tenant.md) — V3.3 model, JWT claim
   shape, dev IdP `mint` flow, troubleshooting tree for the four
   tenant-boundary error codes.
+- [Plugin marketplace + persistence](./marketplace.md) — V3.4 file-based
+  plugin store, HMAC signing, dev loop, troubleshooting tree for the
+  marketplace error codes.
