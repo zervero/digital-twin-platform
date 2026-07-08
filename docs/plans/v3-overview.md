@@ -1,16 +1,19 @@
 # V3 Overview
 
-> Active. Records the scope and ordering for V3 work, with
-> per-track ship status. V3.0 (Track F: real auth / OIDC) and
-> V3.2 (Track H: Tauri release pipeline) are **shipped** (see
-> [ADR 0013](../adr/0013-v3.0-closure.md) and
-> [ADR 0015](../adr/0015-v3.2-closure.md)). V3.3 (Track I:
-> multi-tenant data model) is **active** -- see
-> [`docs/plans/v3.3-implementation-plan.md`](./v3.3-implementation-plan.md).
+> **Shipped**. The V3 roadmap (ADR 0012) is closed; all
+> 5 V3 tracks (F real auth, G production platform, H Tauri
+> releases, I multi-tenant, J plugin marketplace) shipped
+> across V3.0 -> V3.4. The closure ADRs are
+> [0013](../adr/0013-v3.0-closure.md),
+> [0014](../adr/0014-v3.1-closure.md),
+> [0015](../adr/0015-v3.2-closure.md),
+> [0016](../adr/0016-v3.3-closure.md), and
+> [0017](../adr/0017-v3.4-closure.md). V4 is a separate
+> ADR and a separate roadmap.
 >
 > V2 closed as `digital-twin-platform@2.3.0` (see ADR 0011); the
 > V2 spec items all landed across V2.0 -> V2.3. The remaining
-> "enterprise" items live in V3 and beyond.
+> "enterprise" items live in V3 (now closed) and beyond.
 
 ## Context
 
@@ -38,23 +41,23 @@ The V3 items cluster naturally into 5 tracks. Each track is
 self-contained: it has a clear package owner, a single
 acceptance shape, and a natural order relative to the others.
 
-| Track | Package(s) | Why it matters |
-| --- | --- | --- |
-| **F. Real auth (OIDC)** | `@dt/contracts`, `@dt/bff`, `@dt/app-shell`, new `@dt/auth-oidc` | V2.3 baked the `AUTH_PROVIDER=oidc` env gate; V3 fills the implementation in. OIDC unlocks V3 multi-tenancy. |
-| **G. Production platform** | `apps/bff`, `apps/web`, `.github/workflows`, new `tooling/k8s/` | V2.3 stopped at compose. K8s manifests + Helm chart, TLS via cert-manager, OTel metrics + traces + logs. |
-| **H. Tauri release pipeline** | `apps/desktop`, `.github/workflows` | The Tauri app runs locally today; V3 ships signed `.dmg` / `.msi` / `.AppImage` and an auto-update channel. |
-| **I. Multi-tenant data model** | `@dt/contracts`, `@dt/bff`, new `@dt/tenant` | Workspace isolation in API contracts, BFF route scoping, RLS at the storage layer. Depends on F (auth) for tenant identity. |
+| Track                                   | Package(s)                                                       | Why it matters                                                                                                                       |
+| --------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **F. Real auth (OIDC)**                 | `@dt/contracts`, `@dt/bff`, `@dt/app-shell`, new `@dt/auth-oidc` | V2.3 baked the `AUTH_PROVIDER=oidc` env gate; V3 fills the implementation in. OIDC unlocks V3 multi-tenancy.                         |
+| **G. Production platform**              | `apps/bff`, `apps/web`, `.github/workflows`, new `tooling/k8s/`  | V2.3 stopped at compose. K8s manifests + Helm chart, TLS via cert-manager, OTel metrics + traces + logs.                             |
+| **H. Tauri release pipeline**           | `apps/desktop`, `.github/workflows`                              | The Tauri app runs locally today; V3 ships signed `.dmg` / `.msi` / `.AppImage` and an auto-update channel.                          |
+| **I. Multi-tenant data model**          | `@dt/contracts`, `@dt/bff`, new `@dt/tenant`                     | Workspace isolation in API contracts, BFF route scoping, RLS at the storage layer. Depends on F (auth) for tenant identity.          |
 | **J. Plugin marketplace + persistence** | `@dt/plugin-runtime`, `@dt/app-shell`, new `@dt/plugin-registry` | V2.2 ships the contract (manifest, registry, extension types). V3 adds persistence, signed plugin artifacts, remote install/upgrade. |
 
 ### Per-track status (live)
 
-| Track | Release | Status | Closure |
-| --- | --- | --- | --- |
-| F. Real auth (OIDC) | V3.0 | **Shipped** | [ADR 0013](../adr/0013-v3.0-closure.md) |
-| G. Production platform | V3.1 | **Shipped** | [plan](./v3.1-implementation-plan.md), [ADR 0014](../adr/0014-v3.1-closure.md) |
-| H. Tauri release pipeline | V3.2 | **Shipped** | [plan](./v3.2-implementation-plan.md), [ADR 0015](../adr/0015-v3.2-closure.md) |
-| I. Multi-tenant data model | V3.3 | **Active** | [plan](./v3.3-implementation-plan.md) |
-| J. Plugin marketplace + persistence | V3.4 | **Active** | [plan](./v3.4-implementation-plan.md) |
+| Track                               | Release | Status      | Closure                                                                        |
+| ----------------------------------- | ------- | ----------- | ------------------------------------------------------------------------------ |
+| F. Real auth (OIDC)                 | V3.0    | **Shipped** | [ADR 0013](../adr/0013-v3.0-closure.md)                                        |
+| G. Production platform              | V3.1    | **Shipped** | [plan](./v3.1-implementation-plan.md), [ADR 0014](../adr/0014-v3.1-closure.md) |
+| H. Tauri release pipeline           | V3.2    | **Shipped** | [plan](./v3.2-implementation-plan.md), [ADR 0015](../adr/0015-v3.2-closure.md) |
+| I. Multi-tenant data model          | V3.3    | **Shipped** | [plan](./v3.3-implementation-plan.md), [ADR 0016](../adr/0016-v3.3-closure.md) |
+| J. Plugin marketplace + persistence | V3.4    | **Shipped** | [plan](./v3.4-implementation-plan.md), [ADR 0017](../adr/0017-v3.4-closure.md) |
 
 CI checks (lint / typecheck / test / build / smoke) and the
 cross-cutting observability surface (structured logs, request
@@ -117,7 +120,7 @@ plan, which now supersedes this section):
 - `apps/bff` boots with `AUTH_PROVIDER=oidc` and a real OIDC
   issuer URL; the env gate passes (`readAppEnv` returns OK).
 - The BFF's auth middleware verifies the `Authorization:
-  Bearer <jwt>` header against the issuer's JWKS; bad or
+Bearer <jwt>` header against the issuer's JWKS; bad or
   expired tokens return 401.
 - The V2.1 permission union becomes the JWT `scope` /
   `permissions` claim, validated per route via the existing
@@ -142,29 +145,34 @@ plan, which now supersedes this section):
 - **High-availability / multi-region active-active**. V3
   ships a single-region deployment story; HA is V4+.
 
-## Track I is active
+## V3.4 is shipped (the V3 roadmap closes here)
 
-V3.3 (Track I: multi-tenant data model) is the fourth V3
-release. Tracks F (auth), G (production platform), and H
-(Tauri release pipeline) shipped as V3.0, V3.1, and V3.2 --
-their closure ADRs are
-[ADR 0013](../adr/0013-v3.0-closure.md),
-[ADR 0014](../adr/0014-v3.1-closure.md), and
-[ADR 0015](../adr/0015-v3.2-closure.md). The implementation
-plan for V3.3 lives at
-[`docs/plans/v3.3-implementation-plan.md`](./v3.3-implementation-plan.md).
-It covers the `@dt/tenant` package, the `tenantId` field on
-every scoped DTO, JWT claim extraction in `@dt/auth-oidc`, the
-BFF `requiresTenantScope` middleware, tenant-scoped routes, a
-tenant-aware realtime broadcaster, a dev IdP that mints
-per-tenant tokens, a `pnpm smoke:tenant` end-to-end smoke, and
-the multi-tenant operator doc.
+V3.4 (Track J: plugin marketplace + persistence) is the
+fifth and final V3 release. Tracks F (auth), G (production
+platform), H (Tauri releases), and I (multi-tenant) shipped as
+V3.0, V3.1, V3.2, and V3.3 -- their closure ADRs are
+[0013](../adr/0013-v3.0-closure.md),
+[0014](../adr/0014-v3.1-closure.md),
+[0015](../adr/0015-v3.2-closure.md), and
+[0016](../adr/0016-v3.3-closure.md). The V3.4 closure is
+[ADR 0017](../adr/0017-v3.4-closure.md); the implementation
+plan lives at
+[`docs/plans/v3.4-implementation-plan.md`](./v3.4-implementation-plan.md).
+V3.4 ships the file-based `PluginStore` with HMAC-SHA256
+artifact signing, a publish / install / activate / uninstall
+marketplace API, the `Permission` union extension
+(`plugin:read` / `plugin:install` / `plugin:publish`), the
+app-shell `useMarketplaceInstall` composable + `MarketplacePanel`
+UI, the `pnpm smoke:marketplace` end-to-end smoke, and the
+marketplace operator doc.
 
-The V3-era major-version policy (ADR 0012) means V3.3 is a
-**major** bump (effective 5.0.0 → 6.0.0 per the artifact-aware
-manifest) because it closes a V3 track. Per the deviation
-recorded in ADR 0014, the actual release-please tag may end up
-on a different patch; the closure ADR captures the effective
+The V3-era minor-version policy (ADR 0012) means V3.4 is a
+**minor** bump (effective 6.0.0 -> 6.1.0 per the artifact-aware
+manifest) because its `Permission` union extension is additive
+and does not break the V3.0 stable contract. Per the
+deviation recorded in ADR 0014 and re-confirmed in the V3.3
+closure, the actual release-please tag may end up on a
+different patch; the closure ADR captures the effective
 version.
 
 ## Open questions
@@ -191,6 +199,10 @@ not here:
 ## Cross-references
 
 - V3 roadmap ADR: `docs/adr/0012-v3-roadmap.md`
+- V3.4 (shipped, the V3-era last track): [ADR 0017](../adr/0017-v3.4-closure.md)
+- V3.3 (shipped): [ADR 0016](../adr/0016-v3.3-closure.md)
+- V3.2 (shipped): [ADR 0015](../adr/0015-v3.2-closure.md)
+- V3.1 (shipped): [ADR 0014](../adr/0014-v3.1-closure.md)
 - V3.0 (shipped): [ADR 0013](../adr/0013-v3.0-closure.md)
 - V2.3 closure: `docs/adr/0011-v2.3-closure.md`
 - V2 roadmap ADR: `docs/adr/0007-v2-roadmap.md`
