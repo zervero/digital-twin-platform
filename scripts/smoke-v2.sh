@@ -71,42 +71,13 @@ if [ -z "$REQUEST_ID" ]; then
 fi
 echo "[smoke] request id: $REQUEST_ID"
 
-# Exercise the WebSocket end-to-end.
-node --input-type=module -e "
-import WebSocket from 'ws';
-const ws = new WebSocket('ws://localhost:${PORT}/api/stream');
-let pingNonce = null;
-let gotListUpdate = false;
-const timeout = setTimeout(() => {
-  console.error('[smoke] timeout waiting for device:list-updated');
-  process.exit(1);
-}, 6000);
-ws.on('open', () => console.log('[smoke] ws open'));
-ws.on('message', (data) => {
-  const msg = JSON.parse(data.toString());
-  if (msg.type === 'ping') {
-    pingNonce = msg.payload.nonce;
-    ws.send(JSON.stringify({
-      type: 'pong',
-      payload: { nonce: pingNonce },
-      timestamp: new Date().toISOString(),
-    }));
-    console.log('[smoke] replied to ping');
-  } else if (msg.type === 'device:list-updated') {
-    gotListUpdate = true;
-    clearTimeout(timeout);
-    ws.close();
-    console.log('[smoke] saw device:list-updated');
-  }
-});
-ws.on('close', () => {
-  process.exit(gotListUpdate ? 0 : 1);
-});
-"
-
-# Exercise the V2.1 auth flow: login, /me with bearer, logout, /me
-# should drop back to null. The mock auth store assigns the
-# `viewer` role, which is enough to confirm the round-trip.
+# V3.3: /api/stream is now gated on `requiresTenantScope` with the
+# `scene:read` permission, so the WebSocket upgrade needs a valid
+# bearer token. Log in first, then pass the token to the WS
+# handshake. The mock auth store mints a `viewer` session with
+# `tenantId: 'acme-corp'` and grants `scene:read`, so this login
+# satisfies the gate (see apps/bff/src/auth/mock-store.ts and
+# apps/bff/src/server.ts:100-118).
 LOGIN_BODY='{"email":"smoke@example.com"}'
 LOGIN_RES="$(curl -sf -X POST -H 'content-type: application/json' \
   -d "$LOGIN_BODY" "http://localhost:$PORT/api/auth/login")" \
@@ -123,6 +94,52 @@ process.stdin.on('end', () => {
 ")"
 [ -n "$TOKEN" ] || { echo "[smoke] login returned no token"; cat "$LOG_FILE"; exit 1; }
 echo "[smoke] logged in as smoke@example.com"
+
+# Exercise the WebSocket end-to-end. The bearer token is sent on
+# the upgrade handshake; the BFF's WS upgrade handler reads the
+# same `Authorization: Bearer` header the HTTP routes read (see
+# apps/bff/src/auth/mock-store.ts:85-89).
+node --input-type=module -e "
+import WebSocket from 'ws';
+const ws = new WebSocket('ws://localhost:${PORT}/api/stream', {
+  headers: { authorization: 'Bearer ${TOKEN}' },
+});
+let pingNonce = null;
+let gotDeviceUpdate = false;
+const timeout = setTimeout(() => {
+  console.error('[smoke] timeout waiting for device:updated');
+  process.exit(1);
+}, 6000);
+ws.on('open', () => console.log('[smoke] ws open'));
+ws.on('message', (data) => {
+  const msg = JSON.parse(data.toString());
+  if (msg.type === 'ping') {
+    pingNonce = msg.payload.nonce;
+    ws.send(JSON.stringify({
+      type: 'pong',
+      payload: { nonce: pingNonce },
+      timestamp: new Date().toISOString(),
+    }));
+    console.log('[smoke] replied to ping');
+  } else if (msg.type === 'device:updated') {
+    // V3.3 T7: the dev source publishes per-device events keyed by
+    // the device's own tenantId, and the broadcaster filters by the
+    // session's tenant on the subscription. The acme-corp session
+    // receives updates for acme-corp devices only.
+    if (msg.tenantId !== 'acme-corp') {
+      console.error('[smoke] device:updated for wrong tenant:', msg.tenantId);
+      process.exit(1);
+    }
+    gotDeviceUpdate = true;
+    clearTimeout(timeout);
+    ws.close();
+    console.log('[smoke] saw device:updated for acme-corp');
+  }
+});
+ws.on('close', () => {
+  process.exit(gotDeviceUpdate ? 0 : 1);
+});
+"
 
 ME_RES="$(curl -sf -H "authorization: Bearer $TOKEN" \
   "http://localhost:$PORT/api/auth/me")" \

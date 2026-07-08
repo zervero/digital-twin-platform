@@ -155,10 +155,30 @@ const jwks = { keys: [publicJwk] };
 
 function pickUser(reqUrl) {
   const as = reqUrl.searchParams.get('as');
-  if (!as) return { email: 'viewer@example.com', permissions: DEFAULT_PERMISSIONS };
+  if (!as) {
+    return {
+      email: 'viewer@example.com',
+      permissions: DEFAULT_PERMISSIONS,
+      tenantId: DEFAULT_TENANT,
+    };
+  }
   return {
     email: as,
     permissions: USER_PERMISSIONS[as] ?? DEFAULT_PERMISSIONS,
+    // V3.3 closure: the dev IdP's /authorize handler did not
+    // thread a tenant through the codes map, so the resulting
+    // id_token had no tenant claim and the BFF's
+    // `requiresTenantScope` rejected the WS / API requests
+    // with 401 AUTH_NO_TENANT. Smoke:oidc was green through
+    // V3.2 and went red on V3.3 T6 (the WS gate). Defaulting
+    // to DEFAULT_TENANT matches what the mock auth store
+    // does for the legacy dev loop (mock-store.ts mints
+    // `tenantId: 'acme-corp'` on every session) and is the
+    // minimum delta needed to keep smoke:oidc green. Per-
+    // tenant OIDC tokens are minted explicitly via the
+    // `mint --tenant` subcommand (T8); the `/authorize`
+    // server-mode path stays a single-tenant dev surface.
+    tenantId: DEFAULT_TENANT,
   };
 }
 
@@ -292,7 +312,12 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === '/authorize' && req.method === 'GET') {
       const code = randomString(24);
       const user = pickUser(url);
-      codes.set(code, { email: user.email, permissions: user.permissions, issuedAt: Date.now() });
+      codes.set(code, {
+        email: user.email,
+        permissions: user.permissions,
+        tenantId: user.tenantId,
+        issuedAt: Date.now(),
+      });
       const params = url.searchParams;
       const redirectUri = params.get('redirect_uri') ?? `${ISSUER}/callback`;
       const state = params.get('state') ?? '';

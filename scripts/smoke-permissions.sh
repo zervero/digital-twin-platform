@@ -103,7 +103,7 @@ echo "[smoke] GET /api/scene (viewer) -> 200"
 VIEWER_CMD_STATUS="$(curl -s -o /dev/null -w '%{http_code}' \
   -X POST -H "authorization: Bearer $VIEWER_TOKEN" \
   -H 'content-type: application/json' \
-  -d '{"id":"c1","type":"reset-view"}' \
+  -d '{"id":"c1","type":"reset-view","tenantId":"acme-corp"}' \
   "http://localhost:$PORT/api/commands")"
 [ "$VIEWER_CMD_STATUS" = "403" ] \
   || { echo "[smoke] expected 403 on /api/commands (viewer), got $VIEWER_CMD_STATUS"; cat "$LOG_FILE"; exit 1; }
@@ -119,7 +119,7 @@ ADMIN_TOKEN="$(printf '%s' "$ADMIN_LOGIN" | extract_token)"
 ADMIN_CMD_STATUS="$(curl -s -o /dev/null -w '%{http_code}' \
   -X POST -H "authorization: Bearer $ADMIN_TOKEN" \
   -H 'content-type: application/json' \
-  -d '{"id":"c1","type":"reset-view"}' \
+  -d '{"id":"c1","type":"reset-view","tenantId":"acme-corp"}' \
   "http://localhost:$PORT/api/commands")"
 [ "$ADMIN_CMD_STATUS" = "200" ] \
   || { echo "[smoke] expected 200 on /api/commands (admin), got $ADMIN_CMD_STATUS"; cat "$LOG_FILE"; exit 1; }
