@@ -36,10 +36,12 @@ import { sceneRoute } from './routes/scene.js';
 import { RealtimeBroadcaster } from './realtime/broadcaster.js';
 import { createAuthStore } from './auth/index.js';
 import { DevMockSource } from './realtime/dev-source.js';
-// V3.4 T3: in-memory storage for the marketplace routes.
-// T4 swaps MemoryPluginStore for FilePluginStore; the
-// route handlers are agnostic to which is wired.
-import { MemoryPluginStore } from './plugins/store-memory.js';
+// V3.4 T4: file-based plugin storage. The on-disk shape
+// is documented in `./plugins/storage.ts`; `writePluginArtifact`
+// is a T5 stub. `MemoryPluginStore` still exists because
+// `marketplace.test.ts` uses it for fast feedback (no
+// filesystem state in the route unit tests).
+import { FilePluginStore } from './plugins/storage.js';
 import { createInMemoryPluginIndex } from '@dt/plugin-registry';
 
 export interface ServerHandle {
@@ -98,12 +100,13 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
   app.route('/api', commandsRoute(authStore));
   app.route('/api/auth', authRoute(authStore));
 
-  // V3.4 T3: marketplace routes. Wired with in-memory
-  // storage + in-memory registry; T4 swaps the storage
-  // for FilePluginStore, and a future T4.x swaps the
-  // registry for a file-backed index. The route handlers
-  // do not change.
-  const pluginStore = new MemoryPluginStore();
+  // V3.4 T4: marketplace routes wired with the
+  // file-based `PluginStore`. The on-disk root defaults to
+  // `.data/plugins/` (override via `PLUGIN_STORAGE_ROOT`).
+  // The registry index stays in-memory here; a follow-up
+  // T4.x swaps it for a file-backed implementation. The
+  // route handlers do not change.
+  const pluginStore = new FilePluginStore();
   const registryIndex = createInMemoryPluginIndex();
   app.route(
     '/api',

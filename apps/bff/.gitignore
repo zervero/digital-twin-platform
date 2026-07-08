@@ -1,0 +1,6 @@
+# V3.4 T4: file-based plugin storage writes install
+# records, manifest.json, artifact.tgz, signature.txt,
+# and the active.txt pointer under this directory at
+# runtime. The smoke (T8) and any local `pnpm dev` run
+# should not commit the transient artifacts.
+.data/plugins/
