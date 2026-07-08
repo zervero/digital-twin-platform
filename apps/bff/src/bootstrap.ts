@@ -30,6 +30,7 @@ import {
 
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { createServer, type ServerHandle } from './server.js';
 import {
@@ -84,9 +85,16 @@ export interface BootstrapOptions {
   }) => StartOtelResult | null;
 }
 
+// V3.4 T5 fix: the previous `new URL('.', import.meta.url).pathname`
+// form produced a leading-slash path on Windows (`/D:/a/...`),
+// which `path.win32.resolve` then turned into a doubled
+// `D:\D:\a\...` and made `fs.mkdir` fail. `fileURLToPath`
+// returns a native path (`D:\a\...` on Windows,
+// `/Users/...` on macOS) so the dev signing secret lands in
+// the right place on both platforms.
 const DEV_SIGNING_SECRET_PATH = path.resolve(
   // apps/bff/src/bootstrap.ts -> apps/bff/.data/dev-signing-secret
-  new URL('.', import.meta.url).pathname,
+  fileURLToPath(new URL('.', import.meta.url)),
   '../.data/dev-signing-secret',
 );
 

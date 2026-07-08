@@ -136,6 +136,12 @@ describe('bootstrap (V3.1 T2)', () => {
       production: true,
       authProvider: 'mock',
     });
+    // V3.4 T5: production-mode bootstrap refuses to boot without
+    // a 32+ byte PLUGIN_SIGNING_SECRET. The test is asserting the
+    // env-reporting path, not the secret validation, so give it
+    // a real secret and let `ensureSigningSecret` short-circuit.
+    process.env['PLUGIN_SIGNING_SECRET'] =
+      'a'.repeat(64);
 
     await bootstrap({
       startOtelImpl: startOtel as unknown as Mock,
