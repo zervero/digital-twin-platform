@@ -16,9 +16,11 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import { createEngine, type DigitalTwinEngine } from '@dt/engine-sdk';
 import { DtIcon } from '@dt/ui-kit';
+import { useI18n } from '@dt/i18n';
 
 import { useSceneStore } from '../stores/scene-store.js';
 
+const { t } = useI18n();
 const sceneStore = useSceneStore();
 const container = ref<HTMLDivElement | null>(null);
 let engine: DigitalTwinEngine | null = null;
@@ -73,7 +75,7 @@ onBeforeUnmount(() => {
     >
       <template v-if="sceneStore.loading">
         <DtIcon name="Loader" size="sm" />
-        <span>加载场景中…</span>
+        <span>{{ t('scene.loading') }}</span>
       </template>
       <template v-else-if="sceneStore.error">
         <DtIcon name="AlertTriangle" size="sm" />
@@ -81,7 +83,7 @@ onBeforeUnmount(() => {
       </template>
       <template v-else-if="sceneStore.snapshot">
         <DtIcon name="Box" size="sm" />
-        <span>{{ sceneStore.nodeCount }} 节点</span>
+        <span>{{ sceneStore.nodeCount }} {{ sceneStore.nodeCount === 1 ? t('scene.node') : t('scene.nodes') }}</span>
       </template>
     </div>
   </div>

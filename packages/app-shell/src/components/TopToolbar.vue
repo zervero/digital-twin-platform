@@ -12,6 +12,13 @@
  *     pulsing dot + "live" / "connecting" / "offline" label.
  *   - `DtIcon` (lucide) replaces the old unicode `·` divider.
  *   - All hardcoded hex colors replaced with token references.
+ *
+ * V3.5 (Track K: i18n) — 2026-07-09:
+ *   - Locale switcher segmented control added to the toolbar's
+ *     right side: `System / EN / 中文`. Binds to `useI18n()`
+ *     so the change is reactive across every consumer of `t()`
+ *     in the same tick. State persists to `localStorage` via
+ *     `useLocaleStore.set`.
  */
 import { storeToRefs } from 'pinia';
 
@@ -20,6 +27,10 @@ import { DtButton, DtIcon, DtToolbar } from '@dt/ui-kit';
 import LoginButton from './LoginButton.vue';
 import { useSceneStore } from '../stores/scene-store.js';
 import { useDeviceStream } from '../composables/useDeviceStream.js';
+import { useI18n, useLocaleStore } from '@dt/i18n';
+
+const { t, setLocale } = useI18n();
+const localeStore = useLocaleStore();
 
 const sceneStore = useSceneStore();
 const { snapshot, selectedNodeId } = storeToRefs(sceneStore);
@@ -53,14 +64,14 @@ function onReset(): void {
       @click="onReset"
     >
       <DtIcon name="X" size="sm" />
-      清除选择
+      {{ t('scene.toolbar.reset') }}
     </DtButton>
 
     <div v-if="snapshot" class="meta">
       <DtIcon name="Layers" size="sm" />
       <span>{{ snapshot.name }}</span>
       <span class="meta__divider" aria-hidden="true">·</span>
-      <span>{{ snapshot.nodes.length }} 节点</span>
+      <span>{{ snapshot.nodes.length }} {{ snapshot.nodes.length === 1 ? t('scene.node') : t('scene.nodes') }}</span>
     </div>
 
     <div class="live" :data-status="stream.status.value" aria-live="polite">
@@ -69,6 +80,23 @@ function onReset(): void {
         {{ stream.status.value === 'open' ? 'live' :
            stream.status.value === 'connecting' ? 'connecting' : 'offline' }}
       </span>
+    </div>
+
+    <div class="locale" role="group" :aria-label="'language'">
+      <button
+        v-for="opt in [
+          { value: 'system', label: 'Auto' },
+          { value: 'en',     label: 'EN' },
+          { value: 'zh-CN',  label: '中文' },
+        ]"
+        :key="opt.value"
+        type="button"
+        :class="['locale__opt', { 'is-active': localeStore.choice === opt.value }]"
+        :aria-pressed="localeStore.choice === opt.value"
+        @click="setLocale(opt.value as 'system' | 'en' | 'zh-CN')"
+      >
+        {{ opt.label }}
+      </button>
     </div>
 
     <LoginButton />
@@ -179,5 +207,36 @@ function onReset(): void {
   0%   { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.6); }
   70%  { box-shadow: 0 0 0 6px rgba(45, 212, 191, 0); }
   100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+}
+.locale {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  padding: 2px;
+  background: var(--dt-bg-surface);
+  border: 1px solid var(--dt-border-subtle);
+  border-radius: var(--dt-radius-pill);
+}
+.locale__opt {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--dt-text-secondary);
+  padding: 2px var(--dt-space-sm);
+  border-radius: var(--dt-radius-pill);
+  font: inherit;
+  font-size: var(--dt-text-xs);
+  font-weight: var(--dt-weight-medium);
+  cursor: pointer;
+  transition: background var(--dt-duration-fast) var(--dt-ease-default),
+    color var(--dt-duration-fast) var(--dt-ease-default);
+}
+.locale__opt:hover:not(.is-active) {
+  color: var(--dt-text-primary);
+  background: var(--dt-bg-surface-hover);
+}
+.locale__opt.is-active {
+  background: var(--dt-accent-primary);
+  color: var(--dt-text-inverse);
 }
 </style>

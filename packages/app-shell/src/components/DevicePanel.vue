@@ -13,13 +13,22 @@
  *   - Density kept at compact for V4-prep; comfortable density
  *     becomes the default in the V3.4.x follow-up after more
  *     real-device data flows in.
+ *
+ * V3.5 (Track K: i18n) — 2026-07-09:
+ *   - All user-facing strings now resolve through `useI18n()`.
+ *     The `aria-label="selected"` stays literal because it is
+ *     an accessibility label for a non-text visual marker, not
+ *     UI copy (per ADR 0018 "do not translate").
  */
 import { storeToRefs } from 'pinia';
 
 import { DtEmptyState, DtIcon, DtPanel, DtStatusBadge } from '@dt/ui-kit';
+import { useI18n } from '@dt/i18n';
 
 import { useDeviceStore } from '../stores/device-store.js';
 import { useSceneStore } from '../stores/scene-store.js';
+
+const { t } = useI18n();
 
 const deviceStore = useDeviceStore();
 const sceneStore = useSceneStore();
@@ -34,11 +43,11 @@ function onSelect(id: string): void {
 </script>
 
 <template>
-  <DtPanel title="设备" density="compact">
+  <DtPanel :title="t('device.title')" density="compact">
     <template v-if="loading">
       <div class="muted">
         <DtIcon name="Loader" size="sm" />
-        加载中…
+        {{ t('common.loading') }}
       </div>
     </template>
     <template v-else-if="error">
@@ -49,8 +58,8 @@ function onSelect(id: string): void {
     </template>
     <template v-else-if="sortedDevices.length === 0">
       <DtEmptyState
-        title="暂无设备"
-        description="等待 BFF 推送设备数据"
+        :title="t('device.empty')"
+        :description="t('device.waitingDescription')"
       />
     </template>
     <template v-else>

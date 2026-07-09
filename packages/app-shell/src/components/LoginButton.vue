@@ -7,14 +7,22 @@
  *     variant to draw a clear action hierarchy.
  *   - User email displayed with a User icon prefix for symmetry
  *     with the login affordance.
+ *
+ * V3.5 (Track K: i18n) — 2026-07-09:
+ *   - "Sign in" / "Sign in (dev)" / "Logout" and the email
+ *     placeholder resolve through `useI18n()`. The Mock / OIDC
+ *     branches stay structurally identical.
  */
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 
 import { DtButton, DtIcon } from '@dt/ui-kit';
+import { useI18n } from '@dt/i18n';
 
 import { useAuthStore } from '../stores/auth-store.js';
 import { useOIDCStart } from '../composables/useOIDCStart.js';
+
+const { t } = useI18n();
 
 const authStore = useAuthStore();
 const { state, error, loading } = storeToRefs(authStore);
@@ -43,14 +51,14 @@ async function submitMockLogin(): Promise<void> {
       </span>
       <DtButton variant="ghost" :disabled="loading" @click="authStore.logout()">
         <DtIcon name="LogOut" size="sm" />
-        退出
+        {{ t('auth.logout') }}
       </DtButton>
     </template>
     <template v-else-if="authMode === 'oidc'">
       <DtButton variant="primary" data-testid="login-redirect">
         <a :href="loginHref" class="login-button__link">
           <DtIcon name="LogIn" size="sm" />
-          登录
+          {{ t('auth.login') }}
         </a>
       </DtButton>
     </template>
@@ -62,7 +70,7 @@ async function submitMockLogin(): Promise<void> {
           @click="showForm = true"
         >
           <DtIcon name="LogIn" size="sm" />
-          登录 (dev)
+          {{ t('auth.loginDev') }}
         </DtButton>
       </template>
       <form
@@ -76,32 +84,21 @@ async function submitMockLogin(): Promise<void> {
             v-model="email"
             type="email"
             required
-            placeholder="email"
+            :placeholder="t('auth.emailPlaceholder')"
             class="login-button__input"
-            data-testid="login-mock-email"
-          >
+          />
         </span>
-        <DtButton
-          type="submit"
-          variant="primary"
-          :disabled="loading"
-          data-testid="login-mock-submit"
-        >
-          提交
-        </DtButton>
-        <DtButton
-          type="button"
-          variant="ghost"
-          @click="showForm = false"
-        >
-          取消
-        </DtButton>
+        <div v-if="error" class="login-button__error">{{ error }}</div>
+        <div class="login-button__actions">
+          <DtButton variant="ghost" type="button" @click="showForm = false">
+            {{ t('common.cancel') }}
+          </DtButton>
+          <DtButton variant="primary" type="submit" :disabled="loading">
+            {{ t('common.confirm') }}
+          </DtButton>
+        </div>
       </form>
     </template>
-    <span v-if="error" class="login-button__error">
-      <DtIcon name="AlertTriangle" size="sm" />
-      {{ error }}
-    </span>
   </div>
 </template>
 
@@ -109,60 +106,58 @@ async function submitMockLogin(): Promise<void> {
 .login-button {
   display: inline-flex;
   align-items: center;
-  gap: var(--dt-space-md);
+  gap: var(--dt-space-sm);
 }
 .login-button__user {
   display: inline-flex;
   align-items: center;
-  gap: var(--dt-space-sm);
+  gap: var(--dt-space-xs);
+  font-size: var(--dt-text-xs);
   color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
 }
 .login-button__link {
   display: inline-flex;
   align-items: center;
-  gap: var(--dt-space-sm);
+  gap: var(--dt-space-xs);
   color: inherit;
   text-decoration: none;
 }
 .login-button__form {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   gap: var(--dt-space-sm);
-  align-items: center;
+  padding: var(--dt-space-md);
+  background: var(--dt-bg-elevated);
+  border: 1px solid var(--dt-border-subtle);
+  border-radius: var(--dt-radius-sm);
+  min-width: 220px;
 }
 .login-button__input-wrap {
   display: inline-flex;
   align-items: center;
-  gap: var(--dt-space-sm);
-  padding: 0 var(--dt-space-md);
-  background: var(--dt-bg-surface);
+  gap: var(--dt-space-xs);
+  padding: var(--dt-space-xs) var(--dt-space-sm);
+  background: var(--dt-bg-base);
   border: 1px solid var(--dt-border-default);
   border-radius: var(--dt-radius-sm);
   color: var(--dt-text-secondary);
-  transition: border-color var(--dt-duration-fast) var(--dt-ease-default);
-}
-.login-button__input-wrap:focus-within {
-  border-color: var(--dt-accent-primary);
-  color: var(--dt-text-primary);
 }
 .login-button__input {
-  appearance: none;
+  flex: 1;
   background: transparent;
   border: 0;
-  color: inherit;
-  padding: var(--dt-space-sm) 0;
+  color: var(--dt-text-primary);
   font: inherit;
   font-size: var(--dt-text-sm);
-  width: 180px;
-}
-.login-button__input:focus {
   outline: none;
 }
 .login-button__error {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
   color: var(--dt-accent-danger);
   font-size: var(--dt-text-xs);
+}
+.login-button__actions {
+  display: inline-flex;
+  justify-content: flex-end;
+  gap: var(--dt-space-sm);
 }
 </style>

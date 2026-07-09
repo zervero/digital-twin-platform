@@ -23,6 +23,7 @@
     "@dt/contracts": "workspace:*",
     "@dt/device-domain": "workspace:*",
     "@dt/engine-sdk": "workspace:*",
+    "@dt/i18n": "workspace:*",
     "@dt/plugin-runtime": "workspace:*",
     "@dt/realtime": "workspace:*",
     "@dt/scene-domain": "workspace:*",
