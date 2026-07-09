@@ -1,5 +1,5 @@
 /**
- * Server module — V3.1.
+ * Server module — V3.1 / V3.5.
  *
  * Owns the Hono app, the WebSocket broadcaster, the dev mock
  * source, and the HTTP server. Returns a `ServerHandle` whose
@@ -7,16 +7,23 @@
  * module (`./bootstrap.ts`) wires OTel + signal handling on
  * top.
  *
- * Split out from `index.ts` in T2 so that the OTel SDK
+ * Split out from `index.ts` in V3.1 T2 so that the OTel SDK
  * (`@opentelemetry/sdk-node`) can register its auto-
  * instrumentation require-hook *before* the modules it
  * patches (`http`, `ws`, `hono`) are required. The bootstrap
  * dynamic-imports this file after `startOtel()`.
+ *
+ * V3.5 added the CORS middleware (Track K) and a `buildApp`
+ * helper that returns the assembled Hono app without
+ * listening on a port. Tests use `buildApp` + `app.request`
+ * for in-process HTTP assertions (preflight, CORS headers,
+ * etc.) without the cost of binding a real socket.
  */
 
 import { serve, upgradeWebSocket } from '@hono/node-server';
 import type { ServerType } from '@hono/node-server';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { WebSocketServer, type WebSocket as WsWebSocket } from 'ws';
 
 import type { AppEnv } from '@dt/config';
@@ -66,7 +73,60 @@ export interface CreateServerOptions {
 
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 
-export function createServer(opts: CreateServerOptions): ServerHandle {
+/**
+ * CORS defaults for local development.
+ *
+ * `http://localhost:5173` is the Vite dev server that the
+ * web app boots on. `http://localhost:1420` is Tauri's
+ * default dev port (the desktop shell's WebView loads from
+ * there in dev mode). Production deployments MUST set
+ * `CORS_ALLOWED_ORIGINS` explicitly -- an empty list is the
+ * safe fallback (cross-origin requests get a 204 preflight
+ * with no `Access-Control-Allow-Origin` header, so the
+ * browser refuses to send the real request).
+ */
+export const DEFAULT_DEV_CORS_ORIGINS: readonly string[] = [
+  'http://localhost:5173',
+  'http://localhost:1420',
+];
+
+/**
+ * Resolve the CORS origin allowlist at startup.
+ *
+ *   1. `CORS_ALLOWED_ORIGINS` (comma-separated) wins if set.
+ *   2. Otherwise dev gets the Vite + Tauri defaults;
+ *      production gets an empty list (deny by default).
+ *
+ * Exported so the cors test can assert the resolution rules
+ * without spinning up a Hono app.
+ */
+export function resolveCorsOrigins(production: boolean): string[] {
+  const raw = process.env['CORS_ALLOWED_ORIGINS'];
+  if (raw !== undefined && raw.trim().length > 0) {
+    return raw
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0);
+  }
+  return production ? [] : [...DEFAULT_DEV_CORS_ORIGINS];
+}
+
+/**
+ * Assemble the Hono app for the BFF.
+ *
+ * Returns a fully-wired `Hono` instance with all middleware
+ * (request id, http logger, CORS) and routes mounted, but
+ * without binding to a port or starting the dev mock source.
+ * The production path (`createServer`) calls this and then
+ * hands the app to `serve()`. Tests can call it directly and
+ * exercise the stack via `app.request` -- no socket, no
+ * shutdown dance.
+ */
+export function buildApp(opts: CreateServerOptions): {
+  app: Hono;
+  broadcaster: RealtimeBroadcaster;
+  isShuttingDownRef: { value: boolean };
+} {
   const { env, logger } = opts;
   const broadcaster = opts.broadcaster ?? new RealtimeBroadcaster();
 
@@ -78,10 +138,38 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
   app.use('*', requestId());
   app.use('*', httpLogger(logger));
 
+  // CORS preflight + simple-response headers. The BFF is a
+  // cross-origin API for the Vite web app (localhost:5173)
+  // and the Tauri desktop shell (localhost:1420 in dev).
+  // Without this, every fetch from the browser fails the
+  // preflight with 'No Access-Control-Allow-Origin header'
+  // -- which is why smoke scripts that hit localhost:3001
+  // directly never caught this. Configured to send
+  // `credentials: true` so the OIDC session cookie is
+  // included on cross-origin XHRs.
+  //
+  // OPTIONS preflight requests are short-circuited here
+  // (the cors middleware returns 204 directly), so the
+  // rest of the stack never sees them -- in particular
+  // the 404 notFound handler below is unreachable for
+  // OPTIONS.
+  const corsOrigins = resolveCorsOrigins(env.production);
+  app.use(
+    '*',
+    cors({
+      origin: corsOrigins,
+      credentials: true,
+      allowMethods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'],
+    }),
+  );
+
   // Mount the health route early so /health and /ready are
   // reachable even if a later route module fails to load.
-  let isShuttingDown = false;
-  app.route('/', healthRoute({ isShuttingDown: () => isShuttingDown }));
+  const isShuttingDownRef = { value: false };
+  app.route(
+    '/',
+    healthRoute({ isShuttingDown: () => isShuttingDownRef.value }),
+  );
 
   // Pick the auth store from the env (V3.0).
   const authStore = createAuthStore(env);
@@ -91,10 +179,10 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
   // reads it for every request, so the store has to exist
   // before any route is mounted. V3.3: devices / scene /
   // commands / stream all use the tenant-scoped middleware
-  // so a request without a registered tenant is rejected at
-  // the gate (401 AUTH_NO_TENANT) instead of leaking global
-  // data. /api/auth/* stays on its existing surface because
-  // those routes run before any tenant is known.
+  // so a request without a registered tenant is rejected
+  // at the gate (401 AUTH_NO_TENANT) instead of leaking
+  // global data. /api/auth/* stays on its existing surface
+  // because those routes run before any tenant is known.
   app.route('/api', devicesRoute(authStore));
   app.route('/api', sceneRoute(authStore));
   app.route('/api', commandsRoute(authStore));
@@ -122,10 +210,10 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
     // V3.3: the WebSocket upgrade is gated on a tenant scope.
     // T4 put the gate here; T7 reads the resolved tenant id
     // off `c.var.tenant` and passes it to `subscribeClient`
-    // so the broadcaster filters events at the stream boundary
-    // (see `realtime/broadcaster.ts`). The permission is
-    // `scene:read` (viewer has it) so the existing dev loop
-    // keeps working.
+    // so the broadcaster filters events at the stream
+    // boundary (see `realtime/broadcaster.ts`). The
+    // permission is `scene:read` (viewer has it) so the
+    // existing dev loop keeps working.
     requiresTenantScope(authStore, 'scene:read'),
     upgradeWebSocket((c) => {
       // `requiresTenantScope` sets `c.var.tenant` before
@@ -138,9 +226,9 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
       const tenantId = c.var.tenant!.tenant.id;
       // Keepalive payloads also need a `tenantId` so the
       // broadcaster's per-tenant filter doesn't drop them.
-      // The `withTimestamp` helper doesn't enforce `tenantId`
-      // (it's a generic stamping helper), so we stamp it
-      // explicitly here.
+      // The `withTimestamp` helper doesn't enforce
+      // `tenantId` (it's a generic stamping helper), so we
+      // stamp it explicitly here.
       const buildPing = () =>
         withTimestamp({
           tenantId,
@@ -171,13 +259,23 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
   );
 
   app.notFound((c) =>
-    c.json({ error: 'NotFound', message: `No route for ${c.req.method} ${c.req.path}` }, 404),
+    c.json(
+      { error: 'NotFound', message: `No route for ${c.req.method} ${c.req.path}` },
+      404,
+    ),
   );
 
   app.onError((err, c) => {
     logger.error('unhandled error', { error: err.message });
     return c.json({ error: 'InternalError', message: err.message }, 500);
   });
+
+  return { app, broadcaster, isShuttingDownRef };
+}
+
+export function createServer(opts: CreateServerOptions): ServerHandle {
+  const { env, logger } = opts;
+  const { app, broadcaster, isShuttingDownRef } = buildApp(opts);
 
   const wss = new WebSocketServer({ noServer: true });
   const wssClients = new Set<WsWebSocket>();
@@ -212,20 +310,21 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
   }
 
   const shutdown = async (): Promise<void> => {
-    // Flip the readiness flag first so /ready starts returning
-    // 503 immediately; orchestrators (Kubernetes preStop,
-    // docker stop) rely on this to stop sending new traffic
-    // before the in-flight drain begins.
-    isShuttingDown = true;
+    // Flip the readiness flag first so /ready starts
+    // returning 503 immediately; orchestrators (Kubernetes
+    // preStop, docker stop) rely on this to stop sending
+    // new traffic before the in-flight drain begins.
+    isShuttingDownRef.value = true;
 
-    // 1. Stop the dev mock source so it doesn't push events
-    //    into a draining server.
+    // 1. Stop the dev mock source so it doesn't push
+    //    events into a draining server.
     dev?.stop();
     dev = null;
 
     // 2. Send a close frame to every active WebSocket. We
-    //    don't wait for close ACKs; the server.close() below
-    //    does the final cleanup after the drain timeout.
+    //    don't wait for close ACKs; the server.close()
+    //    below does the final cleanup after the drain
+    //    timeout.
     for (const ws of wssClients) {
       try {
         ws.close(1001, 'going away');
@@ -236,8 +335,8 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
     wssClients.clear();
 
     // 3. Close the HTTP server. Stops accepting new
-    //    connections and waits for in-flight responses, with
-    //    a hard timeout.
+    //    connections and waits for in-flight responses,
+    //    with a hard timeout.
     await new Promise<void>((resolve) => {
       server.close((err) => {
         if (err) logger.warn('http server close reported error', { error: err.message });
@@ -252,7 +351,8 @@ export function createServer(opts: CreateServerOptions): ServerHandle {
 
   return {
     server,
-    isShuttingDown: () => isShuttingDown,
+    isShuttingDown: () => isShuttingDownRef.value,
     shutdown,
   };
 }
+
