@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.4.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.3.0...digital-twin-platform-v4.4.0) (2026-07-09)
+
+
+### Features
+
+* **ui:** v4-prep page redesign (tokens + DtIcon + toolbar refresh) ([#18](https://github.com/zervero/digital-twin-platform/issues/18)) ([c28f08a](https://github.com/zervero/digital-twin-platform/commit/c28f08a7b4b3ad27ff95956ae6674ad3ba133b8c))
+
 ## [4.3.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.2.1...digital-twin-platform-v4.3.0) (2026-07-08)
 
 
