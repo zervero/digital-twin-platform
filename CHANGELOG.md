@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.5.1](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.5.0...digital-twin-platform-v4.5.1) (2026-07-09)
+
+
+### Bug Fixes
+
+* **bff:** tunnel bearer token via websocket subprotocol for stream auth ([#24](https://github.com/zervero/digital-twin-platform/issues/24)) ([b611094](https://github.com/zervero/digital-twin-platform/commit/b611094d9657f2ce6f8890d04011784bf1527e89))
+
 ## [4.5.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.4.0...digital-twin-platform-v4.5.0) (2026-07-09)
 
 
