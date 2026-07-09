@@ -1,0 +1,7 @@
+{
+  "device": {
+    "title": "设备",
+    "empty": "暂无设备",
+    "waitingDescription": "等待 BFF 推送设备数据"
+  }
+}

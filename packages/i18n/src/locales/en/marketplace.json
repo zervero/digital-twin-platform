@@ -1,0 +1,15 @@
+{
+  "marketplace": {
+    "title": "Plugin marketplace",
+    "install": "Install",
+    "activate": "Activate",
+    "uninstall": "Uninstall",
+    "active": "active",
+    "version": "version",
+    "installHint": "Publishing requires the {permission} permission.",
+    "loadingInstalled": "Loading installed plugins…",
+    "empty": "No installed plugins yet.",
+    "pluginId": "Plugin id",
+    "versions": "versions"
+  }
+}

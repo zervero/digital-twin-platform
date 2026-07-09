@@ -217,6 +217,9 @@ importers:
       '@dt/engine-sdk':
         specifier: workspace:*
         version: link:../engine-sdk
+      '@dt/i18n':
+        specifier: workspace:*
+        version: link:../i18n
       '@dt/plugin-runtime':
         specifier: workspace:*
         version: link:../plugin-runtime
@@ -336,6 +339,25 @@ importers:
       vitest:
         specifier: ^2.1.5
         version: 2.1.5(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)
+
+  packages/i18n:
+    dependencies:
+      '@dt/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+    devDependencies:
+      pinia:
+        specifier: ^2.2.6
+        version: 2.3.1(typescript@5.6.3)(vue@3.5.39(typescript@5.6.3))
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.5
+        version: 2.1.5(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.39(typescript@5.6.3)
 
   packages/observability:
     dependencies:

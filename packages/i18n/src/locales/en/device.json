@@ -1,0 +1,7 @@
+{
+  "device": {
+    "title": "Devices",
+    "empty": "No devices yet",
+    "waitingDescription": "Waiting for BFF to push device data"
+  }
+}
