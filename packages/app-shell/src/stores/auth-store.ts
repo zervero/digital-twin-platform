@@ -108,5 +108,14 @@ export const useAuthStore = defineStore('dt:auth', () => {
 
   const isAuthenticated = computed(() => state.value.kind === 'authenticated');
 
-  return { state, loading, error, permissions, isAuthenticated, login, logout, refresh };
+  // V3.5 Track K: expose the raw bearer token so the
+  // realtime stream composable can watch it and reconnect
+  // the WebSocket after login (see useDeviceStream). The
+  // token is a derived value; the source of truth is the
+  // session on the state machine.
+  const token = computed(() =>
+    state.value.kind === 'authenticated' ? state.value.session.token : null,
+  );
+
+  return { state, loading, error, permissions, isAuthenticated, token, login, logout, refresh };
 });

@@ -40,6 +40,13 @@ export interface ApiClient {
   login(req: LoginRequest): Promise<LoginResponse>;
   logout(): Promise<void>;
   setAuthToken(token: string | null): void;
+  /**
+   * Read the current bearer token. Used by the realtime
+   * stream composable to tunnel the token through the
+   * WebSocket subprotocol on (re)connect. Returns null when
+   * the client is anonymous.
+   */
+  getAuthToken(): string | null;
 }
 
 interface RequestOptions {
@@ -130,5 +137,6 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     setAuthToken: (next: string | null) => {
       token = next;
     },
+    getAuthToken: () => token,
   };
 }
