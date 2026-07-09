@@ -17,6 +17,13 @@
 
 import { createApp } from 'vue';
 import '@dt/ui-kit/styles';
+// V4-prep redesign: self-hosted typography (Inter + JetBrains Mono).
+// ui-kit declares font tokens in tokens.css; the consumer opts in
+// to the actual font files so the library stays typography-agnostic.
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/jetbrains-mono/400.css';
 
 import { AppShell, provideApiClient } from '@dt/app-shell';
 import { createApiClient } from '@dt/api-client';

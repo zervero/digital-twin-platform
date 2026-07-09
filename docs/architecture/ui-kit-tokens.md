@@ -38,16 +38,44 @@ literal values. The tokens are consumed by importing
 | Surfaces | `--dt-bg-*` | `base`, `elevated`, `surface`, `surface-hover`, `overlay` |
 | Borders | `--dt-border-*` | `subtle`, `default`, `strong` |
 | Text | `--dt-text-*` | `primary`, `secondary`, `muted`, `inverse` |
-| Accents | `--dt-accent-*` | `primary`, `primary-hover`, `danger`, `danger-hover` |
+| Accents | `--dt-accent-*` | `primary`, `primary-hover`, `secondary`, `secondary-hover`, `danger`, `danger-hover` |
 | Status | `--dt-status-*` | `online`, `offline`, `warning`, `alarm` (+ `-bg`, `-border`) |
-| Spacing | `--dt-space-*` | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl` |
-| Radii | `--dt-radius-*` | `sm`, `md`, `pill` |
-| Typography | `--dt-text-xs / -sm / -md` and `--dt-line-tight` |
+| Spacing | `--dt-space-*` | `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl` (4px grid) |
+| Radii | `--dt-radius-*` | `sm`, `md`, `pill` (panels capped at 8px) |
+| Typography | `--dt-text-{xs..2xl}`, `--dt-line-{tight,normal,relaxed}`, `--dt-weight-{regular,medium,semi}` |
+| Font stacks | `--dt-font-ui`, `--dt-font-mono` | Inter + JetBrains Mono with system fallbacks |
+| Shadows | `--dt-shadow-{sm,md,lg}` | low-opacity, used sparingly |
+| Icons | `--dt-icon-{sm,md,lg,xl}` | 14 / 16 / 20 / 24 px |
+| Motion | `--dt-ease-default`, `--dt-duration-{fast,base}` | shared timing tokens |
 
 All names are namespaced with `--dt-` to avoid collisions with
 app-level CSS variables. The current values are a single dark theme;
 a future light theme is one extra `[data-theme="light"] { ... }`
 block re-defining the same names.
+
+### V4-prep token refresh (2026-07-09)
+
+The token table above is the current shape. The V4-prep pass tightened
+several groups without breaking the names:
+
+- Surfaces moved to a warmer neutral stack (`#0F1115` base) so chrome
+  reads as "tool" not "IDE"; the old cool greys were too close to
+  GitHub dark palette and made `@dt/ui-kit` look like a clone.
+- A new `--dt-accent-secondary` (teal) was added for realtime / live
+  indicators so the primary blue can stay focused on actions.
+- The radii scale was rebuilt around the AGENTS.md rule that panels
+  cap at 8px: `--dt-radius-md` is now 8px, `--dt-radius-pill` is now
+  999px (proper pill, not a softened rectangle).
+- Typography gained a real type scale (`xs..2xl`), three line-height
+  stops (`tight`, `normal`, `relaxed`) and three weights. The
+  `--dt-font-ui` / `--dt-font-mono` stacks reference Inter and
+  JetBrains Mono; **ui-kit does not bundle the fonts** — consumers
+  that want the new type stack import `@fontsource/inter` and
+  `@fontsource/jetbrains-mono` (apps/web does). Keeping the font out
+  of the library keeps ui-kit embeddable in any typography.
+- Added `--dt-shadow-*` and `--dt-icon-*` so component CSS does not
+  invent ad-hoc sizes, and `--dt-ease-default` / `--dt-duration-*` so
+  motion stays consistent across surfaces.
 
 ### Why CSS variables and not Tailwind / UnoCSS
 
@@ -71,14 +99,20 @@ the existing Vite + Vue 3 setup.
 - Changing a color is a one-line edit in `tokens.css`.
 - Adding a light theme is one extra selector block; the components
   do not change.
-- The token file is currently ~80 lines including comments. It will
-  grow as V2 adds more components; if it exceeds ~200 lines, split
+- The token file is currently ~120 lines including comments. It will
+  grow as V4 adds more components; if it exceeds ~200 lines, split
   by category (`tokens.colors.css`, `tokens.spacing.css`).
 - A consumer that forgets to import `@dt/ui-kit/styles` will see
   the components render with no colors at all (CSS variables
   resolve to invalid/initial values). This is loud enough to catch
   immediately in development; we rely on the typecheck + smoke
   render to catch it.
+- New typography / shadow / icon / motion tokens raise the
+  "minimum viable consumer" cost slightly: apps that want the new
+  look must also import `@fontsource/inter` and
+  `@fontsource/jetbrains-mono`, or accept that the type stack will
+  silently fall back to system-ui. The Inter fall-through is
+  documented in `apps/web/src/main.ts`.
 
 ## Revisit when
 

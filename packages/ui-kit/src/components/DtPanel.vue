@@ -37,9 +37,9 @@ withDefaults(
 .dt-panel__header {
   padding: var(--dt-space-md) var(--dt-space-xl);
   border-bottom: 1px solid var(--dt-border-subtle);
-  font-weight: 600;
+  font-weight: var(--dt-weight-semi);
   color: var(--dt-text-primary);
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 .dt-panel__body {
   padding: var(--dt-space-md) var(--dt-space-xl);

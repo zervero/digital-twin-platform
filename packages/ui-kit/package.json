@@ -22,7 +22,8 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "@dt/contracts": "workspace:*"
+    "@dt/contracts": "workspace:*",
+    "lucide-vue-next": "^1.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
