@@ -27,6 +27,18 @@ vi.mock('../components/SceneViewport.vue', () => ({
   default: defineComponent({ name: 'SceneViewport', template: '<div data-testid="viewport" />' }),
 }));
 
+// V4-prep redesign: TopToolbar now reads the realtime connection
+// status via useDeviceStream. The composable opens a WebSocket
+// at construction time, and happy-dom does not provide one. Stub
+// the composable so this test stays focused on plugin activation.
+vi.mock('../composables/useDeviceStream.js', () => ({
+  useDeviceStream: () => ({
+    status: { value: 'closed' as const },
+    latestEvent: { value: null },
+    close: () => undefined,
+  }),
+}));
+
 function fakeFetch(url: string): Promise<Response> {
   if (url.endsWith('/api/auth/me')) {
     return Promise.resolve(new Response(JSON.stringify({ session: null }), { status: 200 }));

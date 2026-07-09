@@ -1,32 +1,18 @@
 <script setup lang="ts">
 /**
- * MarketplacePanel -- V3.4 T7.
+ * MarketplacePanel -- V3.4 T7 + V4-prep redesign (2026-07-09).
  *
- * Renders the marketplace surface in the app shell:
- *   - "Install new version" form (pluginId + version)
- *   - Per-record list of installed versions, each with
- *     Activate / Uninstall buttons. The active version
- *     is highlighted with the `dt-status-badge` look
- *     and its Activate button is disabled.
- *   - Loading and error states
+ * V4-prep changes:
+ *   - Install form: Download icon prefix on the primary install button.
+ *   - Activate / Uninstall actions gain CheckCircle2 / Trash2 icons.
+ *   - Active version row uses ShieldCheck + accent badge instead of
+ *     the previous blue pill.
+ *   - Loading state carries Loader icon; empty state carries PackageOpen.
+ *   - Density bumped from `--dt-space-md` padding to `--dt-space-lg`
+ *     so the panel reads as a product surface, not a debug list.
  *
- * The component owns the wiring: it builds a
- * `MarketplaceApi` from `BffBaseUrlKey`, derives
- * `tenantId` from the auth store's session, and
- * hands both to `useMarketplaceInstall`. The
- * composable is the host-side glue; this component
- * is the only place that knows about Vue's
- * reactivity and the DOM.
- *
- * No dynamic JS imports happen here. Each
- * installed version becomes a registration in
- * the plugin store via `replaceMarketplaceRegistrations`,
- * and the active version surfaces in the panels view
- * (the host's `PluginPanelHost` renders it). For
- * V3.4, the marketplace slice is a no-op stub; the
- * store still shows the manifest id + version in the
- * entries list, which is enough to demonstrate the
- * end-to-end path during dev.
+ * V3.4 behavior unchanged: install / activate / uninstall go through
+ * the BFF marketplace API; the panel owns no plugin runtime state.
  */
 import { computed, inject, onMounted, ref } from 'vue';
 
@@ -39,6 +25,7 @@ import {
 } from '../composables/useMarketplaceInstall.js';
 import { BffBaseUrlKey } from '../composables/useOIDCStart.js';
 import { usePermission } from '../composables/usePermission.js';
+import { DtIcon } from '@dt/ui-kit';
 
 const authStore = useAuthStore();
 const bffBaseUrl = inject(BffBaseUrlKey, 'http://localhost:3001');
@@ -54,11 +41,6 @@ const tenantId = computed<string>(() => {
 const api = createFetchMarketplaceApi({ baseUrl: bffBaseUrl });
 const handle = useMarketplaceInstall(api, tenantId);
 
-// Re-expose the composable's refs as computed refs so
-// vue-tsc's template type-check unwraps them at the
-// use-site. The composable itself keeps the readonly
-// Ref<readonly T[]> contract for tests; the panel is
-// the only Vue consumer that hits the vue-tsc quirk.
 const installed = computed(() => handle.installed.value);
 const loading = computed(() => handle.loading.value);
 const errorMessage = computed(() => handle.error.value);
@@ -67,11 +49,6 @@ const activeByPlugin = computed(() => handle.activeByPlugin.value);
 const canInstall = usePermission('plugin:install' as Permission);
 const canPublish = usePermission('plugin:publish' as Permission);
 
-// Install form state. The marketplace requires the
-// plugin to be already published (`canPublish`) before
-// the install form makes sense; for V3.4 dev the
-// install form is open to anyone with `plugin:install`
-// since the BFF does not yet gate the publish side.
 const newPluginId = ref('');
 const newVersion = ref('');
 
@@ -93,10 +70,6 @@ function isActive(pluginId: string, version: string): boolean {
 }
 
 function canUninstall(versionCount: number): boolean {
-  // A plugin with a single installed version cannot
-  // be uninstalled without first installing a new
-  // one -- the marketplace guarantees the plugin
-  // remains usable for the tenant.
   return versionCount > 1;
 }
 </script>
@@ -104,15 +77,19 @@ function canUninstall(versionCount: number): boolean {
 <template>
   <section class="marketplace-panel" aria-label="Plugin marketplace">
     <header class="marketplace-panel__header">
-      <h2>Plugin marketplace</h2>
+      <h2 class="marketplace-panel__title">
+        <DtIcon name="Store" size="md" />
+        Plugin marketplace
+      </h2>
       <p v-if="errorMessage" class="marketplace-panel__error">
+        <DtIcon name="AlertTriangle" size="sm" />
         {{ errorMessage }}
       </p>
     </header>
 
     <div v-if="canPublish" class="marketplace-panel__install-form">
       <label class="marketplace-panel__label">
-        Plugin id
+        <span>Plugin id</span>
         <input
           v-model="newPluginId"
           class="marketplace-panel__input"
@@ -121,7 +98,7 @@ function canUninstall(versionCount: number): boolean {
         />
       </label>
       <label class="marketplace-panel__label">
-        Version
+        <span>Version</span>
         <input
           v-model="newVersion"
           class="marketplace-panel__input"
@@ -131,10 +108,11 @@ function canUninstall(versionCount: number): boolean {
       </label>
       <button
         type="button"
-        class="marketplace-panel__button"
+        class="marketplace-panel__button marketplace-panel__button--primary"
         :disabled="!newPluginId || !newVersion"
         @click="submitInstall"
       >
+        <DtIcon name="Download" size="sm" />
         Install
       </button>
     </div>
@@ -143,6 +121,7 @@ function canUninstall(versionCount: number): boolean {
     </p>
 
     <div v-if="loading" class="marketplace-panel__loading">
+      <DtIcon name="Loader" size="sm" />
       Loading installed plugins...
     </div>
 
@@ -166,7 +145,13 @@ function canUninstall(versionCount: number): boolean {
             :data-active="isActive(record.pluginId, version.version)"
           >
             <span class="marketplace-panel__version-id">
-              {{ version.version }}
+              <DtIcon
+                v-if="isActive(record.pluginId, version.version)"
+                name="ShieldCheck"
+                size="sm"
+              />
+              <DtIcon v-else name="Package" size="sm" />
+              <span class="marketplace-panel__version-num">{{ version.version }}</span>
               <span
                 v-if="isActive(record.pluginId, version.version)"
                 class="marketplace-panel__badge"
@@ -175,22 +160,31 @@ function canUninstall(versionCount: number): boolean {
             <span class="marketplace-panel__actions">
               <button
                 type="button"
-                class="marketplace-panel__button"
+                class="marketplace-panel__action"
                 :disabled="!canInstall || isActive(record.pluginId, version.version)"
                 @click="handle.activate(record.pluginId, version.version)"
-              >Activate</button>
+              >
+                <DtIcon name="CheckCircle2" size="sm" />
+                Activate
+              </button>
               <button
                 type="button"
-                class="marketplace-panel__button marketplace-panel__button--danger"
+                class="marketplace-panel__action marketplace-panel__action--danger"
                 :disabled="!canInstall || !canUninstall(record.versions.length)"
                 @click="handle.uninstall(record.pluginId, version.version)"
-              >Uninstall</button>
+              >
+                <DtIcon name="Trash2" size="sm" />
+                Uninstall
+              </button>
             </span>
           </li>
         </ul>
       </li>
     </ol>
-    <p v-else class="marketplace-panel__empty">No installed plugins yet.</p>
+    <p v-else class="marketplace-panel__empty">
+      <DtIcon name="PackageOpen" size="sm" />
+      No installed plugins yet.
+    </p>
   </section>
 </template>
 
@@ -198,85 +192,134 @@ function canUninstall(versionCount: number): boolean {
 .marketplace-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--dt-space-sm, 8px);
-  padding: var(--dt-space-md, 12px);
-  border: 1px solid var(--dt-border-default, #30363d);
-  border-radius: var(--dt-radius-sm, 4px);
-  background: var(--dt-bg-surface, #0d1117);
-  color: var(--dt-text-primary, #c9d1d9);
-  font: 13px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  gap: var(--dt-space-md);
+  padding: var(--dt-space-lg);
+  border: 1px solid var(--dt-border-default);
+  border-radius: var(--dt-radius-md);
+  background: var(--dt-bg-base);
+  color: var(--dt-text-primary);
+  font-family: var(--dt-font-ui);
+  font-size: var(--dt-text-sm);
+  line-height: var(--dt-line-normal);
 }
 .marketplace-panel__header {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--dt-space-xs);
 }
-.marketplace-panel__header h2 {
+.marketplace-panel__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-sm);
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--dt-text-lg);
+  font-weight: var(--dt-weight-semi);
+  color: var(--dt-text-primary);
+  letter-spacing: 0;
 }
 .marketplace-panel__error {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-xs);
   margin: 0;
-  color: var(--dt-color-danger, #f85149);
-  font-size: 12px;
+  color: var(--dt-accent-danger);
+  font-size: var(--dt-text-xs);
 }
 .marketplace-panel__install-form {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--dt-space-sm);
+  padding: var(--dt-space-md);
+  background: var(--dt-bg-elevated);
+  border: 1px solid var(--dt-border-subtle);
+  border-radius: var(--dt-radius-sm);
 }
 .marketplace-panel__label {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 12px;
+  gap: var(--dt-space-xs);
+  font-size: var(--dt-text-xs);
+  color: var(--dt-text-secondary);
 }
 .marketplace-panel__input {
   appearance: none;
-  background: var(--dt-bg-base, #010409);
-  border: 1px solid var(--dt-border-default, #30363d);
-  color: inherit;
-  padding: 4px 6px;
-  border-radius: var(--dt-radius-sm, 4px);
+  background: var(--dt-bg-base);
+  border: 1px solid var(--dt-border-default);
+  color: var(--dt-text-primary);
+  padding: var(--dt-space-sm) var(--dt-space-md);
+  border-radius: var(--dt-radius-sm);
   font: inherit;
+  font-size: var(--dt-text-sm);
+  transition: border-color var(--dt-duration-fast) var(--dt-ease-default);
+}
+.marketplace-panel__input:focus {
+  outline: none;
+  border-color: var(--dt-accent-primary);
 }
 .marketplace-panel__button {
   appearance: none;
-  border: 1px solid var(--dt-border-default, #30363d);
-  background: var(--dt-bg-surface-hover, #161b22);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--dt-space-sm);
+  border: 1px solid var(--dt-border-default);
+  background: var(--dt-bg-surface);
   color: inherit;
-  padding: 4px 10px;
-  border-radius: var(--dt-radius-sm, 4px);
+  padding: var(--dt-space-sm) var(--dt-space-lg);
+  border-radius: var(--dt-radius-sm);
   font: inherit;
+  font-size: var(--dt-text-sm);
+  font-weight: var(--dt-weight-medium);
   cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease;
+  transition: background var(--dt-duration-fast) var(--dt-ease-default),
+    border-color var(--dt-duration-fast) var(--dt-ease-default);
 }
 .marketplace-panel__button:hover:not(:disabled) {
-  border-color: var(--dt-border-strong, #8b949e);
+  border-color: var(--dt-border-strong);
+  background: var(--dt-bg-surface-hover);
 }
 .marketplace-panel__button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.marketplace-panel__button--danger {
-  color: var(--dt-color-danger, #f85149);
+.marketplace-panel__button--primary {
+  background: var(--dt-accent-primary);
+  border-color: var(--dt-accent-primary);
+  color: var(--dt-text-inverse);
+}
+.marketplace-panel__button--primary:hover:not(:disabled) {
+  background: var(--dt-accent-primary-hover);
+  border-color: var(--dt-accent-primary-hover);
 }
 .marketplace-panel__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-xs);
   margin: 0;
-  font-size: 12px;
-  color: var(--dt-text-secondary, #8b949e);
+  font-size: var(--dt-text-xs);
+  color: var(--dt-text-secondary);
+}
+.marketplace-panel__hint code {
+  font-family: var(--dt-font-mono);
+  font-size: var(--dt-text-xs);
+  background: var(--dt-bg-surface);
+  border: 1px solid var(--dt-border-subtle);
+  padding: 1px 4px;
+  border-radius: var(--dt-radius-sm);
 }
 .marketplace-panel__loading,
 .marketplace-panel__empty {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-sm);
   margin: 0;
-  font-size: 12px;
-  color: var(--dt-text-secondary, #8b949e);
+  font-size: var(--dt-text-xs);
+  color: var(--dt-text-secondary);
 }
 .marketplace-panel__list {
   display: flex;
   flex-direction: column;
-  gap: var(--dt-space-sm, 8px);
+  gap: var(--dt-space-md);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -284,25 +327,27 @@ function canUninstall(versionCount: number): boolean {
 .marketplace-panel__record {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 6px 8px;
-  border: 1px solid var(--dt-border-default, #30363d);
-  border-radius: var(--dt-radius-sm, 4px);
+  gap: var(--dt-space-sm);
+  padding: var(--dt-space-md);
+  border: 1px solid var(--dt-border-subtle);
+  border-radius: var(--dt-radius-sm);
+  background: var(--dt-bg-elevated);
 }
 .marketplace-panel__record-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--dt-space-sm);
 }
 .marketplace-panel__record-count {
-  font-size: 11px;
-  color: var(--dt-text-secondary, #8b949e);
+  font-family: var(--dt-font-mono);
+  font-size: var(--dt-text-xs);
+  color: var(--dt-text-secondary);
 }
 .marketplace-panel__versions {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--dt-space-xs);
   list-style: none;
   margin: 0;
   padding: 0;
@@ -311,32 +356,68 @@ function canUninstall(versionCount: number): boolean {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 2px 4px;
-  font-size: 12px;
+  gap: var(--dt-space-sm);
+  padding: var(--dt-space-sm) var(--dt-space-md);
+  font-size: var(--dt-text-sm);
+  border-radius: var(--dt-radius-sm);
 }
 .marketplace-panel__version[data-active='true'] {
-  background: var(--dt-bg-surface-hover, #161b22);
-  border-radius: var(--dt-radius-sm, 4px);
+  background: rgba(45, 212, 191, 0.08);
+  border: 1px solid rgba(45, 212, 191, 0.25);
 }
 .marketplace-panel__version-id {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--dt-space-sm);
+  color: var(--dt-text-primary);
+}
+.marketplace-panel__version-num {
+  font-family: var(--dt-font-mono);
 }
 .marketplace-panel__badge {
   display: inline-block;
-  padding: 1px 6px;
-  background: var(--dt-color-accent, #1f6feb);
-  color: #fff;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  padding: 1px 8px;
+  background: var(--dt-accent-secondary);
+  color: #0F1115;
+  border-radius: var(--dt-radius-pill);
+  font-family: var(--dt-font-mono);
+  font-size: var(--dt-text-xs);
+  font-weight: var(--dt-weight-semi);
+  letter-spacing: 0;
+  text-transform: lowercase;
 }
 .marketplace-panel__actions {
   display: inline-flex;
-  gap: 4px;
+  gap: var(--dt-space-xs);
+}
+.marketplace-panel__action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-xs);
+  appearance: none;
+  border: 1px solid var(--dt-border-default);
+  background: transparent;
+  color: inherit;
+  padding: 2px var(--dt-space-sm);
+  border-radius: var(--dt-radius-sm);
+  font: inherit;
+  font-size: var(--dt-text-xs);
+  cursor: pointer;
+  transition: background var(--dt-duration-fast) var(--dt-ease-default);
+}
+.marketplace-panel__action:hover:not(:disabled) {
+  background: var(--dt-bg-surface);
+  border-color: var(--dt-border-strong);
+}
+.marketplace-panel__action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.marketplace-panel__action--danger {
+  color: var(--dt-accent-danger);
+}
+.marketplace-panel__action--danger:hover:not(:disabled) {
+  background: var(--dt-status-alarm-bg);
+  border-color: var(--dt-status-alarm-border);
 }
 </style>
