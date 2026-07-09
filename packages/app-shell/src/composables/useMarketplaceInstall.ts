@@ -185,10 +185,36 @@ async function buildRegistrations(
  * V3.4 ships a minimal set of endpoints; a V3.4.x
  * follow-up may extend `ApiClient` with typed
  * `plugins.*` methods and deprecate this factory.
+ *
+ * V3.5 follow-up: the BFF's `/api/plugins` routes
+ * are gated on `requiresTenantScope` (V3.3), which
+ * reads `Authorization: Bearer <token>` out of the
+ * request headers. `globalThis.fetch` does not know
+ * about the auth store, so any host that builds the
+ * factory without wiring a token getter gets a 401
+ * `AUTH_SESSION_EXPIRED` ("Session not found") on
+ * every call -- the symptom is the marketplace panel
+ * silently fails to load. The `getAuthToken` option
+ * closes that gap by reading the live bearer token
+ * (the same callback shape `useDeviceStream` uses
+ * for the WebSocket subprotocol tunnel, so the
+ * host only writes it once). Passing `undefined`
+ * preserves the V3.4 behavior for tests and
+ * tooling that intentionally skip auth.
  */
 export interface FetchMarketplaceApiOptions {
   baseUrl: string;
   fetchImpl?: typeof fetch;
+  /**
+   * V3.5 follow-up: returns the current bearer
+   * token. The factory calls this on every request
+   * and adds `Authorization: Bearer <token>` when
+   * the value is non-null. The callback shape
+   * matches `useDeviceStream`'s `getToken` so a
+   * single `() => authStore.token.value` wires
+   * both the HTTP and WebSocket transports.
+   */
+  getAuthToken?: () => string | null;
 }
 
 export function createFetchMarketplaceApi(
@@ -196,6 +222,7 @@ export function createFetchMarketplaceApi(
 ): MarketplaceApi {
   const base = options.baseUrl.replace(/\/$/, '');
   const fetchImpl = options.fetchImpl ?? globalThis.fetch.bind(globalThis);
+  const getAuthToken = options.getAuthToken;
 
   async function readJson<T>(response: Response): Promise<T> {
     const text = await response.text();
@@ -208,10 +235,17 @@ export function createFetchMarketplaceApi(
     path: string,
     body?: unknown,
   ): Promise<T> {
-    const init: RequestInit = {
-      method,
-      headers: body !== undefined ? { 'content-type': 'application/json' } : {},
-    };
+    const headers: Record<string, string> = {};
+    if (body !== undefined) headers['content-type'] = 'application/json';
+    // V3.5 follow-up: the BFF's `requiresTenantScope`
+    // gate keys mock-auth sessions on the bearer token,
+    // so a missing header turns every marketplace call
+    // into a 401. The token is read lazily on every
+    // request so a login that happens after the panel
+    // mounted picks up automatically on the next call.
+    const token = getAuthToken?.();
+    if (token) headers.authorization = `Bearer ${token}`;
+    const init: RequestInit = { method, headers };
     if (body !== undefined) init.body = JSON.stringify(body);
     const response = await fetchImpl(`${base}${path}`, init);
     if (!response.ok) {

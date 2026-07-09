@@ -196,6 +196,19 @@ and rotation procedure, lives in
   console, log in first (the toolbar's "Sign in (dev)" button) and the
   status dot in the toolbar should turn green. Added in V3.5 Track K
   T8.2.
+- **Marketplace panel logs `GET /api/plugins 401 AUTH_SESSION_EXPIRED`
+  (or the panel silently fails to load) even after a successful login** -
+  `createFetchMarketplaceApi` (the V3.4 fetch wrapper used by
+  `MarketplacePanel`) historically used `globalThis.fetch` without
+  injecting the auth bearer token, so every call to the BFF marketplace
+  routes was bounced by `requiresTenantScope` with 401. The V3.5
+  follow-up (4.5.2) added an optional `getAuthToken` option, and
+  `MarketplacePanel` wires it to `authStore.token`. If you see this
+  error in the console, confirm the host is on 4.5.2 or later; custom
+  hosts that call `createFetchMarketplaceApi` directly must pass
+  `getAuthToken: () => authStore.token` (the same callback the
+  `useDeviceStream` WebSocket path uses) so the HTTP and WebSocket
+  transports share one source of truth for the bearer token.
 - **Vite dev server won't start** - check that port 5173 is free.
 - **BFF unreachable from web** - confirm the URL in `apps/web/.env` or
   `VITE_BFF_URL` matches the BFF's `PORT`.
