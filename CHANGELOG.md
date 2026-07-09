@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.5.2](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.5.1...digital-twin-platform-v4.5.2) (2026-07-09)
+
+
+### Bug Fixes
+
+* **app-shell:** inject bearer token into marketplace fetch ([#26](https://github.com/zervero/digital-twin-platform/issues/26)) ([af7079c](https://github.com/zervero/digital-twin-platform/commit/af7079cf3c4adbcb69923ead4902ae3c2ab1b565))
+
 ## [4.5.1](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.5.0...digital-twin-platform-v4.5.1) (2026-07-09)
 
 
