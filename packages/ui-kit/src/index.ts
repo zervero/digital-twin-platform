@@ -17,3 +17,4 @@ export { default as DtPanel } from './components/DtPanel.vue';
 export { default as DtStatusBadge } from './components/DtStatusBadge.vue';
 export { default as DtToolbar } from './components/DtToolbar.vue';
 export { default as DtEmptyState } from './components/DtEmptyState.vue';
+export { default as DtIcon } from './components/DtIcon.vue';
