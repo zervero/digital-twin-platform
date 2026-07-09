@@ -254,6 +254,26 @@ this run does not know about. Delete
 `apps/bff/.data/dev-signing-secret` and re-run; the
 BFF will regenerate on next boot.
 
+## Closure record
+
+This doc is the operator handoff for V3.4 (track J:
+plugin marketplace + persistence). The closure record
+that ties the design back to the V3 roadmap is
+[ADR 0017](../adr/0017-v3.4-closure.md); the rationale
+(why this design, what the alternatives were) is
+[`docs/plans/v3.4-implementation-plan.md`](../plans/v3.4-implementation-plan.md).
+The Known Caveats section in ADR 0017
+(§Consequences) is the parking lot for the five
+V3.4.x follow-ups the closure explicitly does not
+address (file-based `PluginStore` -> SQLite or
+Postgres, per-instance HMAC -> GPG / Sigstore /
+cosign, local-only marketplace -> remote registry,
+stub activation -> real dynamic activation,
+single-replica fan-out -> shared storage). V3.4
+itself is closed and audit-clean as of the closure
+ADR commit (`b23aa4f`); the release shipped as
+`digital-twin-platform@4.3.0` on commit `b02616e`.
+
 ## What this doc is not
 
 - Not the API reference. The route types live in

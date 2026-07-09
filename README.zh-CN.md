@@ -11,9 +11,9 @@
 - **V3** - 工业产品层：AI 智能体、协同、插件市场、多租户、审计。
   - **V3.0** - 已发布：真实认证（OIDC）、Helm Chart、OTel 接入。
   - **V3.1** - 已发布：production-platform 指南、Chart 静态检查 CI。
-  - **V3.2** - 开发中：签名版桌面安装包与自动更新通道。详见 [docs/development/desktop-releases.md](docs/development/desktop-releases.md)。
-  - **V3.3** - 开发中：多租户数据模型 + 开发 IdP 的 `--tenant` 参数 + 隔离 smoke。详见 [docs/development/multi-tenant.md](docs/development/multi-tenant.md)。
-  - **V3.4** - 开发中：插件市场 + 持久化（签名构件、文件式 `PluginStore`、安装 / 升级 / 卸载）。详见 [docs/development/marketplace.md](docs/development/marketplace.md)。
+  - **V3.2** - 已发布：签名版桌面安装包与自动更新通道。Closure：[ADR 0015](docs/adr/0015-v3.2-closure.md)。Operator 指南：[docs/development/desktop-releases.md](docs/development/desktop-releases.md)。
+  - **V3.3** - 已发布：多租户数据模型 + 开发 IdP 的 `--tenant` 参数 + 隔离 smoke。Closure：[ADR 0016](docs/adr/0016-v3.3-closure.md)。Operator 指南：[docs/development/multi-tenant.md](docs/development/multi-tenant.md)。
+  - **V3.4** - 已发布：插件市场 + 持久化（签名构件、文件式 `PluginStore`、安装 / 升级 / 卸载）。Closure：[ADR 0017](docs/adr/0017-v3.4-closure.md)。Operator 指南：[docs/development/marketplace.md](docs/development/marketplace.md)。
 
 高层设计见 [docs/architecture/overview.md](docs/architecture/overview.md)，本地开发见 [docs/development/local-dev.md](docs/development/local-dev.md)。
 
