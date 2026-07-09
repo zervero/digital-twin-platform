@@ -7,6 +7,18 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.5.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.4.0...digital-twin-platform-v4.5.0) (2026-07-09)
+
+
+### Features
+
+* **i18n:** v3.5 track-k localization (self-hosted @dt/i18n) ([#20](https://github.com/zervero/digital-twin-platform/issues/20)) ([46349f4](https://github.com/zervero/digital-twin-platform/commit/46349f406b2ab502b78d2e6bf1bbb7a6acb8fdbf))
+
+
+### Bug Fixes
+
+* **bff:** unblock browser preflight via hono cors middleware ([#22](https://github.com/zervero/digital-twin-platform/issues/22)) ([a147d25](https://github.com/zervero/digital-twin-platform/commit/a147d255e0f5fd3c32cde0e4afe99653fbbf1ab4))
+
 ## [4.4.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.3.0...digital-twin-platform-v4.4.0) (2026-07-09)
 
 
