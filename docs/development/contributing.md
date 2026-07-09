@@ -249,6 +249,7 @@ after I'm done?**
 | New architecture decision | New ADR under `docs/adr/` |
 | New env var, new script, new dev step | `README.md` + `docs/development/local-dev.md` |
 | Marketplace / plugin persistence change (route, store, signing) | `docs/development/marketplace.md` (+ `contributing.md` if the dev loop changed) |
+| New i18n key (UI copy in `@dt/app-shell`) | `packages/i18n/src/locales/<locale>/<ns>.json` (+ the same key in the other locale) and `docs/development/i18n.md` if the key is non-obvious |
 | Process / workflow change | this file (`contributing.md`) |
 | New prod deployment concern (Dockerfile, env, health, shutdown) | `docs/development/deployment.md` |
 | Helm chart / values / template change | `docs/development/production-platform.md` (and run `pnpm chart:lint:strict` before pushing) |
@@ -296,3 +297,6 @@ When you delegate a task to an AI agent:
 - [Plugin marketplace + persistence](./marketplace.md) — V3.4 file-based
   plugin store, HMAC signing, dev loop, troubleshooting tree for the
   marketplace error codes.
+- [Internationalization (`@dt/i18n`)](./i18n.md) — V3.5 self-hosted
+  locale layer, two locales (`en` / `zh-CN`), how to add a new key,
+  the dictionary-completeness test, and what stays untranslated.
