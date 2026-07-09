@@ -41,7 +41,21 @@ const tenantId = computed<string>(() => {
   return '';
 });
 
-const api = createFetchMarketplaceApi({ baseUrl: bffBaseUrl });
+// V3.5 follow-up: the BFF's `/api/plugins` routes are
+// gated on `requiresTenantScope`, which reads the
+// bearer token from the `Authorization` header.
+// `createFetchMarketplaceApi` historically used
+// `globalThis.fetch` without injecting the token, so
+// every call returned 401 AUTH_SESSION_EXPIRED. Wire
+// the same `getAuthToken` callback the WebSocket
+// composable uses so the marketplace and the
+// realtime stream stay in sync from one source of
+// truth. (See useDeviceStream for the matching
+// pattern.)
+const api = createFetchMarketplaceApi({
+  baseUrl: bffBaseUrl,
+  getAuthToken: () => authStore.token,
+});
 const handle = useMarketplaceInstall(api, tenantId);
 
 const installed = computed(() => handle.installed.value);
