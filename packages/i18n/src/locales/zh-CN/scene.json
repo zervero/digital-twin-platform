@@ -1,0 +1,10 @@
+{
+  "scene": {
+    "loading": "加载场景中…",
+    "toolbar": {
+      "reset": "清除选择"
+    },
+    "node": "节点",
+    "nodes": "节点"
+  }
+}

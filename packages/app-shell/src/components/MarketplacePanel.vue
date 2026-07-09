@@ -26,6 +26,9 @@ import {
 import { BffBaseUrlKey } from '../composables/useOIDCStart.js';
 import { usePermission } from '../composables/usePermission.js';
 import { DtIcon } from '@dt/ui-kit';
+import { useI18n } from '@dt/i18n';
+
+const { t } = useI18n();
 
 const authStore = useAuthStore();
 const bffBaseUrl = inject(BffBaseUrlKey, 'http://localhost:3001');
@@ -75,11 +78,11 @@ function canUninstall(versionCount: number): boolean {
 </script>
 
 <template>
-  <section class="marketplace-panel" aria-label="Plugin marketplace">
+  <section class="marketplace-panel" :aria-label="t('marketplace.title')">
     <header class="marketplace-panel__header">
       <h2 class="marketplace-panel__title">
         <DtIcon name="Store" size="md" />
-        Plugin marketplace
+        {{ t('marketplace.title') }}
       </h2>
       <p v-if="errorMessage" class="marketplace-panel__error">
         <DtIcon name="AlertTriangle" size="sm" />
@@ -89,7 +92,7 @@ function canUninstall(versionCount: number): boolean {
 
     <div v-if="canPublish" class="marketplace-panel__install-form">
       <label class="marketplace-panel__label">
-        <span>Plugin id</span>
+<span>{{ t('marketplace.pluginId') }}</span>
         <input
           v-model="newPluginId"
           class="marketplace-panel__input"
@@ -98,7 +101,7 @@ function canUninstall(versionCount: number): boolean {
         />
       </label>
       <label class="marketplace-panel__label">
-        <span>Version</span>
+<span>{{ t('marketplace.version') }}</span>
         <input
           v-model="newVersion"
           class="marketplace-panel__input"
@@ -113,16 +116,16 @@ function canUninstall(versionCount: number): boolean {
         @click="submitInstall"
       >
         <DtIcon name="Download" size="sm" />
-        Install
+        {{ t('marketplace.install') }}
       </button>
     </div>
     <p v-else class="marketplace-panel__hint">
-      Publishing requires the <code>plugin:publish</code> permission.
+      {{ t('marketplace.installHint', { permission: 'plugin:publish' }) }}
     </p>
 
     <div v-if="loading" class="marketplace-panel__loading">
       <DtIcon name="Loader" size="sm" />
-      Loading installed plugins...
+      {{ t('marketplace.loadingInstalled') }}
     </div>
 
     <ol v-else-if="installed.length > 0" class="marketplace-panel__list">
@@ -134,7 +137,7 @@ function canUninstall(versionCount: number): boolean {
         <header class="marketplace-panel__record-header">
           <strong>{{ record.pluginId }}</strong>
           <span class="marketplace-panel__record-count">
-            {{ record.versions.length }} version{{ record.versions.length === 1 ? '' : 's' }}
+            {{ record.versions.length }} {{ record.versions.length === 1 ? t('marketplace.version') : t('marketplace.versions') }}
           </span>
         </header>
         <ul class="marketplace-panel__versions">
@@ -155,7 +158,7 @@ function canUninstall(versionCount: number): boolean {
               <span
                 v-if="isActive(record.pluginId, version.version)"
                 class="marketplace-panel__badge"
-              >active</span>
+              >{{ t('marketplace.active') }}</span>
             </span>
             <span class="marketplace-panel__actions">
               <button
@@ -165,7 +168,7 @@ function canUninstall(versionCount: number): boolean {
                 @click="handle.activate(record.pluginId, version.version)"
               >
                 <DtIcon name="CheckCircle2" size="sm" />
-                Activate
+                {{ t('marketplace.activate') }}
               </button>
               <button
                 type="button"
@@ -174,7 +177,7 @@ function canUninstall(versionCount: number): boolean {
                 @click="handle.uninstall(record.pluginId, version.version)"
               >
                 <DtIcon name="Trash2" size="sm" />
-                Uninstall
+                {{ t('marketplace.uninstall') }}
               </button>
             </span>
           </li>
@@ -183,7 +186,7 @@ function canUninstall(versionCount: number): boolean {
     </ol>
     <p v-else class="marketplace-panel__empty">
       <DtIcon name="PackageOpen" size="sm" />
-      No installed plugins yet.
+      {{ t('marketplace.empty') }}
     </p>
   </section>
 </template>

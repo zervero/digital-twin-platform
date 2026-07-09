@@ -14,6 +14,7 @@
   - **V3.2** - 已发布：签名版桌面安装包与自动更新通道。Closure：[ADR 0015](docs/adr/0015-v3.2-closure.md)。Operator 指南：[docs/development/desktop-releases.md](docs/development/desktop-releases.md)。
   - **V3.3** - 已发布：多租户数据模型 + 开发 IdP 的 `--tenant` 参数 + 隔离 smoke。Closure：[ADR 0016](docs/adr/0016-v3.3-closure.md)。Operator 指南：[docs/development/multi-tenant.md](docs/development/multi-tenant.md)。
   - **V3.4** - 已发布：插件市场 + 持久化（签名构件、文件式 `PluginStore`、安装 / 升级 / 卸载）。Closure：[ADR 0017](docs/adr/0017-v3.4-closure.md)。Operator 指南：[docs/development/marketplace.md](docs/development/marketplace.md)。
+- **V3.5** - 已发布：本地化层 `@dt/i18n`（英文 + 简体中文双语言、字典完整性测试、语言切换器）。Closure：[ADR 0018](docs/adr/0018-v3.5-i18n.md)。Operator 指南：[docs/development/i18n.md](docs/development/i18n.md)。
 
 高层设计见 [docs/architecture/overview.md](docs/architecture/overview.md)，本地开发见 [docs/development/local-dev.md](docs/development/local-dev.md)。
 

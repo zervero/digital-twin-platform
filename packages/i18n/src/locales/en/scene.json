@@ -1,0 +1,10 @@
+{
+  "scene": {
+    "loading": "Loading scene…",
+    "toolbar": {
+      "reset": "Clear selection"
+    },
+    "node": "node",
+    "nodes": "nodes"
+  }
+}
