@@ -208,3 +208,39 @@ describe('api-client auth methods (V2.1)', () => {
     expect(noTokenHeaders.authorization).toBeUndefined();
   });
 });
+
+describe('getAuthToken (V3.5 Track K T8.2)', () => {
+  it('returns null on a fresh client', () => {
+    const client = createApiClient({ baseUrl: 'http://x', fetchImpl: vi.fn() });
+    expect(client.getAuthToken()).toBeNull();
+  });
+
+  it('reflects the value passed to setAuthToken', () => {
+    const client = createApiClient({ baseUrl: 'http://x', fetchImpl: vi.fn() });
+    client.setAuthToken('mock-abc');
+    expect(client.getAuthToken()).toBe('mock-abc');
+  });
+
+  it('returns null again after setAuthToken(null)', () => {
+    const client = createApiClient({ baseUrl: 'http://x', fetchImpl: vi.fn() });
+    client.setAuthToken('mock-abc');
+    client.setAuthToken(null);
+    expect(client.getAuthToken()).toBeNull();
+  });
+
+  it('captures the token returned by login()', async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(
+      makeJsonResponse({
+        session: {
+          user: { id: 'u-1', displayName: 'u', email: 'u@x.test', roles: ['viewer'] },
+          token: 'mock-from-login',
+          expiresAt: '2026-12-31T00:00:00.000Z',
+        },
+      }),
+    );
+    const client = createApiClient({ baseUrl: 'http://x', fetchImpl });
+    expect(client.getAuthToken()).toBeNull();
+    await client.login({ email: 'u@x.test' });
+    expect(client.getAuthToken()).toBe('mock-from-login');
+  });
+});

@@ -21,6 +21,12 @@ export interface RealtimeStream {
   subscribe(listener: (event: DigitalTwinEvent) => void): () => void;
   publish(event: DigitalTwinEvent): void;
   close(): void;
+  /**
+   * Force a reconnect. Optional -- only WebSocket-backed
+   * streams implement it; in-memory streams are a no-op
+   * (no transport to reopen).
+   */
+  reconnect?(): void;
 }
 
 export interface DeviceUpdateSource {
@@ -67,8 +73,14 @@ interface WebSocketLike {
   onerror: ((ev: unknown) => void) | null;
 }
 
-function getWebSocketImpl(): { new (url: string): WebSocketLike } {
-  return (globalThis as unknown as { WebSocket: { new (url: string): WebSocketLike } }).WebSocket;
+function getWebSocketImpl(): {
+  new (url: string, protocols?: string | string[]): WebSocketLike;
+} {
+  return (globalThis as unknown as {
+    WebSocket: {
+      new (url: string, protocols?: string | string[]): WebSocketLike;
+    };
+  }).WebSocket;
 }
 
 class InMemoryRealtimeStream implements RealtimeStream {
@@ -104,13 +116,42 @@ export class WebSocketRealtimeStream implements RealtimeStream {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly opts: Required<ReconnectOptions>;
 
-  constructor(private readonly url: string, options: ReconnectOptions = {}) {
+  private readonly getToken: (() => string | null) | undefined;
+
+  constructor(
+    private readonly url: string,
+    options: CreateWebSocketStreamOptions = {} as CreateWebSocketStreamOptions,
+  ) {
     this.opts = {
-      enabled: options.enabled ?? true,
-      maxAttempts: options.maxAttempts ?? 10,
-      baseDelayMs: options.baseDelayMs ?? 100,
-      maxDelayMs: options.maxDelayMs ?? 30_000,
+      enabled: options.reconnect?.enabled ?? true,
+      maxAttempts: options.reconnect?.maxAttempts ?? 10,
+      baseDelayMs: options.reconnect?.baseDelayMs ?? 100,
+      maxDelayMs: options.reconnect?.maxDelayMs ?? 30_000,
     };
+    this.getToken = options.getToken;
+    this.connect();
+  }
+
+  /**
+   * Force a reconnect with the latest token.
+   *
+   * The caller is responsible for knowing the token has
+   * changed; this method closes the current socket (without
+   * going through the reconnect-backoff path) and immediately
+   * opens a new one. Used by the app shell's useDeviceStream
+   * composable to re-attach after login (when the user goes
+   * from anonymous to authenticated and the existing
+   * connection would otherwise 401 on the upgrade).
+   */
+  reconnect(): void {
+    if (this.closed) return;
+    if (this.ws) {
+      // Suppress our own reconnect logic -- we're driving it.
+      this.ws.onclose = null;
+      this.ws.close();
+      this.ws = null;
+    }
+    this.attempts = 0;
     this.connect();
   }
 
@@ -136,7 +177,15 @@ export class WebSocketRealtimeStream implements RealtimeStream {
   private connect(): void {
     if (this.closed) return;
     const WS = getWebSocketImpl();
-    const ws = new WS(this.url);
+    const token = this.getToken?.() ?? null;
+    // WebSocket protocol forbids custom headers from the
+    // client, so we tunnel the bearer token through the
+    // subprotocols list. The BFF reads it via the
+    // subprotocolAuth middleware. When no token is set we
+    // open a plain connection (the BFF will reject the
+    // upgrade with 401; the caller can then reconnect()
+    // after login).
+    const ws = token ? new WS(this.url, ['bearer', token]) : new WS(this.url);
     this.ws = ws;
     ws.onopen = () => {
       this.attempts = 0;
@@ -172,9 +221,26 @@ export class WebSocketRealtimeStream implements RealtimeStream {
   }
 }
 
-export function createWebSocketStream(options: {
+export interface CreateWebSocketStreamOptions {
   url: string;
+  /**
+   * Token getter, called every time the stream (re)connects.
+   * The token is sent to the BFF via the WebSocket subprotocol
+   * header (Sec-WebSocket-Protocol: bearer, <token>) because the
+   * browser WebSocket API forbids setting arbitrary request
+   * headers. The BFF's subprotocolAuth middleware reads it back
+   * and tunnels it into the Authorization header so
+   * requiresTenantScope works on the upgrade path.
+   *
+   * Return null to skip the subprotocol (anonymous connect;
+   * the BFF will reject the upgrade with 401).
+   */
+  getToken?: () => string | null;
   reconnect?: ReconnectOptions;
-}): RealtimeStream {
-  return new WebSocketRealtimeStream(options.url, options.reconnect);
+}
+
+export function createWebSocketStream(
+  options: CreateWebSocketStreamOptions,
+): RealtimeStream {
+  return new WebSocketRealtimeStream(options.url, options);
 }

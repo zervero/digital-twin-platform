@@ -16,8 +16,10 @@ class MockWebSocket {
   onmessage: ((ev: MessageEvent) => void) | null = null;
   onerror: ((ev: Event) => void) | null = null;
 
-  constructor(url: string) {
+  protocols: string | string[] | undefined;
+  constructor(url: string, protocols?: string | string[]) {
     this.url = url;
+    this.protocols = protocols;
     MockWebSocket.instances.push(this);
   }
   send(data: string): void {
@@ -96,5 +98,69 @@ describe('createWebSocketStream', () => {
     vi.advanceTimersByTime(100);
     expect(MockWebSocket.instances).toHaveLength(2);
     stream.close();
+  });
+});
+
+describe('subprotocol token tunneling (V3.5 Track K T8.2)', () => {
+  it('opens a plain connection when getToken returns null', () => {
+    createWebSocketStream({
+      url: 'ws://localhost:3001/api/stream',
+      getToken: () => null,
+    });
+    expect(MockWebSocket.instances[0]!.protocols).toBeUndefined();
+  });
+
+  it('tunnels a bearer token through the subprotocols list when present', () => {
+    createWebSocketStream({
+      url: 'ws://localhost:3001/api/stream',
+      getToken: () => 'mock-uuid-1234',
+    });
+    const ws = MockWebSocket.instances[0]!;
+    expect(ws.protocols).toEqual(['bearer', 'mock-uuid-1234']);
+  });
+
+  it('re-reads the token on every reconnect via the getter', async () => {
+    let token: string | null = 'mock-token-1';
+    const stream = createWebSocketStream({
+      url: 'ws://x',
+      getToken: () => token,
+      reconnect: { baseDelayMs: 50, maxDelayMs: 50, maxAttempts: 5 },
+    });
+    const ws1 = MockWebSocket.instances[0]!;
+    expect(ws1.protocols).toEqual(['bearer', 'mock-token-1']);
+    ws1.triggerOpen();
+    // Rotate the token and force a reconnect.
+    token = 'mock-token-2';
+    stream.reconnect?.();
+    const ws2 = MockWebSocket.instances[1]!;
+    expect(ws2.protocols).toEqual(['bearer', 'mock-token-2']);
+    stream.close();
+  });
+
+  it('reconnect() closes the current socket and opens a new one', () => {
+    const stream = createWebSocketStream({
+      url: 'ws://x',
+      getToken: () => 'tok',
+    });
+    const ws1 = MockWebSocket.instances[0]!;
+    ws1.triggerOpen();
+    expect(MockWebSocket.instances).toHaveLength(1);
+    stream.reconnect?.();
+    expect(MockWebSocket.instances).toHaveLength(2);
+    expect(ws1.onclose).toBeNull();
+    stream.close();
+  });
+
+  it('reconnect() is a no-op when the stream is already closed', () => {
+    const stream = createWebSocketStream({
+      url: 'ws://x',
+      getToken: () => 'tok',
+    });
+    const ws1 = MockWebSocket.instances[0]!;
+    ws1.triggerOpen();
+    stream.close();
+    stream.reconnect?.();
+    // Only the original instance; no second connection opened.
+    expect(MockWebSocket.instances).toHaveLength(1);
   });
 });

@@ -22,7 +22,7 @@
 
 import { serve, upgradeWebSocket } from '@hono/node-server';
 import type { ServerType } from '@hono/node-server';
-import { Hono } from 'hono';
+import { Hono, type MiddlewareHandler } from 'hono';
 import { cors } from 'hono/cors';
 import { WebSocketServer, type WebSocket as WsWebSocket } from 'ws';
 
@@ -41,6 +41,7 @@ import { marketplaceRoutes } from './routes/marketplace.js';
 import { oidcRoute } from './routes/oidc.js';
 import { sceneRoute } from './routes/scene.js';
 import { RealtimeBroadcaster } from './realtime/broadcaster.js';
+import type { AuthStore } from './auth/store.js';
 import { createAuthStore } from './auth/index.js';
 import { DevMockSource } from './realtime/dev-source.js';
 // V3.4 T4: file-based plugin storage. The on-disk shape
@@ -100,6 +101,61 @@ export const DEFAULT_DEV_CORS_ORIGINS: readonly string[] = [
  * Exported so the cors test can assert the resolution rules
  * without spinning up a Hono app.
  */
+/**
+ * WebSocket subprotocol -> Authorization header tunnel.
+ *
+ * The browser WebSocket API does not let the client set
+ * arbitrary request headers, so the app shell's
+ * useDeviceStream tunnels the bearer token through the
+ * Sec-WebSocket-Protocol list (subprotocol 'bearer' followed
+ * by the token value). This middleware reads the subprotocol
+ * back out and copies it into Authorization so the existing
+ * requiresTenantScope gate works on the upgrade path. No-op
+ * on requests that don't carry the subprotocol (the gate
+ * will then 401, which is the right answer for an
+ * unauthenticated WS upgrade).
+ *
+ * Mounted only on /api/stream, not globally, so the
+ * Sec-WebSocket-Protocol header never leaks into the regular
+ * HTTP request path.
+ */
+export function subprotocolAuth(): MiddlewareHandler {
+  return async (c, next) => {
+    // Browser WebSocket API forbids setting arbitrary
+    // request headers on the upgrade, so the app shell's
+    // useDeviceStream tunnels the bearer token through
+    // the Sec-WebSocket-Protocol list. We pull it back out
+    // here and inject it into Authorization so the existing
+    // requiresTenantScope gate works on every tenant-scoped
+    // path (the gate reads headers via store.getMe).
+    //
+    // The middleware is mounted globally right after the
+    // CORS handler. It's a no-op on regular HTTP requests,
+    // which never carry Sec-WebSocket-Protocol -- the
+    // browser only sets that header on WebSocket upgrades.
+    // We keep the path global (not just /api/stream) so
+    // the same auth flow works for any future WebSocket
+    // route the platform adds.
+    const sub = c.req.header('sec-websocket-protocol');
+    if (sub) {
+      const parts = sub.split(',').map((p) => p.trim());
+      const idx = parts.findIndex(
+        (p) => p.toLowerCase() === 'bearer',
+      );
+      if (idx >= 0 && idx + 1 < parts.length) {
+        const token = parts[idx + 1] ?? '';
+        if (token.length > 0) {
+          c.req.raw.headers.set(
+            'authorization',
+            'Bearer ' + token,
+          );
+        }
+      }
+    }
+    return next();
+  };
+}
+
 export function resolveCorsOrigins(production: boolean): string[] {
   const raw = process.env['CORS_ALLOWED_ORIGINS'];
   if (raw !== undefined && raw.trim().length > 0) {
@@ -122,11 +178,21 @@ export function resolveCorsOrigins(production: boolean): string[] {
  * exercise the stack via `app.request` -- no socket, no
  * shutdown dance.
  */
-export function buildApp(opts: CreateServerOptions): {
+export interface BuildAppResult {
   app: Hono;
   broadcaster: RealtimeBroadcaster;
   isShuttingDownRef: { value: boolean };
-} {
+  /**
+   * The AuthStore the app was wired with. Exposed for
+   * tests that need to mint sessions and assert the
+   * end-to-end path (login -> subprotocol -> 200). The
+   * production path (createServer) ignores this; only
+   * buildApp consumers read it.
+   */
+  authStore: AuthStore;
+}
+
+export function buildApp(opts: CreateServerOptions): BuildAppResult {
   const { env, logger } = opts;
   const broadcaster = opts.broadcaster ?? new RealtimeBroadcaster();
 
@@ -162,6 +228,13 @@ export function buildApp(opts: CreateServerOptions): {
       allowMethods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH', 'OPTIONS'],
     }),
   );
+
+  // V3.5 Track K (T8.2): see subprotocolAuth() above.
+  // Mounted globally so the same auth flow works for every
+  // future WebSocket route. The middleware is a no-op for
+  // HTTP requests that don't carry Sec-WebSocket-Protocol
+  // (the browser only sets that header on WS upgrades).
+  app.use('*', subprotocolAuth());
 
   // Mount the health route early so /health and /ready are
   // reachable even if a later route module fails to load.
@@ -270,7 +343,7 @@ export function buildApp(opts: CreateServerOptions): {
     return c.json({ error: 'InternalError', message: err.message }, 500);
   });
 
-  return { app, broadcaster, isShuttingDownRef };
+  return { app, broadcaster, isShuttingDownRef, authStore };
 }
 
 export function createServer(opts: CreateServerOptions): ServerHandle {

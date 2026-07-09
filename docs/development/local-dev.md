@@ -99,6 +99,18 @@ BFF:
   default. Added in V3.5 Track K -- see
   [ADR 0018](../adr/0018-v3.5-i18n.md).
 
+WebSocket auth (V3.5 Track K T8.2):
+
+- The `/api/stream` endpoint requires a bearer token (V3.3 added the
+  tenant gate). The browser WebSocket API does not allow setting
+  arbitrary request headers, so the client tunnels the token through
+  the `Sec-WebSocket-Protocol` subprotocols list as `bearer, <token>`.
+  The BFF's `subprotocolAuth` middleware reads it back and injects it
+  into the `Authorization` header, so the existing `requiresTenantScope`
+  gate works on the upgrade path. There is no separate env var to
+  configure -- the token always comes from the login response, and the
+  path is automatic once a user is authenticated.
+
 Desktop (Tauri):
 
 - Standard Tauri env vars. See Tauri docs.
@@ -174,6 +186,16 @@ and rotation procedure, lives in
   dev ports in development (added in V3.5 Track K). If you hit this in
   production, set `CORS_ALLOWED_ORIGINS=https://your-app-origin`
   explicitly. See [ADR 0018](../adr/0018-v3.5-i18n.md).
+- **WebSocket shows "WebSocket connection to ws://... failed"** - the BFF's
+  `/api/stream` requires a bearer token (V3.3 added the tenant gate), but
+  browser WebSocket protocol forbids setting arbitrary request headers.
+  The client (useDeviceStream) tunnels the token through the
+  `Sec-WebSocket-Protocol` subprotocols list as `bearer, <token>`; the
+  BFF's `subprotocolAuth` middleware reads it back and injects it into
+  Authorization. This is automatic -- if you see this error in the
+  console, log in first (the toolbar's "Sign in (dev)" button) and the
+  status dot in the toolbar should turn green. Added in V3.5 Track K
+  T8.2.
 - **Vite dev server won't start** - check that port 5173 is free.
 - **BFF unreachable from web** - confirm the URL in `apps/web/.env` or
   `VITE_BFF_URL` matches the BFF's `PORT`.
