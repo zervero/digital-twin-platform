@@ -90,6 +90,14 @@ BFF:
 
 - `PORT` - defaults to `3001`.
 - `LOG_LEVEL` - one of `debug`, `info`, `warn`, `error`.
+- `CORS_ALLOWED_ORIGINS` - comma-separated allowlist of
+  origins permitted to call the BFF cross-origin. Defaults to
+  `http://localhost:5173,http://localhost:1420` in
+  development (Vite + Tauri). Production deployments MUST
+  set this explicitly; an unset value in production is
+  treated as "deny all cross-origin", which is the safe
+  default. Added in V3.5 Track K -- see
+  [ADR 0018](../adr/0018-v3.5-i18n.md).
 
 Desktop (Tauri):
 
@@ -160,6 +168,12 @@ and rotation procedure, lives in
 
 ## Troubleshooting
 
+- **Browser shows "No 'Access-Control-Allow-Origin' header"** - the web app at
+  `http://localhost:5173` and the BFF at `http://localhost:3001` are on
+  different origins. The BFF's CORS middleware allowlists Vite + Tauri
+  dev ports in development (added in V3.5 Track K). If you hit this in
+  production, set `CORS_ALLOWED_ORIGINS=https://your-app-origin`
+  explicitly. See [ADR 0018](../adr/0018-v3.5-i18n.md).
 - **Vite dev server won't start** - check that port 5173 is free.
 - **BFF unreachable from web** - confirm the URL in `apps/web/.env` or
   `VITE_BFF_URL` matches the BFF's `PORT`.
