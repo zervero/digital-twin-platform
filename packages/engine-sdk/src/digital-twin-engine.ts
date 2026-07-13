@@ -53,7 +53,16 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
     resizeObserver = new ResizeObserver(() => {
       if (!renderer || !camera || !container) return;
       const { width, height } = ensureContainerSize(el);
-      renderer.setSize(width, height, false);
+      // V4 follow-up: pass `updateStyle = true` (the three.js default) so
+      // the renderer writes `canvas.style.width / height` in CSS pixels.
+      // The previous `false` left CSS untouched, so on retina displays
+      // (`devicePixelRatio >= 2`) the canvas element rendered at its
+      // backing-store size (e.g. 1680x1528 inside an 840x764 column)
+      // and overflowed the viewport column, covering the marketplace
+      // panel to the right. With style updated, the attribute size
+      // still tracks `devicePixelRatio` for sharpness, but the layout
+      // box snaps to the parent's CSS size.
+      renderer.setSize(width, height);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
     });
@@ -70,7 +79,16 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
 
       renderer = new WebGLRenderer({ antialias: options.antialias ?? true });
       renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.setSize(width, height, false);
+      // V4 follow-up: pass `updateStyle = true` (the three.js default) so
+      // the renderer writes `canvas.style.width / height` in CSS pixels.
+      // The previous `false` left CSS untouched, so on retina displays
+      // (`devicePixelRatio >= 2`) the canvas element rendered at its
+      // backing-store size (e.g. 1680x1528 inside an 840x764 column)
+      // and overflowed the viewport column, covering the marketplace
+      // panel to the right. With style updated, the attribute size
+      // still tracks `devicePixelRatio` for sharpness, but the layout
+      // box snaps to the parent's CSS size.
+      renderer.setSize(width, height);
       renderer.setClearColor(new Color(background));
       el.appendChild(renderer.domElement);
 
@@ -115,7 +133,16 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
     resize(): void {
       if (!renderer || !camera || !container) return;
       const { width, height } = ensureContainerSize(container);
-      renderer.setSize(width, height, false);
+      // V4 follow-up: pass `updateStyle = true` (the three.js default) so
+      // the renderer writes `canvas.style.width / height` in CSS pixels.
+      // The previous `false` left CSS untouched, so on retina displays
+      // (`devicePixelRatio >= 2`) the canvas element rendered at its
+      // backing-store size (e.g. 1680x1528 inside an 840x764 column)
+      // and overflowed the viewport column, covering the marketplace
+      // panel to the right. With style updated, the attribute size
+      // still tracks `devicePixelRatio` for sharpness, but the layout
+      // box snaps to the parent's CSS size.
+      renderer.setSize(width, height);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
     },
