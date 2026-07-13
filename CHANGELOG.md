@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.5.3](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.5.2...digital-twin-platform-v4.5.3) (2026-07-13)
+
+
+### Bug Fixes
+
+* **engine-sdk:** size three.js canvas to CSS pixels ([#28](https://github.com/zervero/digital-twin-platform/issues/28)) ([71e6fa2](https://github.com/zervero/digital-twin-platform/commit/71e6fa2229b13191f0bd7bf46acc164301b28336))
+
 ## [4.5.2](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.5.1...digital-twin-platform-v4.5.2) (2026-07-09)
 
 
