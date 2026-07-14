@@ -291,6 +291,11 @@ When you delegate a task to an AI agent:
 - [V3 overview](../plans/v3-overview.md) — V3 (real auth + production platform +
   Tauri releases + multi-tenant + plugin marketplace) tracks, ordering,
   open questions.
+- [UI product redesign (V4)](../plans/2026-07-14-ui-product-redesign-design.md)
+  — ops/admin IA, accent preference, admin API parallel track; implementation
+  on `feat/ui-product-v4` per
+  [`2026-07-14-ui-product-redesign.md`](../plans/2026-07-14-ui-product-redesign.md);
+  shell decisions in [ADR 0020](../adr/0020-v4-ui-product-shell.md).
 - [Multi-tenant data model](./multi-tenant.md) — V3.3 model, JWT claim
   shape, dev IdP `mint` flow, troubleshooting tree for the four
   tenant-boundary error codes.
