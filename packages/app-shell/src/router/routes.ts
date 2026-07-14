@@ -14,6 +14,8 @@ import AdminMarketplacePage from '../pages/admin/AdminMarketplacePage.vue';
 import AdminInstalledPage from '../pages/admin/AdminInstalledPage.vue';
 import AdminPublishPage from '../pages/admin/AdminPublishPage.vue';
 import AdminStubPage from '../pages/admin/AdminStubPage.vue';
+import AdminUsersPage from '../pages/admin/AdminUsersPage.vue';
+import AdminAuditPage from '../pages/admin/AdminAuditPage.vue';
 import AppearanceSettingsPage from '../pages/settings/AppearanceSettingsPage.vue';
 
 declare module 'vue-router' {
@@ -59,14 +61,12 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'users',
         name: 'admin-users',
-        component: AdminStubPage,
-        props: { title: 'Users' },
+        component: AdminUsersPage,
       },
       {
         path: 'audit',
         name: 'admin-audit',
-        component: AdminStubPage,
-        props: { title: 'Audit log' },
+        component: AdminAuditPage,
       },
       {
         path: 'tenant',

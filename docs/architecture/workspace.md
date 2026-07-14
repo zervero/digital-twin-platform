@@ -31,6 +31,8 @@ app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scen
     #     real pages (DtAppCard grid), not AdminStubPage.
     #   - V4 Task 10: `/settings/appearance` is personal accent
     #     settings for all roles; `/admin/appearance` redirects there.
+    #   - V4 Task 12: admin users + audit pages call api-client
+    #     `listUsers` / `setUserRoles` / `listAuditEvents`.
 engine-sdk     -> contracts, three
 api-client     -> contracts
 device-domain  -> contracts

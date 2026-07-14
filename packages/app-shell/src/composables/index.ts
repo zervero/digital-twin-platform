@@ -11,6 +11,8 @@ export { usePermission } from './usePermission.js';
 export { usePluginPanels } from './usePluginPanels.js';
 export { usePluginMenu } from './usePluginMenu.js';
 export { useAdminMarketplace } from './useAdminMarketplace.js';
+export { useAdminUsers, ADMIN_ROLES } from './useAdminUsers.js';
+export { useAdminAudit, AUDIT_TYPE_FILTERS } from './useAdminAudit.js';
 export {
   useMarketplaceInstall,
   createFetchMarketplaceApi,
@@ -23,6 +25,8 @@ export type {
   MarketplaceFilterId,
   UseAdminMarketplaceHandle,
 } from './useAdminMarketplace.js';
+export type { UseAdminUsersHandle } from './useAdminUsers.js';
+export type { AuditTypeFilter, UseAdminAuditHandle } from './useAdminAudit.js';
 export type {
   MarketplaceApi,
   UseMarketplaceInstallHandle,

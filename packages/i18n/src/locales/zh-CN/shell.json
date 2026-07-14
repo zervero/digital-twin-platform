@@ -33,6 +33,51 @@
       "subtitle": "管理空间的快捷入口与状态。",
       "modulesLabel": "导航模块",
       "modulesHint": "管理侧栏中的可用入口"
+    },
+    "users": {
+      "title": "用户",
+      "subtitle": "管理当前工厂中的用户角色。",
+      "refresh": "刷新",
+      "loading": "正在加载用户…",
+      "empty": "暂无用户",
+      "emptyHint": "以管理员登录后，演示用户会出现在此处。",
+      "saveRole": "保存角色",
+      "columns": {
+        "name": "姓名",
+        "email": "邮箱",
+        "role": "角色",
+        "actions": "操作"
+      },
+      "roles": {
+        "admin": "管理员",
+        "operator": "操作员",
+        "viewer": "观察者"
+      }
+    },
+    "audit": {
+      "title": "审计日志",
+      "subtitle": "记录本工厂的安全与市场相关操作。",
+      "refresh": "刷新",
+      "loading": "正在加载审计事件…",
+      "empty": "暂无审计事件",
+      "emptyHint": "发布、安装插件或变更角色后会生成条目。",
+      "total": "共 {count} 条",
+      "columns": {
+        "time": "时间",
+        "type": "类型",
+        "actor": "操作者",
+        "summary": "摘要"
+      },
+      "types": {
+        "all": "全部",
+        "plugin": {
+          "publish": "发布",
+          "install": "安装"
+        },
+        "user": {
+          "roles_change": "角色变更"
+        }
+      }
     }
   },
   "settings": {

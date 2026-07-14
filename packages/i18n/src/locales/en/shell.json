@@ -33,6 +33,51 @@
       "subtitle": "Shortcuts and status for the management workspace.",
       "modulesLabel": "Nav modules",
       "modulesHint": "Side-nav entries available in admin"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Manage roles for users in this factory.",
+      "refresh": "Refresh",
+      "loading": "Loading users…",
+      "empty": "No users found",
+      "emptyHint": "Seeded demo users appear here after login as admin.",
+      "saveRole": "Save role",
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "actions": "Actions"
+      },
+      "roles": {
+        "admin": "Admin",
+        "operator": "Operator",
+        "viewer": "Viewer"
+      }
+    },
+    "audit": {
+      "title": "Audit log",
+      "subtitle": "Security and marketplace actions recorded for this factory.",
+      "refresh": "Refresh",
+      "loading": "Loading audit events…",
+      "empty": "No audit events",
+      "emptyHint": "Publish, install, or change roles to generate entries.",
+      "total": "{count} events",
+      "columns": {
+        "time": "Time",
+        "type": "Type",
+        "actor": "Actor",
+        "summary": "Summary"
+      },
+      "types": {
+        "all": "All",
+        "plugin": {
+          "publish": "Publish",
+          "install": "Install"
+        },
+        "user": {
+          "roles_change": "Role change"
+        }
+      }
     }
   },
   "settings": {
