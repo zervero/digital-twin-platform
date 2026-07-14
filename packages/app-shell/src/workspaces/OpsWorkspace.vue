@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * Interim ops workspace (Task 4): keeps the V3 device / scene / plugin
- * layout until Task 6 redesigns the ops chrome. Marketplace moved to
- * `/admin/marketplace`.
+ * Ops workspace: device tree (left) + full-bleed viewport (center) +
+ * device context drawer (right). Marketplace lives under `/admin/marketplace`.
+ * PluginPanelHost stays under the left rail (Task 8 polishes error UX).
  */
 import { onMounted } from 'vue';
 
@@ -10,7 +10,8 @@ import { useDeviceStore } from '../stores/device-store.js';
 import { useSceneStore } from '../stores/scene-store.js';
 import { usePluginStore } from '../stores/plugin-store.js';
 import { usePluginPanels, usePluginMenu } from '../composables/index.js';
-import DevicePanel from '../components/DevicePanel.vue';
+import DeviceTreePanel from '../components/DeviceTreePanel.vue';
+import DeviceDetailDrawer from '../components/DeviceDetailDrawer.vue';
 import PluginPanelHost from '../components/PluginPanelHost.vue';
 import SceneViewport from '../components/SceneViewport.vue';
 
@@ -37,7 +38,7 @@ onMounted(async () => {
     </div>
     <div class="ops-workspace__body">
       <aside class="ops-workspace__sidebar">
-        <DevicePanel />
+        <DeviceTreePanel />
         <div
           v-if="panels.length > 0 || pluginStore.entries.some((e) => e.state === 'errored')"
           class="ops-workspace__plugins"
@@ -63,6 +64,7 @@ onMounted(async () => {
       <main class="ops-workspace__viewport">
         <SceneViewport />
       </main>
+      <DeviceDetailDrawer />
     </div>
   </div>
 </template>
@@ -78,7 +80,7 @@ onMounted(async () => {
 .ops-workspace__body {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr) minmax(280px, 360px);
   min-height: 0;
   min-width: 0;
 }

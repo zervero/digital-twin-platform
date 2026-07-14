@@ -35,11 +35,12 @@ export {
 } from './theme/accent-presets.js';
 export type { AccentPreset } from './theme/accent-presets.js';
 export { default as DevicePanel } from './components/DevicePanel.vue';
+export { default as DeviceTreePanel } from './components/DeviceTreePanel.vue';
+export { default as DeviceDetailDrawer } from './components/DeviceDetailDrawer.vue';
 export { default as SceneViewport } from './components/SceneViewport.vue';
 export { default as TopToolbar } from './components/TopToolbar.vue';
 export { default as PluginPanelHost } from './components/PluginPanelHost.vue';
-export { default as MarketplacePanel } from './components/MarketplacePanel.vue';
-export { useDeviceStream } from './composables/useDeviceStream.js';
+export { default as MarketplacePanel } from './components/MarketplacePanel.vue';export { useDeviceStream } from './composables/useDeviceStream.js';
 export { useCurrentUser } from './composables/useCurrentUser.js';
 export { useOIDCStart, AuthModeKey, BffBaseUrlKey } from './composables/useOIDCStart.js';
 export type { AuthMode } from './composables/useOIDCStart.js';

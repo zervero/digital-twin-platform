@@ -2,6 +2,38 @@
   "device": {
     "title": "Devices",
     "empty": "No devices yet",
-    "waitingDescription": "Waiting for BFF to push device data"
+    "waitingDescription": "Waiting for BFF to push device data",
+    "drawer": {
+      "emptyTitle": "No device selected",
+      "emptyDescription": "Select a device in the tree to inspect status and telemetry",
+      "tabs": {
+        "overview": "Overview",
+        "runtime": "Runtime",
+        "alarms": "Alarms",
+        "maintenance": "Maintenance",
+        "docs": "Docs"
+      },
+      "kpi": {
+        "uptime": "Uptime",
+        "throughput": "Throughput",
+        "temp": "Temp",
+        "load": "Load"
+      },
+      "telemetry": {
+        "title": "Telemetry",
+        "id": "ID",
+        "name": "Name",
+        "status": "Status",
+        "sceneNode": "Scene node",
+        "updatedAt": "Updated",
+        "tenant": "Tenant",
+        "line": "Line",
+        "area": "Area"
+      },
+      "tabPlaceholder": "No data for this tab yet"
+    },
+    "tree": {
+      "siteFallback": "Site"
+    }
   }
 }

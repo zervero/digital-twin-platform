@@ -67,7 +67,7 @@ Forbidden edges:
 | --- | --- | --- | --- |
 | `@dt/contracts` | Platform | nothing local | Type-only. |
 | `@dt/api-client` | Platform | contracts | Typed BFF client. |
-| `@dt/device-domain` | Platform | contracts | Status labels, sorting, filtering. |
+| `@dt/device-domain` | Platform | contracts | Status labels, sorting, filtering, ops device-tree grouping (`buildDeviceTree`). |
 | `@dt/scene-domain` | Platform | contracts | Scene normalization & queries. |
 | `@dt/engine-sdk` | Engine | contracts, three | Three.js renderer behind SDK API. |
 | `@dt/ui-kit` | UI | contracts | Presentational Vue components. |

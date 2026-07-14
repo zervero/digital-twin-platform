@@ -2,6 +2,38 @@
   "device": {
     "title": "设备",
     "empty": "暂无设备",
-    "waitingDescription": "等待 BFF 推送设备数据"
+    "waitingDescription": "等待 BFF 推送设备数据",
+    "drawer": {
+      "emptyTitle": "未选择设备",
+      "emptyDescription": "在左侧设备树中选择设备以查看状态与遥测",
+      "tabs": {
+        "overview": "概览",
+        "runtime": "运行",
+        "alarms": "告警",
+        "maintenance": "维保",
+        "docs": "文档"
+      },
+      "kpi": {
+        "uptime": "稼动率",
+        "throughput": "产量",
+        "temp": "温度",
+        "load": "负载"
+      },
+      "telemetry": {
+        "title": "遥测",
+        "id": "编号",
+        "name": "名称",
+        "status": "状态",
+        "sceneNode": "场景节点",
+        "updatedAt": "更新时间",
+        "tenant": "租户",
+        "line": "产线",
+        "area": "区域"
+      },
+      "tabPlaceholder": "该页签暂无数据"
+    },
+    "tree": {
+      "siteFallback": "站点"
+    }
   }
 }
