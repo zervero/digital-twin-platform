@@ -65,8 +65,8 @@ Forbidden edges:
 
 | Package | Owner | Depends on | Notes |
 | --- | --- | --- | --- |
-| `@dt/contracts` | Platform | nothing local | Type-only. |
-| `@dt/api-client` | Platform | contracts | Typed BFF client. |
+| `@dt/contracts` | Platform | nothing local | Type-only. V4 T11 adds admin user / audit DTOs (`ListUsersResponse`, `AuditEvent`, …) and `admin:users` / `admin:audit` permissions. |
+| `@dt/api-client` | Platform | contracts | Typed BFF client. V4 T11: `listUsers` / `setUserRoles` / `listAuditEvents`. |
 | `@dt/device-domain` | Platform | contracts | Status labels, sorting, filtering, ops device-tree grouping (`buildDeviceTree`). |
 | `@dt/scene-domain` | Platform | contracts | Scene normalization & queries. |
 | `@dt/engine-sdk` | Engine | contracts, three | Three.js renderer behind SDK API. |
