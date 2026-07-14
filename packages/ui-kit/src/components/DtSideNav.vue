@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import * as Icons from 'lucide-vue-next';
+import type * as Icons from 'lucide-vue-next';
 
 import DtIcon from './DtIcon.vue';
 

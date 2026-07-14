@@ -2,8 +2,9 @@
  * Admin users directory — list + role assignment via api-client.
  */
 
-import { inject, onMounted, ref } from 'vue';
+import { inject, onMounted, ref, type Ref } from 'vue';
 
+import type { ApiClient } from '@dt/api-client';
 import type { Role, User } from '@dt/contracts';
 
 import { ApiClientKey } from '../stores/api-store.js';
@@ -11,19 +12,20 @@ import { ApiClientKey } from '../stores/api-store.js';
 export const ADMIN_ROLES: readonly Role[] = ['admin', 'operator', 'viewer'];
 
 export interface UseAdminUsersHandle {
-  users: ReturnType<typeof ref<readonly User[]>>;
-  loading: ReturnType<typeof ref<boolean>>;
-  error: ReturnType<typeof ref<string | null>>;
-  savingUserId: ReturnType<typeof ref<string | null>>;
+  users: Ref<readonly User[]>;
+  loading: Ref<boolean>;
+  error: Ref<string | null>;
+  savingUserId: Ref<string | null>;
   refresh: () => Promise<void>;
   setRoles: (userId: string, roles: Role[]) => Promise<void>;
 }
 
 export function useAdminUsers(): UseAdminUsersHandle {
-  const api = inject(ApiClientKey);
-  if (!api) {
+  const injected = inject(ApiClientKey);
+  if (!injected) {
     throw new Error('[useAdminUsers] ApiClient not provided. Call provideApiClient() first.');
   }
+  const api: ApiClient = injected;
 
   const users = ref<readonly User[]>([]);
   const loading = ref(false);

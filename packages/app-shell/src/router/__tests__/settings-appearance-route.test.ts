@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createMemoryHistory, createRouter } from 'vue-router';
+import { createMemoryHistory, createRouter, type RouteRecordRaw } from 'vue-router';
 import { defineComponent, h } from 'vue';
 
 import { routes } from '../routes.js';
@@ -18,22 +18,22 @@ describe('settings appearance route', () => {
   });
 
   it('redirects /admin/appearance to settings-appearance', async () => {
-    const stubbed = routes.map((r) => {
-      if (r.path === '/admin' && r.children) {
+    const stubbed: RouteRecordRaw[] = routes.map((r) => {
+      if (r.path === '/admin' && 'children' in r && r.children) {
         return {
           ...r,
           component: Stub,
           children: r.children.map((c) => ({
             ...c,
-            component: c.component ? Stub : c.component,
+            ...('component' in c && c.component ? { component: Stub } : {}),
           })),
-        };
+        } as RouteRecordRaw;
       }
       if (r.path === '/settings/appearance') {
-        return { ...r, component: Stub };
+        return { ...r, component: Stub } as RouteRecordRaw;
       }
       if (r.path === '/ops') {
-        return { ...r, component: Stub };
+        return { ...r, component: Stub } as RouteRecordRaw;
       }
       return r;
     });

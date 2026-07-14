@@ -18,6 +18,7 @@ const draftRoles = reactive<Record<string, Role>>({});
 watch(
   users,
   (list) => {
+    if (!list) return;
     for (const user of list) {
       draftRoles[user.id] = user.roles[0] ?? 'viewer';
     }
@@ -62,7 +63,7 @@ function roleLabel(role: Role): string {
       {{ t('admin.users.loading') }}
     </div>
 
-    <div v-else-if="users.length > 0" class="admin-users-page__table-wrap">
+    <div v-else-if="users && users.length > 0" class="admin-users-page__table-wrap">
       <table class="admin-users-page__table">
         <thead>
           <tr>

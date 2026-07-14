@@ -4,6 +4,7 @@
 
 import { inject, onMounted, ref, watch, type Ref } from 'vue';
 
+import type { ApiClient } from '@dt/api-client';
 import type { AuditEvent, AuditEventType } from '@dt/contracts';
 import { AUDIT_EVENT_TYPES } from '@dt/contracts';
 
@@ -28,10 +29,11 @@ export interface UseAdminAuditHandle {
 }
 
 export function useAdminAudit(): UseAdminAuditHandle {
-  const api = inject(ApiClientKey);
-  if (!api) {
+  const injected = inject(ApiClientKey);
+  if (!injected) {
     throw new Error('[useAdminAudit] ApiClient not provided. Call provideApiClient() first.');
   }
+  const api: ApiClient = injected;
 
   const items = ref<readonly AuditEvent[]>([]);
   const total = ref(0);
