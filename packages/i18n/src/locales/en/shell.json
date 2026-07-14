@@ -34,5 +34,18 @@
       "modulesLabel": "Nav modules",
       "modulesHint": "Side-nav entries available in admin"
     }
+  },
+  "settings": {
+    "appearance": {
+      "title": "Appearance",
+      "subtitle": "Choose a brand accent for your session. Semantic status colors stay fixed.",
+      "presetsLabel": "Accent presets",
+      "customLabel": "Custom color",
+      "customHint": "Must keep at least 4.5:1 contrast against white primary-button labels.",
+      "colorPicker": "Pick accent color",
+      "hexInput": "Accent hex value",
+      "applyCustom": "Apply custom",
+      "contrastReject": "That color is too light for white button labels. Pick a darker accent."
+    }
   }
 }

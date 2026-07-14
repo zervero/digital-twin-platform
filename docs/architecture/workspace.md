@@ -29,6 +29,8 @@ app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scen
     #     the router; AppShell is toolbar + RouterView only.
     #   - V4 Task 9: admin marketplace / installed / publish are
     #     real pages (DtAppCard grid), not AdminStubPage.
+    #   - V4 Task 10: `/settings/appearance` is personal accent
+    #     settings for all roles; `/admin/appearance` redirects there.
 engine-sdk     -> contracts, three
 api-client     -> contracts
 device-domain  -> contracts

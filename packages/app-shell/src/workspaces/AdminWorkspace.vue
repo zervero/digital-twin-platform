@@ -28,6 +28,10 @@ const activeId = computed(() => {
 });
 
 function onSelect(id: string) {
+  if (id === 'appearance') {
+    void router.push({ name: 'settings-appearance' });
+    return;
+  }
   void router.push(`/admin/${id}`);
 }
 </script>

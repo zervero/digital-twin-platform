@@ -34,5 +34,18 @@
       "modulesLabel": "导航模块",
       "modulesHint": "管理侧栏中的可用入口"
     }
+  },
+  "settings": {
+    "appearance": {
+      "title": "外观",
+      "subtitle": "为当前会话选择品牌主色。语义状态色保持固定。",
+      "presetsLabel": "主色预设",
+      "customLabel": "自定义颜色",
+      "customHint": "需与白色主按钮文字保持至少 4.5:1 的对比度。",
+      "colorPicker": "选择主色",
+      "hexInput": "主色十六进制值",
+      "applyCustom": "应用自定义",
+      "contrastReject": "该颜色过浅，无法用于白色按钮文字。请选择更深的主色。"
+    }
   }
 }

@@ -3,6 +3,7 @@
  *
  * `/ops` is the default workspace. `/admin/*` is gated by
  * `meta.requiresAdmin` (see `adminNavigationGuard`).
+ * `/settings/appearance` is personal chrome for all roles.
  */
 
 import type { RouteRecordRaw } from 'vue-router';
@@ -13,6 +14,7 @@ import AdminMarketplacePage from '../pages/admin/AdminMarketplacePage.vue';
 import AdminInstalledPage from '../pages/admin/AdminInstalledPage.vue';
 import AdminPublishPage from '../pages/admin/AdminPublishPage.vue';
 import AdminStubPage from '../pages/admin/AdminStubPage.vue';
+import AppearanceSettingsPage from '../pages/settings/AppearanceSettingsPage.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -27,6 +29,11 @@ export const routes: RouteRecordRaw[] = [
     path: '/ops',
     name: 'ops',
     component: OpsWorkspace,
+  },
+  {
+    path: '/settings/appearance',
+    name: 'settings-appearance',
+    component: AppearanceSettingsPage,
   },
   {
     path: '/admin',
@@ -70,8 +77,7 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'appearance',
         name: 'admin-appearance',
-        component: AdminStubPage,
-        props: { title: 'Appearance' },
+        redirect: { name: 'settings-appearance' },
       },
     ],
   },
