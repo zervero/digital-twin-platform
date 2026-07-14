@@ -33,6 +33,10 @@ import { withTimestamp } from '@dt/contracts';
 import { httpLogger } from './middleware/logger.js';
 import { requestId } from './middleware/request-id.js';
 import { requiresTenantScope } from './middleware/requires-tenant.js';
+import { createMemoryAuditStore } from './admin/audit-store.js';
+import { createMemoryUserDirectory } from './admin/user-directory.js';
+import { adminAuditRoutes } from './routes/admin-audit.js';
+import { adminUsersRoutes } from './routes/admin-users.js';
 import { authRoute } from './routes/auth.js';
 import { commandsRoute } from './routes/commands.js';
 import { devicesRoute } from './routes/devices.js';
@@ -245,7 +249,13 @@ export function buildApp(opts: CreateServerOptions): BuildAppResult {
   );
 
   // Pick the auth store from the env (V3.0).
-  const authStore = createAuthStore(env);
+  // V4 T11: seed a tenant user directory (2+ demo users)
+  // and an in-memory audit store; wire both into admin
+  // routes and marketplace publish/install hooks.
+  const userDirectory = createMemoryUserDirectory();
+  userDirectory.seedDemoUsers();
+  const auditStore = createMemoryAuditStore();
+  const authStore = createAuthStore(env, { userDirectory });
 
   // Every auth-gated route module is a factory that takes
   // the AuthStore; the requiresTenantScope middleware inside
@@ -271,8 +281,12 @@ export function buildApp(opts: CreateServerOptions): BuildAppResult {
   const registryIndex = createInMemoryPluginIndex();
   app.route(
     '/api',
-    marketplaceRoutes({ authStore, pluginStore, registryIndex }),
+    marketplaceRoutes({ authStore, pluginStore, registryIndex, auditStore }),
   );
+
+  // V4 T11: admin users + audit (tenant + admin permission).
+  app.route('/api', adminUsersRoutes({ authStore, userDirectory, auditStore }));
+  app.route('/api', adminAuditRoutes({ authStore, auditStore }));
 
   if (env.authProvider === 'oidc' && env.oidc) {
     app.route('/api/auth/oidc', oidcRoute({ config: env.oidc }));

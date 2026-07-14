@@ -39,6 +39,7 @@ import type { PluginStore } from '@dt/plugin-runtime';
 import type { RegistryIndex } from '@dt/plugin-registry';
 
 import type { AuthStore } from '../auth/store.js';
+import type { AuditStore } from '../admin/audit-store.js';
 import { requiresTenantScope } from '../middleware/requires-tenant.js';
 import { canInstallForTenant, canPublish } from '../plugins/policy.js';
 
@@ -46,10 +47,12 @@ export interface MarketplaceRoutesOptions {
   authStore: AuthStore;
   pluginStore: PluginStore;
   registryIndex: RegistryIndex;
+  /** V4 T11: optional; when set, publish/install write audit events. */
+  auditStore?: AuditStore;
 }
 
 export function marketplaceRoutes(opts: MarketplaceRoutesOptions): Hono {
-  const { authStore, pluginStore, registryIndex } = opts;
+  const { authStore, pluginStore, registryIndex, auditStore } = opts;
   const app = new Hono();
 
   // GET /api/plugins -- list the local registry.
@@ -115,6 +118,25 @@ export function marketplaceRoutes(opts: MarketplaceRoutesOptions): Hono {
         signaturePath,
         publishedAt: new Date().toISOString(),
       });
+      // V4 T11: audit publish under the caller's tenant when
+      // available. Publish itself is registry-global; the
+      // tenant comes from the session gate so admin audit
+      // stays tenant-scoped in the UI.
+      const actor = c.var.user;
+      const tenant = c.var.tenant;
+      if (auditStore && actor && tenant) {
+        auditStore.record({
+          tenantId: tenant.tenant.id,
+          type: 'plugin.publish',
+          actorUserId: actor.id,
+          actorEmail: actor.email,
+          summary: `Published ${published.pluginId}@${published.version}`,
+          details: {
+            pluginId: published.pluginId,
+            version: published.version,
+          },
+        });
+      }
       return c.json(published, 201);
     },
   );
@@ -196,6 +218,17 @@ export function marketplaceRoutes(opts: MarketplaceRoutesOptions): Hono {
         signaturePath: version.signaturePath,
         active: existing.length === 0,
       });
+      const actor = c.var.user;
+      if (auditStore && actor) {
+        auditStore.record({
+          tenantId: tenant.tenant.id,
+          type: 'plugin.install',
+          actorUserId: actor.id,
+          actorEmail: actor.email,
+          summary: `Installed ${id}@${body.version}`,
+          details: { pluginId: id, version: body.version },
+        });
+      }
       return c.json(record, 201);
     },
   );

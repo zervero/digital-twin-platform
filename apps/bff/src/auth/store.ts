@@ -25,6 +25,7 @@ import {
   type LoginRequest,
   type LoginResponse,
   type MeResponse,
+  type Role,
 } from '@dt/contracts';
 
 export class AuthError extends Error {
@@ -38,4 +39,10 @@ export interface AuthStore {
   login(req: LoginRequest): Promise<LoginResponse>;
   getMe(headers: Headers): Promise<MeResponse>;
   logout(headers: Headers): Promise<void>;
+  /**
+   * V4 T11: optional hook used by admin role assignment to
+   * sync live sessions after a directory update. MockAuthStore
+   * implements this; OIDC leaves it undefined (IdP is SoT).
+   */
+  updateUserRoles?(userId: string, roles: readonly Role[]): Promise<void>;
 }
