@@ -27,9 +27,28 @@ V1 — no new tooling, no new build step, no new dependency direction.
 Add a single CSS file at
 [`packages/ui-kit/src/styles/tokens.css`](../../packages/ui-kit/src/styles/tokens.css)
 that defines the visual language as CSS custom properties on `:root`,
-and have the five components reference `var(--dt-*)` instead of
+and have the presentational components reference `var(--dt-*)` instead of
 literal values. The tokens are consumed by importing
 `@dt/ui-kit/styles` once at the application entry point.
+
+### Components (current)
+
+| Component | Role | Selected / accent note |
+| --- | --- | --- |
+| `DtButton` | Actions | Primary fill uses `var(--dt-accent-primary)` |
+| `DtPanel` | Surface chrome | Borders / surfaces only |
+| `DtStatusBadge` | Device status chip | Status tokens (`--dt-status-*`) |
+| `DtToolbar` | Top chrome row | Surfaces / borders |
+| `DtEmptyState` | Empty placeholder | Text / muted tokens |
+| `DtIcon` | Lucide wrapper | `currentColor` |
+| `DtSegmentedControl` | Exclusive option group | Selected option uses `var(--dt-accent-primary)` (runtime-variable accent) |
+| `DtTabs` | Tablist + panel | Active tab underline / label uses `var(--dt-accent-primary)` |
+| `DtSideNav` | Vertical nav list | Active item fill uses `var(--dt-accent-primary)` |
+| `DtStatCard` | KPI tile | Trend colors use status / danger tokens; no accent fill |
+
+Accent is not a fixed hex in these components: selected interactive
+states read `var(--dt-accent-primary)`, which apps may override at
+runtime (see appearance / `applyAccent` in `@dt/app-shell`).
 
 ### Token categories
 

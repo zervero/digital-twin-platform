@@ -18,3 +18,7 @@ export { default as DtStatusBadge } from './components/DtStatusBadge.vue';
 export { default as DtToolbar } from './components/DtToolbar.vue';
 export { default as DtEmptyState } from './components/DtEmptyState.vue';
 export { default as DtIcon } from './components/DtIcon.vue';
+export { default as DtSegmentedControl } from './components/DtSegmentedControl.vue';
+export { default as DtTabs } from './components/DtTabs.vue';
+export { default as DtSideNav } from './components/DtSideNav.vue';
+export { default as DtStatCard } from './components/DtStatCard.vue';
