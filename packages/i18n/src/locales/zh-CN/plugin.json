@@ -1,0 +1,9 @@
+{
+  "plugin": {
+    "error": {
+      "blockedTitle": "{name} 不可用",
+      "permissionDenied": "此插件需要的权限当前账号不具备。",
+      "activationFailed": "此插件无法激活。"
+    }
+  }
+}

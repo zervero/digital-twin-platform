@@ -15,20 +15,20 @@ defineProps<{ panel: PluginPanel }>();
 
 <style scoped>
 .plugin-panel {
-  border: 1px solid #21262d;
-  border-radius: 4px;
-  margin-top: 8px;
-  background: #0d1117;
+  border: 1px solid var(--dt-border-subtle);
+  border-radius: var(--dt-radius-sm);
+  margin-top: var(--dt-space-md);
+  background: var(--dt-bg-elevated);
 }
 .plugin-panel__header {
-  padding: 6px 8px;
-  font-size: 11px;
+  padding: var(--dt-space-sm) var(--dt-space-md);
+  font-size: var(--dt-text-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #8b949e;
-  border-bottom: 1px solid #21262d;
+  color: var(--dt-text-muted);
+  border-bottom: 1px solid var(--dt-border-subtle);
 }
 .plugin-panel__body {
-  padding: 8px;
+  padding: var(--dt-space-md);
 }
 </style>
