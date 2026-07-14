@@ -24,6 +24,9 @@ app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scen
 #     runtime depends on contracts only; the activation
 #     context passes a structural PluginContext that the host
 #     satisfies with the concrete api-client / realtime.
+#   - vue-router: V4 Task 4 owns `/ops` and `/admin/*` routes
+#     inside app-shell (`createAppRouter`). apps/web installs
+#     the router; AppShell is toolbar + RouterView only.
 engine-sdk     -> contracts, three
 api-client     -> contracts
 device-domain  -> contracts
@@ -68,7 +71,7 @@ Forbidden edges:
 | `@dt/scene-domain` | Platform | contracts | Scene normalization & queries. |
 | `@dt/engine-sdk` | Engine | contracts, three | Three.js renderer behind SDK API. |
 | `@dt/ui-kit` | UI | contracts | Presentational Vue components. |
-| `@dt/app-shell` | UI | ui-kit, engine-sdk, api-client, domain, contracts | Layout, stores, panel/viewport wiring. |
+| `@dt/app-shell` | UI | ui-kit, engine-sdk, api-client, domain, contracts | Layout, stores, vue-router workspaces (`/ops`, `/admin/*`), panel/viewport wiring. |
 | `@dt/realtime` | V2 | contracts | Stream interfaces + in-memory mock. |
 | `@dt/plugin-runtime` | V2 | contracts | Plugin manifest, registration, registry. |
 | `@dt/ai-agent` | V3 | contracts | Intent types. |

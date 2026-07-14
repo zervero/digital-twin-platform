@@ -2,9 +2,10 @@
  * @dt/app-shell
  *
  * Shared composition layer used by both the web and the desktop app. Owns
- * Pinia stores, the layout, and the wiring between UI panels and the engine
- * SDK. Consumers must inject an `ApiClient` via `provideApiClient(app, client)`
- * before mounting `AppShell`.
+ * Pinia stores, vue-router workspaces (`/ops`, `/admin/*`), the layout, and
+ * the wiring between UI panels and the engine SDK. Consumers must inject an
+ * `ApiClient` via `provideApiClient(app, client)` and install the router via
+ * `app.use(createAppRouter())` before mounting `AppShell`.
  */
 
 import { createApp, type App } from 'vue';
@@ -54,12 +55,13 @@ export type {
 } from './composables/useMarketplaceInstall.js';
 export { usePluginMenu } from './composables/usePluginMenu.js';
 export { default as LoginButton } from './components/LoginButton.vue';
+export { createAppRouter, adminNavigationGuard, routes } from './router/index.js';
 
 /**
- * Bootstrap helper. Creates a Vue app, installs Pinia, provides the API
- * client, hydrates the auth store from sessionStorage + /api/auth/me,
- * activates any registered plugins, and mounts `AppShell` into the
- * given host element.
+ * Bootstrap helper. Creates a Vue app, installs Pinia + vue-router,
+ * provides the API client, hydrates the auth store from sessionStorage
+ * + /api/auth/me, activates any registered plugins, and mounts
+ * `AppShell` into the given host element.
  *
  * Activation order matters: auth hydration must finish before plugin
  * activation so the permission gate has current-user state. The
@@ -76,10 +78,12 @@ export async function bootstrapAppShell(opts: {
   const { useAuthStore } = await import('./stores/auth-store.js');
   const { usePluginStore } = await import('./stores/plugin-store.js');
   const { createPluginRegistry } = await import('@dt/plugin-runtime');
+  const { createAppRouter } = await import('./router/index.js');
 
   const app = createApp(AppShell);
   const pinia = createPinia();
   app.use(pinia);
+  app.use(createAppRouter());
   provideApiClient(app, opts.apiClient);
 
   // 1. Hydrate auth from sessionStorage + /api/auth/me.

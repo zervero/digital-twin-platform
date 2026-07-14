@@ -25,7 +25,7 @@ import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/jetbrains-mono/400.css';
 
-import { AppShell, provideApiClient } from '@dt/app-shell';
+import { AppShell, createAppRouter, provideApiClient } from '@dt/app-shell';
 import { createApiClient } from '@dt/api-client';
 import { createPinia } from 'pinia';
 
@@ -39,6 +39,7 @@ async function main(): Promise<void> {
   const app = createApp(AppShell);
   const pinia = createPinia();
   app.use(pinia);
+  app.use(createAppRouter());
   provideApiClient(app, apiClient);
 
   // V4: hydrate user accent preference and write CSS variables
