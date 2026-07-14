@@ -1,22 +1,17 @@
 <script setup lang="ts">
 /**
- * SceneViewport -- V3 + V4-prep redesign (2026-07-09).
+ * SceneViewport -- V4 product redesign.
  *
- * V4-prep changes:
- *   - Adds a status overlay in the viewport corner that reads the
- *     scene store's loading / error / node-count state. The overlay
- *     uses lucide icons (Loader / AlertTriangle / Box) so the user
- *     has a non-3D signal that the scene is loading, errored, or
- *     live with N nodes.
- *   - The overlay stays absolutely positioned so it does not
- *     interfere with the three.js canvas beneath.
- *   - Three.js engine mount/load logic is unchanged.
+ * Full-bleed three.js stage with:
+ *   - status overlay (loading / error / node count) bottom-left
+ *   - floating DtToolStrip overlays (top-right options stub,
+ *     bottom-center camera actions wired to engine framing helpers)
  */
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import { createEngine, type DigitalTwinEngine } from '@dt/engine-sdk';
-import { DtIcon } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
+import { DtIcon, DtToolStrip } from '@dt/ui-kit';
 
 import { useSceneStore } from '../stores/scene-store.js';
 
@@ -25,6 +20,57 @@ const sceneStore = useSceneStore();
 const container = ref<HTMLDivElement | null>(null);
 let engine: DigitalTwinEngine | null = null;
 let mounted = false;
+
+const optionItems = computed(() => [
+  {
+    id: 'layers',
+    icon: 'Layers' as const,
+    ariaLabel: t('scene.toolbar.layers'),
+    disabled: true,
+  },
+  {
+    id: 'settings',
+    icon: 'Settings' as const,
+    ariaLabel: t('scene.toolbar.settings'),
+    disabled: true,
+  },
+]);
+
+const cameraItems = computed(() => [
+  {
+    id: 'reset',
+    icon: 'RotateCcw' as const,
+    ariaLabel: t('scene.toolbar.reset'),
+  },
+  {
+    id: 'fit',
+    icon: 'Maximize2' as const,
+    ariaLabel: t('scene.toolbar.fit'),
+  },
+  {
+    id: 'focus',
+    icon: 'Crosshair' as const,
+    ariaLabel: t('scene.toolbar.focus'),
+    disabled: sceneStore.selectedNodeId === null,
+  },
+]);
+
+function onCameraSelect(id: string): void {
+  if (!engine) return;
+  switch (id) {
+    case 'reset':
+      engine.resetView();
+      break;
+    case 'fit':
+      engine.fitAll();
+      break;
+    case 'focus': {
+      const nodeId = sceneStore.selectedNodeId;
+      if (nodeId) engine.focusNode(nodeId);
+      break;
+    }
+  }
+}
 
 onMounted(async () => {
   if (!container.value) return;
@@ -68,6 +114,22 @@ onBeforeUnmount(() => {
 <template>
   <div class="scene-viewport">
     <div ref="container" class="scene-viewport__canvas" />
+
+    <div class="scene-viewport__tools scene-viewport__tools--top">
+      <DtToolStrip
+        :items="optionItems"
+        :aria-label="t('scene.toolbar.options')"
+      />
+    </div>
+
+    <div class="scene-viewport__tools scene-viewport__tools--bottom">
+      <DtToolStrip
+        :items="cameraItems"
+        :aria-label="t('scene.toolbar.camera')"
+        @select="onCameraSelect"
+      />
+    </div>
+
     <div
       v-if="sceneStore.loading || sceneStore.error || sceneStore.snapshot"
       class="scene-viewport__overlay"
@@ -101,10 +163,25 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
 }
+.scene-viewport__tools {
+  position: absolute;
+  z-index: 2;
+  pointer-events: auto;
+}
+.scene-viewport__tools--top {
+  top: var(--dt-space-lg);
+  right: var(--dt-space-lg);
+}
+.scene-viewport__tools--bottom {
+  left: 50%;
+  bottom: var(--dt-space-lg);
+  transform: translateX(-50%);
+}
 .scene-viewport__overlay {
   position: absolute;
   left: var(--dt-space-lg);
   bottom: var(--dt-space-lg);
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: var(--dt-space-sm);

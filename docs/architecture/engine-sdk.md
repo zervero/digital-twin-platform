@@ -13,10 +13,13 @@ const engine: DigitalTwinEngine = createEngine({ antialias: true });
 engine.mount(container);
 await engine.loadScene(sceneSnapshot);
 engine.selectNode('machine-1');
+engine.resetView();       // restore default 3/4 pose (`reset-view` command)
+engine.fitAll();          // frame all loaded nodes
+engine.focusNode('machine-1'); // orbit-focus a node (`focus` command)
 engine.dispose();
 ```
 
-## What it does today (V1)
+## What it does today (V1 + V4 camera helpers)
 
 - Renders a Three.js scene inside the provided container.
 - Builds a floor with a subtle grid.
@@ -24,15 +27,17 @@ engine.dispose();
 - Tints meshes by `DeviceStatus` (`online`, `offline`, `warning`, `alarm`).
 - Highlights the currently selected node with a brighter color.
 - Auto-resizes when the container resizes.
+- Camera helpers: `resetView`, `fitAll`, `focusNode` (pure framing math in
+  `camera-framing.ts`; no orbit controls yet).
 - Disposes the renderer, scene, geometries, and materials on `dispose()`.
 
 ## What it does not do
 
 - No picking. V1 selects nodes from the UI, not by clicking on the 3D scene.
 - No asset loading. No glTF, no textures, no environment maps.
-- No animation. The camera is fixed.
+- No continuous animation beyond the render loop.
 - No post-processing.
-- No interaction (orbit controls, zoom, pan).
+- No interactive orbit / pan / zoom controls (tool strips call framing helpers).
 
 ## V2 plans
 
@@ -45,10 +50,10 @@ engine.dispose();
 ## Why the SDK shape
 
 The V1 design is a deliberate "boring and runnable" starting point. By
-exposing only `mount`, `loadScene`, `selectNode`, and `dispose`, the
+exposing a small mount / load / select / frame / dispose surface, the
 package:
 
-- Stays easy to test (the test suite in this repo never spins up WebGL).
+- Stays easy to test (camera framing is pure; the test suite never spins up WebGL).
 - Can be replaced wholesale if we outgrow Three.js.
 - Has a stable contract that Vue code can target without leaking the
   renderer implementation.

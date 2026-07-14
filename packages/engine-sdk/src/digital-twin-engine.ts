@@ -16,11 +16,18 @@ import {
 
 import type { SceneSnapshot } from '@dt/contracts';
 
+import {
+  computeFitAll,
+  computeFocusOnPoint,
+  computeResetView,
+  type CameraPose,
+} from './camera-framing.js';
 import { applySelection, buildSceneGraph, type BuiltScene } from './scene-factory.js';
 import type { DigitalTwinEngine, EngineOptions } from './types.js';
 
 const DEFAULT_CAMERA: [number, number, number] = [10, 8, 10];
 const DEFAULT_BACKGROUND = 0x0d1117;
+const FOCUS_DISTANCE = 5;
 
 export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
   let renderer: WebGLRenderer | null = null;
@@ -67,6 +74,21 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
       camera.updateProjectionMatrix();
     });
     resizeObserver.observe(el);
+  }
+
+  function applyPose(pose: CameraPose): void {
+    if (!camera) return;
+    camera.position.set(pose.position[0], pose.position[1], pose.position[2]);
+    camera.lookAt(pose.lookAt[0], pose.lookAt[1], pose.lookAt[2]);
+  }
+
+  function nodePositions(): Array<[number, number, number]> {
+    if (!builtScene) return [];
+    const out: Array<[number, number, number]> = [];
+    for (const mesh of builtScene.nodes.values()) {
+      out.push([mesh.position.x, mesh.position.y, mesh.position.z]);
+    }
+    return out;
   }
 
   return {
@@ -128,6 +150,27 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
       if (builtScene) {
         applySelection(builtScene.nodes, nodeId);
       }
+    },
+
+    resetView(): void {
+      applyPose(computeResetView(cameraPos));
+    },
+
+    fitAll(): void {
+      const pose = computeFitAll(nodePositions(), camera?.fov ?? 45);
+      if (pose) applyPose(pose);
+      else applyPose(computeResetView(cameraPos));
+    },
+
+    focusNode(nodeId: string): void {
+      const mesh = builtScene?.nodes.get(nodeId);
+      if (!mesh) return;
+      applyPose(
+        computeFocusOnPoint(
+          [mesh.position.x, mesh.position.y, mesh.position.z],
+          FOCUS_DISTANCE,
+        ),
+      );
     },
 
     resize(): void {

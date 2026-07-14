@@ -2,7 +2,13 @@
   "scene": {
     "loading": "Loading scene…",
     "toolbar": {
-      "reset": "Clear selection"
+      "camera": "Camera tools",
+      "options": "Viewport options",
+      "reset": "Reset view",
+      "fit": "Fit all",
+      "focus": "Focus selected",
+      "layers": "Layers (coming soon)",
+      "settings": "Viewport settings (coming soon)"
     },
     "node": "node",
     "nodes": "nodes"

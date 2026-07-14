@@ -105,9 +105,9 @@ describe('useI18n()', () => {
 
   it('resolves nested keys (scene.toolbar.reset)', () => {
     const { t } = useI18n();
-    expect(t('scene.toolbar.reset')).toBe('Clear selection');
+    expect(t('scene.toolbar.reset')).toBe('Reset view');
     const store = useLocaleStore();
     store.set('zh-CN');
-    expect(t('scene.toolbar.reset')).toBe('清除选择');
+    expect(t('scene.toolbar.reset')).toBe('重置视角');
   });
 });

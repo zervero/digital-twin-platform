@@ -24,6 +24,19 @@ export interface DigitalTwinEngine {
   mount(container: HTMLElement): void;
   loadScene(scene: SceneSnapshot): Promise<void>;
   selectNode(nodeId: string | null): void;
+  /**
+   * Restore the default 3/4 camera pose (maps to the `reset-view` scene command).
+   */
+  resetView(): void;
+  /**
+   * Frame all scene nodes in view.
+   */
+  fitAll(): void;
+  /**
+   * Orbit-focus the camera on a node (maps to the `focus` scene command).
+   * No-op when the node is missing from the loaded scene.
+   */
+  focusNode(nodeId: string): void;
   resize(): void;
   dispose(): void;
   getSelectedNodeId(): string | null;
