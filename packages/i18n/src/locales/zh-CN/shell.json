@@ -78,6 +78,22 @@
           "roles_change": "角色变更"
         }
       }
+    },
+    "tenant": {
+      "title": "租户",
+      "subtitle": "来自当前会话的工厂上下文，不是租户管理 API。",
+      "empty": "未登录",
+      "emptyHint": "请以管理员身份登录后查看租户与会话信息。",
+      "noTenant": "当前会话没有租户",
+      "permissionsDerived": "会话未携带显式权限列表，访问由角色推导。",
+      "note": "概览、组织、资产、模型与告警在具备真实或诚实模拟的 BFF 之前不进入侧栏。",
+      "fields": {
+        "tenantId": "租户 ID",
+        "user": "当前用户",
+        "roles": "角色",
+        "permissions": "权限",
+        "expiresAt": "会话过期"
+      }
     }
   },
   "settings": {

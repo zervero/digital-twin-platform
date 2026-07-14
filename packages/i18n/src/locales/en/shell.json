@@ -78,6 +78,22 @@
           "roles_change": "Role change"
         }
       }
+    },
+    "tenant": {
+      "title": "Tenant",
+      "subtitle": "Current session factory context from auth — not a tenant admin API.",
+      "empty": "Not signed in",
+      "emptyHint": "Sign in as an admin to see tenant and session details.",
+      "noTenant": "No tenant on this session",
+      "permissionsDerived": "Session has no explicit permissions list; roles drive access.",
+      "note": "Overview, org, assets, models, and alarms stay out of the side nav until real or honestly mocked BFF endpoints exist.",
+      "fields": {
+        "tenantId": "Tenant ID",
+        "user": "Signed-in user",
+        "roles": "Roles",
+        "permissions": "Permissions",
+        "expiresAt": "Session expires"
+      }
     }
   },
   "settings": {
