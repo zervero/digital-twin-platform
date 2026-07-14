@@ -40,6 +40,14 @@ async function main(): Promise<void> {
   const pinia = createPinia();
   app.use(pinia);
   provideApiClient(app, apiClient);
+
+  // V4: hydrate user accent preference and write CSS variables
+  // before mount so the first paint uses the saved brand color.
+  const { useAppearanceStore, applyAccent } = await import('@dt/app-shell');
+  const appearanceStore = useAppearanceStore(pinia);
+  appearanceStore.hydrate();
+  applyAccent(appearanceStore.primary, { hover: appearanceStore.hover });
+
   const { useAuthStore } = await import('@dt/app-shell');
   const authStore = useAuthStore(pinia);
 

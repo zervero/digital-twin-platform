@@ -21,7 +21,18 @@ export { useDeviceStore } from './stores/device-store.js';
 export { useSceneStore } from './stores/scene-store.js';
 export { useAuthStore } from './stores/auth-store.js';
 export { usePluginStore } from './stores/plugin-store.js';
+export {
+  useAppearanceStore,
+  APPEARANCE_STORAGE_KEY,
+} from './stores/appearance-store.js';
 export { provideApiClient, ApiClientKey } from './stores/api-store.js';
+export { applyAccent, contrastRatio, isAccentUsable } from './theme/apply-accent.js';
+export {
+  ACCENT_PRESETS,
+  DEFAULT_ACCENT_ID,
+  findAccentPreset,
+} from './theme/accent-presets.js';
+export type { AccentPreset } from './theme/accent-presets.js';
 export { default as DevicePanel } from './components/DevicePanel.vue';
 export { default as SceneViewport } from './components/SceneViewport.vue';
 export { default as TopToolbar } from './components/TopToolbar.vue';
