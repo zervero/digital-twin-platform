@@ -45,6 +45,9 @@ literal values. The tokens are consumed by importing
 | `DtTabs` | Tablist + panel | Active tab underline / label uses `var(--dt-accent-primary)` |
 | `DtSideNav` | Vertical nav list | Active item fill uses `var(--dt-accent-primary)` |
 | `DtStatCard` | KPI tile | Trend colors use status / danger tokens; no accent fill |
+| `DtTree` | Recursive device / hierarchy tree | Selected row uses `var(--dt-accent-primary)`; status dots use `--dt-status-*` |
+| `DtAppCard` | Marketplace / plugin card | Surfaces / borders / text tokens; primary action via `DtButton` |
+| `DtToolStrip` | Horizontal icon toolbar | Active button uses `var(--dt-accent-primary)` |
 
 Accent is not a fixed hex in these components: selected interactive
 states read `var(--dt-accent-primary)`, which apps may override at
