@@ -5,6 +5,7 @@
 
 export { useCurrentUser } from './useCurrentUser.js';
 export { useDeviceStream } from './useDeviceStream.js';
+export { useLastAdminPath } from './useLastAdminPath.js';
 export { useOIDCStart } from './useOIDCStart.js';
 export { usePermission } from './usePermission.js';
 export { usePluginPanels } from './usePluginPanels.js';

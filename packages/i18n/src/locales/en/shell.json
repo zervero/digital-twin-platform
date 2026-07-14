@@ -1,0 +1,19 @@
+{
+  "shell": {
+    "mode": {
+      "ops": "Ops",
+      "admin": "Admin",
+      "ariaLabel": "Workspace mode"
+    },
+    "tenant": {
+      "ariaLabel": "Factory",
+      "unknown": "No factory"
+    },
+    "actions": {
+      "search": "Search",
+      "notifications": "Notifications",
+      "help": "Help"
+    },
+    "language": "Language"
+  }
+}

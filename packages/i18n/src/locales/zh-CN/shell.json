@@ -1,0 +1,19 @@
+{
+  "shell": {
+    "mode": {
+      "ops": "操作",
+      "admin": "管理",
+      "ariaLabel": "工作区模式"
+    },
+    "tenant": {
+      "ariaLabel": "工厂",
+      "unknown": "未选择工厂"
+    },
+    "actions": {
+      "search": "搜索",
+      "notifications": "通知",
+      "help": "帮助"
+    },
+    "language": "语言"
+  }
+}
