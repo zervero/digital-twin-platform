@@ -15,5 +15,24 @@
       "help": "Help"
     },
     "language": "Language"
+  },
+  "admin": {
+    "nav": {
+      "ariaLabel": "Admin sections",
+      "marketplace": "Marketplace",
+      "installed": "Installed",
+      "publish": "Publish",
+      "users": "Users",
+      "audit": "Audit",
+      "tenant": "Tenant",
+      "appearance": "Appearance"
+    },
+    "overview": {
+      "ariaLabel": "Admin overview",
+      "title": "Overview",
+      "subtitle": "Shortcuts and status for the management workspace.",
+      "modulesLabel": "Nav modules",
+      "modulesHint": "Side-nav entries available in admin"
+    }
   }
 }

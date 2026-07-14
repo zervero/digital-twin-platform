@@ -25,8 +25,10 @@ app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scen
 #     context passes a structural PluginContext that the host
 #     satisfies with the concrete api-client / realtime.
 #   - vue-router: V4 Task 4 owns `/ops` and `/admin/*` routes
-#     inside app-shell (`createAppRouter`). apps/web installs
-#     the router; AppShell is toolbar + RouterView only.
+    #     inside app-shell (`createAppRouter`). apps/web installs
+    #     the router; AppShell is toolbar + RouterView only.
+    #   - V4 Task 9: admin marketplace / installed / publish are
+    #     real pages (DtAppCard grid), not AdminStubPage.
 engine-sdk     -> contracts, three
 api-client     -> contracts
 device-domain  -> contracts

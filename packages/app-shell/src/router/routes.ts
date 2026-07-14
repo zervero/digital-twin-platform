@@ -10,6 +10,8 @@ import type { RouteRecordRaw } from 'vue-router';
 import OpsWorkspace from '../workspaces/OpsWorkspace.vue';
 import AdminWorkspace from '../workspaces/AdminWorkspace.vue';
 import AdminMarketplacePage from '../pages/admin/AdminMarketplacePage.vue';
+import AdminInstalledPage from '../pages/admin/AdminInstalledPage.vue';
+import AdminPublishPage from '../pages/admin/AdminPublishPage.vue';
 import AdminStubPage from '../pages/admin/AdminStubPage.vue';
 
 declare module 'vue-router' {
@@ -40,14 +42,12 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'installed',
         name: 'admin-installed',
-        component: AdminStubPage,
-        props: { title: 'Installed plugins' },
+        component: AdminInstalledPage,
       },
       {
         path: 'publish',
         name: 'admin-publish',
-        component: AdminStubPage,
-        props: { title: 'Publish plugin' },
+        component: AdminPublishPage,
       },
       {
         path: 'users',

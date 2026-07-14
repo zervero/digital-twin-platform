@@ -23,6 +23,7 @@
 
 import { computed, ref, type ComputedRef, type Ref } from 'vue';
 
+import type { PublishPluginRequest } from '@dt/contracts';
 import type {
   InstallRecord,
   InstalledPluginVersion,
@@ -32,8 +33,35 @@ import { validatePluginManifest } from '@dt/plugin-runtime';
 
 import { usePluginStore } from '../stores/plugin-store.js';
 
+/**
+ * Structural catalog shape returned by `GET /api/plugins`.
+ * Kept local so app-shell does not import `@dt/plugin-registry`
+ * (forbidden dependency edge per workspace.md).
+ */
+export interface CatalogPluginVersion {
+  pluginId: string;
+  version: string;
+  publishedAt?: string;
+  description?: string;
+}
+
+export interface CatalogPlugin {
+  id: string;
+  name: string;
+  vendor: string;
+  description?: string;
+  versions: readonly CatalogPluginVersion[];
+}
+
 export interface MarketplaceApi {
+  /** Registry browse list (`GET /api/plugins`). */
+  listCatalog(): Promise<readonly CatalogPlugin[]>;
   listInstalled(tenantId: string): Promise<readonly InstallRecord[]>;
+  /** Per-plugin installed versions (`GET /api/plugins/:id/installed`). */
+  listInstalledVersions(
+    tenantId: string,
+    pluginId: string,
+  ): Promise<readonly InstalledPluginVersion[]>;
   install(
     tenantId: string,
     pluginId: string,
@@ -62,6 +90,15 @@ export interface MarketplaceApi {
     pluginId: string,
     version: string,
   ): Promise<unknown>;
+  /** Publish a version into the local registry (`POST /api/plugins`). */
+  publish(body: PublishPluginRequest): Promise<unknown>;
+}
+
+/** Vendors treated as first-party for marketplace filter tabs. */
+const OFFICIAL_VENDOR_RE = /^(digital\s*twin|@dt(\/.*)?|dt)$/i;
+
+export function isOfficialCatalogVendor(vendor: string): boolean {
+  return OFFICIAL_VENDOR_RE.test(vendor.trim());
 }
 
 export interface UseMarketplaceInstallHandle {
@@ -260,11 +297,43 @@ export function createFetchMarketplaceApi(
     return readJson<T>(response);
   }
 
+  async function listCatalog(): Promise<readonly CatalogPlugin[]> {
+    const raw = await call<readonly CatalogPluginWire[]>('GET', '/api/plugins');
+    return (raw ?? []).map(normalizeCatalogPlugin);
+  }
+
+  async function listInstalledVersions(
+    tenantId: string,
+    pluginId: string,
+  ): Promise<readonly InstalledPluginVersion[]> {
+    void tenantId;
+    return call<readonly InstalledPluginVersion[]>(
+      'GET',
+      `/api/plugins/${encodeURIComponent(pluginId)}/installed`,
+    );
+  }
+
   return {
+    listCatalog,
     async listInstalled(tenantId: string) {
-      void tenantId;
-      return call<readonly InstallRecord[]>('GET', '/api/plugins');
+      // Assemble InstallRecord[] from catalog + per-plugin
+      // installed listings. There is no bulk installed
+      // endpoint on the BFF yet.
+      const catalog = await listCatalog();
+      const records: InstallRecord[] = [];
+      for (const plugin of catalog) {
+        const versions = await listInstalledVersions(tenantId, plugin.id);
+        if (versions.length > 0) {
+          records.push({
+            tenantId,
+            pluginId: plugin.id,
+            versions,
+          });
+        }
+      }
+      return records;
     },
+    listInstalledVersions,
     async install(tenantId: string, pluginId: string, version: string) {
       void tenantId;
       return call<InstalledPluginVersion>(
@@ -302,5 +371,38 @@ export function createFetchMarketplaceApi(
       void version;
       return null;
     },
+    async publish(body: PublishPluginRequest) {
+      return call<unknown>('POST', '/api/plugins', body);
+    },
+  };
+}
+
+/** Wire shape from `GET /api/plugins` (registry index). */
+interface CatalogPluginWire {
+  id: string;
+  name: string;
+  vendor: string;
+  versions?: ReadonlyArray<{
+    pluginId?: string;
+    version: string;
+    publishedAt?: string;
+    manifest?: { description?: string; name?: string; vendor?: string };
+  }>;
+}
+
+function normalizeCatalogPlugin(raw: CatalogPluginWire): CatalogPlugin {
+  const versions: CatalogPluginVersion[] = (raw.versions ?? []).map((v) => ({
+    pluginId: v.pluginId ?? raw.id,
+    version: v.version,
+    publishedAt: v.publishedAt,
+    description: v.manifest?.description,
+  }));
+  const latest = versions[versions.length - 1];
+  return {
+    id: raw.id,
+    name: raw.name,
+    vendor: raw.vendor,
+    description: latest?.description,
+    versions,
   };
 }

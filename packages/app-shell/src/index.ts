@@ -49,11 +49,19 @@ export { usePluginPanels } from './composables/usePluginPanels.js';
 export {
   useMarketplaceInstall,
   createFetchMarketplaceApi,
+  isOfficialCatalogVendor,
 } from './composables/useMarketplaceInstall.js';
 export type {
   MarketplaceApi,
   UseMarketplaceInstallHandle,
+  CatalogPlugin,
+  CatalogPluginVersion,
 } from './composables/useMarketplaceInstall.js';
+export { useAdminMarketplace } from './composables/useAdminMarketplace.js';
+export type {
+  MarketplaceFilterId,
+  UseAdminMarketplaceHandle,
+} from './composables/useAdminMarketplace.js';
 export { usePluginMenu } from './composables/usePluginMenu.js';
 export { default as LoginButton } from './components/LoginButton.vue';
 export { createAppRouter, adminNavigationGuard, routes } from './router/index.js';

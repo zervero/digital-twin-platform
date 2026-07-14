@@ -15,5 +15,24 @@
       "help": "帮助"
     },
     "language": "语言"
+  },
+  "admin": {
+    "nav": {
+      "ariaLabel": "管理分区",
+      "marketplace": "应用市场",
+      "installed": "已安装",
+      "publish": "发布",
+      "users": "用户",
+      "audit": "审计",
+      "tenant": "租户",
+      "appearance": "外观"
+    },
+    "overview": {
+      "ariaLabel": "管理概览",
+      "title": "概览",
+      "subtitle": "管理空间的快捷入口与状态。",
+      "modulesLabel": "导航模块",
+      "modulesHint": "管理侧栏中的可用入口"
+    }
   }
 }

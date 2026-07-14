@@ -10,6 +10,33 @@
     "loadingInstalled": "正在加载已安装插件…",
     "empty": "暂无已安装插件。",
     "pluginId": "插件 ID",
-    "versions": "版本"
+    "versions": "版本",
+    "tagInstalled": "已安装",
+    "filter": {
+      "all": "全部",
+      "official": "官方",
+      "thirdParty": "第三方",
+      "installed": "我的"
+    },
+    "admin": {
+      "title": "应用市场",
+      "subtitle": "浏览目录中的插件，并为当前工厂安装。",
+      "emptyHint": "请先发布插件，或切换筛选查看更多。"
+    },
+    "installed": {
+      "title": "已安装插件",
+      "subtitle": "激活或移除当前工厂已安装的版本。",
+      "emptyHint": "从应用市场安装插件后将显示在此处。"
+    },
+    "publish": {
+      "title": "发布插件",
+      "subtitle": "将已签名的插件版本加入本地注册表。",
+      "name": "显示名称",
+      "vendor": "供应商",
+      "description": "描述",
+      "artifact": "制品（Base64）",
+      "submit": "发布",
+      "success": "已发布 {id}@{version}。"
+    }
   }
 }

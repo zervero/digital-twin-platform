@@ -10,6 +10,22 @@ export { useOIDCStart } from './useOIDCStart.js';
 export { usePermission } from './usePermission.js';
 export { usePluginPanels } from './usePluginPanels.js';
 export { usePluginMenu } from './usePluginMenu.js';
+export { useAdminMarketplace } from './useAdminMarketplace.js';
+export {
+  useMarketplaceInstall,
+  createFetchMarketplaceApi,
+  isOfficialCatalogVendor,
+} from './useMarketplaceInstall.js';
 
 export type { AuthMode } from './useOIDCStart.js';
 export { AuthModeKey, BffBaseUrlKey } from './useOIDCStart.js';
+export type {
+  MarketplaceFilterId,
+  UseAdminMarketplaceHandle,
+} from './useAdminMarketplace.js';
+export type {
+  MarketplaceApi,
+  UseMarketplaceInstallHandle,
+  CatalogPlugin,
+  CatalogPluginVersion,
+} from './useMarketplaceInstall.js';

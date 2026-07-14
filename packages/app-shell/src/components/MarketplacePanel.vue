@@ -1,18 +1,10 @@
 <script setup lang="ts">
 /**
- * MarketplacePanel -- V3.4 T7 + V4-prep redesign (2026-07-09).
+ * Legacy marketplace list panel.
  *
- * V4-prep changes:
- *   - Install form: Download icon prefix on the primary install button.
- *   - Activate / Uninstall actions gain CheckCircle2 / Trash2 icons.
- *   - Active version row uses ShieldCheck + accent badge instead of
- *     the previous blue pill.
- *   - Loading state carries Loader icon; empty state carries PackageOpen.
- *   - Density bumped from `--dt-space-md` padding to `--dt-space-lg`
- *     so the panel reads as a product surface, not a debug list.
- *
- * V3.4 behavior unchanged: install / activate / uninstall go through
- * the BFF marketplace API; the panel owns no plugin runtime state.
+ * V4 Task 9 moved the product surface to AdminMarketplacePage
+ * (card grid). This panel remains exported for older demos and
+ * reuses the same install handle so host wiring stays valid.
  */
 import { computed, inject, onMounted, ref } from 'vue';
 
@@ -41,17 +33,6 @@ const tenantId = computed<string>(() => {
   return '';
 });
 
-// V3.5 follow-up: the BFF's `/api/plugins` routes are
-// gated on `requiresTenantScope`, which reads the
-// bearer token from the `Authorization` header.
-// `createFetchMarketplaceApi` historically used
-// `globalThis.fetch` without injecting the token, so
-// every call returned 401 AUTH_SESSION_EXPIRED. Wire
-// the same `getAuthToken` callback the WebSocket
-// composable uses so the marketplace and the
-// realtime stream stay in sync from one source of
-// truth. (See useDeviceStream for the matching
-// pattern.)
 const api = createFetchMarketplaceApi({
   baseUrl: bffBaseUrl,
   getAuthToken: () => authStore.token,
@@ -98,6 +79,9 @@ function canUninstall(versionCount: number): boolean {
         <DtIcon name="Store" size="md" />
         {{ t('marketplace.title') }}
       </h2>
+      <p class="marketplace-panel__legacy-hint">
+        {{ t('marketplace.admin.subtitle') }}
+      </p>
       <p v-if="errorMessage" class="marketplace-panel__error">
         <DtIcon name="AlertTriangle" size="sm" />
         {{ errorMessage }}
@@ -106,7 +90,7 @@ function canUninstall(versionCount: number): boolean {
 
     <div v-if="canPublish" class="marketplace-panel__install-form">
       <label class="marketplace-panel__label">
-<span>{{ t('marketplace.pluginId') }}</span>
+        <span>{{ t('marketplace.pluginId') }}</span>
         <input
           v-model="newPluginId"
           class="marketplace-panel__input"
@@ -115,7 +99,7 @@ function canUninstall(versionCount: number): boolean {
         />
       </label>
       <label class="marketplace-panel__label">
-<span>{{ t('marketplace.version') }}</span>
+        <span>{{ t('marketplace.version') }}</span>
         <input
           v-model="newVersion"
           class="marketplace-panel__input"
@@ -234,6 +218,11 @@ function canUninstall(versionCount: number): boolean {
   color: var(--dt-text-primary);
   letter-spacing: 0;
 }
+.marketplace-panel__legacy-hint {
+  margin: 0;
+  color: var(--dt-text-secondary);
+  font-size: var(--dt-text-xs);
+}
 .marketplace-panel__error {
   display: inline-flex;
   align-items: center;
@@ -316,14 +305,6 @@ function canUninstall(versionCount: number): boolean {
   font-size: var(--dt-text-xs);
   color: var(--dt-text-secondary);
 }
-.marketplace-panel__hint code {
-  font-family: var(--dt-font-mono);
-  font-size: var(--dt-text-xs);
-  background: var(--dt-bg-surface);
-  border: 1px solid var(--dt-border-subtle);
-  padding: 1px 4px;
-  border-radius: var(--dt-radius-sm);
-}
 .marketplace-panel__loading,
 .marketplace-panel__empty {
   display: inline-flex;
@@ -379,8 +360,8 @@ function canUninstall(versionCount: number): boolean {
   border-radius: var(--dt-radius-sm);
 }
 .marketplace-panel__version[data-active='true'] {
-  background: rgba(45, 212, 191, 0.08);
-  border: 1px solid rgba(45, 212, 191, 0.25);
+  background: var(--dt-bg-surface);
+  border: 1px solid var(--dt-border-default);
 }
 .marketplace-panel__version-id {
   display: inline-flex;
@@ -395,7 +376,7 @@ function canUninstall(versionCount: number): boolean {
   display: inline-block;
   padding: 1px 8px;
   background: var(--dt-accent-secondary);
-  color: #0F1115;
+  color: var(--dt-text-inverse);
   border-radius: var(--dt-radius-pill);
   font-family: var(--dt-font-mono);
   font-size: var(--dt-text-xs);
