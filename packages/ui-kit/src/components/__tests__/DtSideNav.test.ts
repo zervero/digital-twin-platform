@@ -26,8 +26,9 @@ describe('DtSideNav', () => {
     });
 
     const links = wrapper.findAll('button');
-    expect(links[0].attributes('aria-current')).toBeUndefined();
-    expect(links[1].attributes('aria-current')).toBe('page');
+    expect(links.length).toBe(3);
+    expect(links[0]!.attributes('aria-current')).toBeUndefined();
+    expect(links[1]!.attributes('aria-current')).toBe('page');
   });
 
   it('emits update:modelValue and select when an item is clicked', async () => {
@@ -35,7 +36,9 @@ describe('DtSideNav', () => {
       props: { modelValue: 'devices', items: [...items] },
     });
 
-    await wrapper.findAll('button')[1].trigger('click');
+    const links = wrapper.findAll('button');
+    expect(links.length).toBe(3);
+    await links[1]!.trigger('click');
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['users']);
     expect(wrapper.emitted('select')?.[0]).toEqual(['users']);
   });
@@ -46,14 +49,29 @@ describe('DtSideNav', () => {
     });
 
     const links = wrapper.findAll('button');
-    expect(links[2].attributes('aria-current')).toBe('page');
+    expect(links.length).toBe(3);
+    expect(links[2]!.attributes('aria-current')).toBe('page');
   });
 
-  it('exposes a navigation landmark', () => {
+  it('exposes a navigation landmark with overridable ariaLabel', () => {
+    const wrapper = mount(DtSideNav, {
+      props: {
+        modelValue: 'devices',
+        items: [...items],
+        ariaLabel: 'Admin sections',
+      },
+    });
+
+    const nav = wrapper.find('nav');
+    expect(nav.exists()).toBe(true);
+    expect(nav.attributes('aria-label')).toBe('Admin sections');
+  });
+
+  it('defaults ariaLabel when not provided', () => {
     const wrapper = mount(DtSideNav, {
       props: { modelValue: 'devices', items: [...items] },
     });
 
-    expect(wrapper.find('nav').exists()).toBe(true);
+    expect(wrapper.find('nav').attributes('aria-label')).toBe('Side navigation');
   });
 });

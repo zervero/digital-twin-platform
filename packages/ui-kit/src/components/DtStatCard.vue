@@ -49,7 +49,7 @@ withDefaults(
   color: var(--dt-text-primary);
   font-size: var(--dt-text-2xl);
   font-weight: var(--dt-weight-semi);
-  line-height: var(--dt-line-tight);
+  line-height: var(--dt-line-relaxed);
   font-variant-numeric: tabular-nums;
 }
 .dt-stat-card__hint {

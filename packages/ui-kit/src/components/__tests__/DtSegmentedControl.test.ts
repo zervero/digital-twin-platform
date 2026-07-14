@@ -26,8 +26,9 @@ describe('DtSegmentedControl', () => {
     });
 
     const buttons = wrapper.findAll('button');
-    expect(buttons[0].attributes('aria-pressed')).toBe('false');
-    expect(buttons[1].attributes('aria-pressed')).toBe('true');
+    expect(buttons.length).toBe(3);
+    expect(buttons[0]!.attributes('aria-pressed')).toBe('false');
+    expect(buttons[1]!.attributes('aria-pressed')).toBe('true');
   });
 
   it('emits update:modelValue when a non-disabled option is clicked', async () => {
@@ -35,7 +36,9 @@ describe('DtSegmentedControl', () => {
       props: { modelValue: 'ops', options: [...options] },
     });
 
-    await wrapper.findAll('button')[1].trigger('click');
+    const buttons = wrapper.findAll('button');
+    expect(buttons.length).toBe(3);
+    await buttons[1]!.trigger('click');
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['admin']);
   });
 
@@ -44,7 +47,9 @@ describe('DtSegmentedControl', () => {
       props: { modelValue: 'ops', options: [...options] },
     });
 
-    await wrapper.findAll('button')[2].trigger('click');
+    const buttons = wrapper.findAll('button');
+    expect(buttons.length).toBe(3);
+    await buttons[2]!.trigger('click');
     expect(wrapper.emitted('update:modelValue')).toBeUndefined();
   });
 

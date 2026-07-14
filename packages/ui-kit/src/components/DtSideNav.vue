@@ -1,21 +1,28 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import * as Icons from 'lucide-vue-next';
+
 import DtIcon from './DtIcon.vue';
 
 type SideNavItem = {
   id: string;
   label: string;
-  icon?: string;
+  icon?: keyof typeof Icons;
 };
 
-const props = defineProps<{
-  items: ReadonlyArray<SideNavItem>;
-  /** Selected item id (v-model). */
-  modelValue?: string;
-  /** Alias for modelValue when the consumer prefers an activeId name. */
-  activeId?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    items: ReadonlyArray<SideNavItem>;
+    /** Selected item id (v-model). */
+    modelValue?: string;
+    /** Alias for modelValue when the consumer prefers an activeId name. */
+    activeId?: string;
+    /** Accessible name for the nav landmark (consumer-owned copy; no i18n here). */
+    ariaLabel?: string;
+  }>(),
+  { ariaLabel: 'Side navigation' },
+);
 
 const emit = defineEmits<{
   'update:modelValue': [string];
@@ -31,7 +38,7 @@ function onSelect(id: string) {
 </script>
 
 <template>
-  <nav class="dt-side-nav" aria-label="Side navigation">
+  <nav class="dt-side-nav" :aria-label="ariaLabel">
     <ul class="dt-side-nav__list">
       <li v-for="item in items" :key="item.id" class="dt-side-nav__item">
         <button
@@ -44,7 +51,7 @@ function onSelect(id: string) {
           <DtIcon
             v-if="item.icon"
             class="dt-side-nav__icon"
-            :name="item.icon as never"
+            :name="item.icon"
             size="md"
           />
           <span class="dt-side-nav__label">{{ item.label }}</span>

@@ -26,8 +26,9 @@ describe('DtTabs', () => {
     });
 
     const tabButtons = wrapper.findAll('[role="tab"]');
-    expect(tabButtons[0].attributes('aria-selected')).toBe('false');
-    expect(tabButtons[1].attributes('aria-selected')).toBe('true');
+    expect(tabButtons.length).toBe(3);
+    expect(tabButtons[0]!.attributes('aria-selected')).toBe('false');
+    expect(tabButtons[1]!.attributes('aria-selected')).toBe('true');
   });
 
   it('emits update:modelValue when a non-disabled tab is clicked', async () => {
@@ -35,7 +36,9 @@ describe('DtTabs', () => {
       props: { modelValue: 'overview', tabs: [...tabs] },
     });
 
-    await wrapper.findAll('[role="tab"]')[1].trigger('click');
+    const tabButtons = wrapper.findAll('[role="tab"]');
+    expect(tabButtons.length).toBe(3);
+    await tabButtons[1]!.trigger('click');
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['telemetry']);
   });
 
@@ -44,7 +47,9 @@ describe('DtTabs', () => {
       props: { modelValue: 'overview', tabs: [...tabs] },
     });
 
-    await wrapper.findAll('[role="tab"]')[2].trigger('click');
+    const tabButtons = wrapper.findAll('[role="tab"]');
+    expect(tabButtons.length).toBe(3);
+    await tabButtons[2]!.trigger('click');
     expect(wrapper.emitted('update:modelValue')).toBeUndefined();
   });
 
