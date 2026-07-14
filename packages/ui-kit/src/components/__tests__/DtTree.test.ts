@@ -61,4 +61,30 @@ describe('DtTree', () => {
     expect(onlineDot.exists()).toBe(true);
     expect(warningDot.exists()).toBe(true);
   });
+
+  it('uses role=tree only on the root and role=group on nested lists', () => {
+    const wrapper = mount(DtTree, {
+      props: { nodes, selectedId: 'site-a' },
+    });
+
+    const trees = wrapper.findAll('[role="tree"]');
+    expect(trees.length).toBe(1);
+    expect(trees[0]!.classes()).toContain('dt-tree');
+
+    const groups = wrapper.findAll('[role="group"]');
+    expect(groups.length).toBe(1);
+    expect(groups[0]!.classes()).toContain('dt-tree__children');
+  });
+
+  it('omits aria-expanded until expand/collapse exists', () => {
+    const wrapper = mount(DtTree, {
+      props: { nodes, selectedId: 'site-a' },
+    });
+
+    const items = wrapper.findAll('[role="treeitem"]');
+    expect(items.length).toBeGreaterThan(0);
+    for (const item of items) {
+      expect(item.attributes('aria-expanded')).toBeUndefined();
+    }
+  });
 });

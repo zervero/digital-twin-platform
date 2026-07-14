@@ -11,6 +11,8 @@ export type DtTreeNode = {
 defineProps<{
   nodes: ReadonlyArray<DtTreeNode>;
   selectedId?: string;
+  /** When true, this instance is nested under a parent treeitem (role=group). */
+  nested?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -23,14 +25,13 @@ function onSelect(id: string) {
 </script>
 
 <template>
-  <ul class="dt-tree" role="tree">
+  <ul class="dt-tree" :class="{ 'dt-tree__children': nested }" :role="nested ? 'group' : 'tree'">
     <li
       v-for="node in nodes"
       :key="node.id"
       class="dt-tree__item"
       role="treeitem"
       :aria-selected="node.id === selectedId ? 'true' : 'false'"
-      :aria-expanded="node.children?.length ? 'true' : undefined"
     >
       <button
         type="button"
@@ -49,7 +50,7 @@ function onSelect(id: string) {
       </button>
       <DtTree
         v-if="node.children?.length"
-        class="dt-tree__children"
+        nested
         :nodes="node.children"
         :selected-id="selectedId"
         @select="onSelect"
