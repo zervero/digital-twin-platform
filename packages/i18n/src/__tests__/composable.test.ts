@@ -41,6 +41,7 @@ describe('useI18n()', () => {
     expect(t('device.empty')).toBe('No devices yet');
     expect(t('device.drawer.tabs.overview')).toBe('Overview');
     expect(t('device.drawer.emptyTitle')).toBe('No device selected');
+    expect(t('device.drawer.actions.title')).toBe('Device actions');
     expect(t('common.loading')).toBe('Loading…');
   });
 
@@ -53,6 +54,7 @@ describe('useI18n()', () => {
     expect(t('device.empty')).toBe('暂无设备');
     expect(t('device.drawer.tabs.overview')).toBe('概览');
     expect(t('device.drawer.emptyTitle')).toBe('未选择设备');
+    expect(t('device.drawer.actions.title')).toBe('设备动作');
     expect(t('common.loading')).toBe('加载中…');
     expect(t('marketplace.install')).toBe('安装');
     expect(t('marketplace.uninstall')).toBe('卸载');

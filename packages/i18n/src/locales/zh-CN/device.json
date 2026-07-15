@@ -30,7 +30,16 @@
         "line": "产线",
         "area": "区域"
       },
-      "tabPlaceholder": "该页签暂无数据"
+      "tabPlaceholder": "该页签暂无数据",
+      "actions": {
+        "title": "设备动作",
+        "readOnly": "当前为只读角色，无法执行设备动作",
+        "acknowledge": "确认告警",
+        "reset": "复位",
+        "maintenance": "请求保养",
+        "accepted": "命令已受理（{id}）",
+        "failed": "命令发送失败"
+      }
     },
     "tree": {
       "siteFallback": "站点"

@@ -30,7 +30,16 @@
         "line": "Line",
         "area": "Area"
       },
-      "tabPlaceholder": "No data for this tab yet"
+      "tabPlaceholder": "No data for this tab yet",
+      "actions": {
+        "title": "Device actions",
+        "readOnly": "Read-only role — device actions are unavailable",
+        "acknowledge": "Acknowledge alarm",
+        "reset": "Reset",
+        "maintenance": "Request maintenance",
+        "accepted": "Command accepted ({id})",
+        "failed": "Command failed"
+      }
     },
     "tree": {
       "siteFallback": "Site"
