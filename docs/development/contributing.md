@@ -293,11 +293,12 @@ When you delegate a task to an AI agent:
   open questions.
 - [UI product redesign (V4)](../plans/2026-07-14-ui-product-redesign-design.md)
   — ops/admin IA, accent preference (shared appearance **dialog**:
-  admin left nav + user menu), admin API parallel track; implementation
+  admin left nav + toolbar for anonymous/authenticated), login
+  **dialog** with pill trigger, admin API parallel track; implementation
   on `feat/ui-product-v4` per
   [`2026-07-14-ui-product-redesign.md`](../plans/2026-07-14-ui-product-redesign.md);
   shell decisions in [ADR 0020](../adr/0020-v4-ui-product-shell.md)
-  (includes appearance-dialog amendment).
+  (includes appearance/login-dialog amendments).
 - [Multi-tenant data model](./multi-tenant.md) — V3.3 model, JWT claim
   shape, dev IdP `mint` flow, troubleshooting tree for the four
   tenant-boundary error codes.
