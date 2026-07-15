@@ -19,10 +19,12 @@
  * (the shape guard above catches the latter; the comparison
  * is the new tenant gate).
  *
- * V1: no side effects. We just echo acceptance. V2 will
- * dispatch to a command bus. The tenant gate must stay
- * before the echo so a future dispatcher inherits the
- * invariant for free.
+ * V1 / V4 ops UX: no side effects. Device actions
+ * (`acknowledge-alarm`, `reset-device`, `request-maintenance`)
+ * are echo-accepted like camera commands so the ops drawer
+ * can exercise `command:send`. V2 will dispatch to a command
+ * bus. The tenant gate must stay before the echo so a future
+ * dispatcher inherits the invariant for free.
  */
 
 import { Hono } from 'hono';
@@ -43,6 +45,10 @@ function isDigitalTwinCommand(value: unknown): value is DigitalTwinCommand {
       return typeof v.nodeId === 'string';
     case 'reset-view':
       return true;
+    case 'acknowledge-alarm':
+    case 'reset-device':
+    case 'request-maintenance':
+      return typeof v.deviceId === 'string';
     default:
       return false;
   }

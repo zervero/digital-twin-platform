@@ -31,6 +31,14 @@ async function loginAdmin(store: MockAuthStore): Promise<string> {
   return session.token;
 }
 
+async function loginOperator(store: MockAuthStore): Promise<string> {
+  const { session } = await store.login({
+    email: 'operator@example.com',
+    roles: ['operator'],
+  });
+  return session.token;
+}
+
 describe('GET /api/devices (V3.0 device:read gate)', () => {
   let store: MockAuthStore;
   beforeEach(() => {
@@ -147,5 +155,27 @@ describe('POST /api/commands (V3.0 command:send gate)', () => {
     const body = (await res.json()) as { accepted: boolean; commandId: string };
     expect(body.accepted).toBe(true);
     expect(body.commandId).toBe('c1');
+  });
+
+  it('accepts acknowledge-alarm for operator', async () => {
+    const token = await loginOperator(store);
+    const app = new Hono();
+    app.route('/api', commandsRoute(store));
+    const res = await app.request('/api/commands', {
+      method: 'POST',
+      headers: {
+        ...Object.fromEntries(authHeaders(token)),
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: 'cmd-1',
+        tenantId: 'acme-corp',
+        type: 'acknowledge-alarm',
+        deviceId: 'd-1',
+      }),
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { accepted: boolean; commandId: string };
+    expect(body).toEqual({ accepted: true, commandId: 'cmd-1' });
   });
 });
