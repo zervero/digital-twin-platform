@@ -381,7 +381,7 @@ pnpm build
 
 Manual checklist from design §4 acceptance:
 
-1. Default landing `/ops` for all roles; non-admin cannot open `/admin/*`.
+1. Default landing `/ops` for all roles; non-admin cannot open `/admin/*` and do not see the ops/admin mode switch.
 2. Locale control immediately before user; switch updates copy without reload.
 3. Accent change applies across segmented/nav/buttons; survives reload; status colors unchanged.
 4. Ops has tree + drawer; marketplace not on ops right rail.
