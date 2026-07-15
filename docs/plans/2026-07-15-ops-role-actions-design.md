@@ -1,23 +1,22 @@
 # Ops Role Actions (viewer vs operator) — Design
 
-> Status: approved in design review (2026-07-15).  
+> Status: **implemented** on `feat/ui-product-v4` (2026-07-15).  
 > Scope: **方案 A + 方案 2** — ops surface only; device actions in the
 > detail drawer gated by `command:send`.  
 > Extends: `docs/plans/2026-07-14-ui-product-redesign-design.md` §3
 > permission matrix (“Device commands / scene write”).  
-> Next: implementation plan via `writing-plans` →
-> `docs/plans/2026-07-15-ops-role-actions.md`.
+> Plan: [`2026-07-15-ops-role-actions.md`](./2026-07-15-ops-role-actions.md).
 
 ## Context
 
-`Role` is `admin | operator | viewer`. On the ops workspace the three
-roles currently render the same UI: tree, viewport, and device drawer
-are read-only chrome. Contract-level permissions differ — operator and
-admin have `device:write` and `command:send`; viewer does not — but no
-ops control is gated on them.
+`Role` is `admin | operator | viewer`. Contract-level permissions differ
+— operator and admin have `device:write` and `command:send`; viewer does
+not — but the ops chrome was still identical until this design.
 
-Admin vs non-admin is already differentiated (管理 mode hidden + route
-guard). This design closes the **operator vs viewer** gap on ops only.
+Admin vs non-admin is differentiated by **route guard** and by **omitting
+the entire top-bar ops/admin mode switch** for non-admins (a lone “操作”
+chip is not shown). This design closes the **operator vs viewer** gap on
+the ops drawer only.
 
 **Decisions locked in brainstorming:**
 
@@ -55,9 +54,10 @@ existing KPI + telemetry panels:
 | Capability | anonymous | viewer | operator | admin |
 | --- | --- | --- | --- | --- |
 | Ops tree / scene / drawer read | — | ✓ | ✓ | ✓ |
+| Top-bar ops/admin mode switch | ✗ | ✗ | ✗ | ✓ |
 | Viewport camera tools (local) | — | ✓ | ✓ | ✓ |
 | **设备动作** buttons | — | ✗ (read-only copy) | ✓ | ✓ |
-| 管理 mode | ✗ | ✗ | ✗ | ✓ |
+| 管理 routes | ✗ | ✗ | ✗ | ✓ |
 
 Gate: `usePermission('command:send')`. Viewer sees a single muted line:
 
@@ -109,20 +109,22 @@ Extend `@dt/contracts` `DigitalTwinCommand` with:
 
 ## §6 — Out of scope (this milestone)
 
-- Top-bar role chip / global “只读” banner
-- Showing disabled 管理 for non-admins
+- Top-bar role chip / global “只读” banner (mode switch hide for
+  non-admins is a separate shell follow-up; see V4 design amendments)
+- Showing a **disabled** 管理 segment for non-admins (prefer omit)
 - `device:write` as a separate UI gate (bound to `command:send` only)
 - Real command bus / telemetry side effects / work-order backend
 - Hiding camera tool strips from viewers
 
 ## §7 — Acceptance
 
-- [ ] viewer + selected device: read-only copy visible; **no** action buttons
-- [ ] operator + selected device: three buttons; acknowledge disabled unless alarm/warning
-- [ ] operator click → `POST /api/commands` with new type + `deviceId` + session `tenantId`; UI shows accepted
-- [ ] viewer cannot trigger send from UI; BFF still rejects if called without permission
-- [ ] admin on `/ops` matches operator action chrome
-- [ ] no regression: empty drawer, admin mode gate, camera tools for viewer
+- [x] viewer + selected device: read-only copy visible; **no** action buttons
+- [x] operator + selected device: three buttons; acknowledge disabled unless alarm/warning
+- [x] operator click → `POST /api/commands` with new type + `deviceId` + session `tenantId`; UI shows accepted
+- [x] viewer cannot trigger send from UI; BFF still rejects if called without permission
+- [x] admin on `/ops` matches operator action chrome
+- [x] no regression: empty drawer, admin mode gate, camera tools for viewer
+- [x] non-admin toolbar: **no** ops/admin segmented control (shell follow-up)
 
 ## §8 — Risks
 

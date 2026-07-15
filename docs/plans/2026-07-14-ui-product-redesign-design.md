@@ -13,7 +13,7 @@ The shipped shell (`@dt/app-shell`) is a single-page three-column layout: device
 | --- | --- |
 | Scope | Product-level redesign (IA + shell + admin), not reskin-only |
 | Personas | Operator and admin are equally important |
-| Entry | Scheme 2 — everyone lands on Twin ops; top-bar **操作 \| 管理** toggle |
+| Entry | Scheme 2 — everyone lands on Twin ops; top-bar **操作 \| 管理** toggle **for admin only** (viewer/operator have no mode chrome) |
 | Admin depth | Full admin IA (marketplace, installed, publish, users/roles, audit, org, etc.) |
 | Delivery | UI shell and missing admin APIs in the **same milestone** (parallel tracks) |
 | Visual tone | Restrained enterprise SaaS (dark, mid density, 8px radius) — not SCADA-dense, not dual-skin |
@@ -26,19 +26,22 @@ Reference structure (ops tree + viewport tools + detail KPIs; admin side-nav + a
 
 ### Product shape
 
-One Web + Desktop app (shared `@dt/app-shell`). Persistent top-bar mode switch: **操作 | 管理**. After login, **all roles default to 操作** (Twin workspace).
+One Web + Desktop app (shared `@dt/app-shell`). After login, **all
+roles default to 操作** (Twin workspace). The top-bar **操作 | 管理**
+segmented control is shown **only for users with the `admin` role** —
+viewer and operator stay on `/ops` without a lone “操作” chip.
 
 ```
-┌─ Digital Twin · Factory ▾ · [操作|管理] · search/notify/help · EN|中文 · User ─┐
-│  操作: 设备树 | 3D Stage + tool strips | 设备详情抽屉                           │
-│  管理: 侧导航 | 内容区 (市场/用户/审计…) | 可选右栏概览                          │
+┌─ Digital Twin · Factory ▾ · [操作|管理]? · search/notify/help · EN|中文 · User ─┐
+│  操作: 设备树 | 3D Stage + tool strips | 设备详情抽屉（含按权限的设备动作）   │
+│  管理: 侧导航 | 内容区 (市场/用户/审计…) | 可选右栏概览  — admin only        │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 | Mode | Visibility | Content |
 | --- | --- | --- |
-| **操作** | All roles | Collapsible **device tree**; full-bleed 3D stage with floating tool strips; **context drawer** (tabs, KPIs, telemetry). Plugin `ui-panel` mounts under the left rail or in drawer extension slots — **not** competing with marketplace on the right. |
-| **管理** | `admin` only (hidden or disabled + tooltip otherwise) | Side nav: overview, users & roles, org, equipment/assets, data/models, **app market**, alarms, system settings, audit. Main pane is the active module; optional right rail for settings shortcuts / system stats. |
+| **操作** | All roles (workspace); mode **toggle** only when `admin` | Collapsible **device tree**; full-bleed 3D stage with floating tool strips; **context drawer** (tabs, KPIs, telemetry, **设备动作** gated by `command:send`). Plugin `ui-panel` mounts under the left rail or in drawer extension slots — **not** competing with marketplace on the right. |
+| **管理** | `admin` only (mode switch omitted otherwise; route guard redirects) | Side nav: overview, users & roles, org, equipment/assets, data/models, **app market**, alarms, system settings, audit. Main pane is the active module; optional right rail for settings shortcuts / system stats. |
 
 ### Routing
 
@@ -128,13 +131,16 @@ Toggle 管理 → /admin/*
 
 | Capability | viewer | operator | admin |
 | --- | --- | --- | --- |
-| Ops, locale, personal accent | ✓ | ✓ | ✓ |
-| Device commands / scene write | read-only | ✓ | ✓ |
-| Enter 管理 | ✗ | ✗ | ✓ |
+| Ops workspace, locale, personal accent | ✓ | ✓ | ✓ |
+| Top-bar **操作 \| 管理** switch | ✗ (omit entire control) | ✗ | ✓ |
+| Device actions in drawer (`command:send`) | read-only hint | ✓ | ✓ |
+| Enter `/admin/*` | ✗ | ✗ | ✓ |
 | Install / activate / uninstall / publish | ✗ | ✗ | ✓ |
 | Users, roles, audit, org admin | ✗ | ✗ | ✓ |
 
-Unauthenticated users keep the existing login gate; admin mode is not rendered.
+Unauthenticated users keep the existing login gate; the mode switch is
+not rendered. Operator vs viewer differentiation on ops is detailed in
+[`2026-07-15-ops-role-actions-design.md`](./2026-07-15-ops-role-actions-design.md).
 
 ### Errors & empty states
 
@@ -150,7 +156,15 @@ Unauthenticated users keep the existing login gate; admin mode is not rendered.
 ### Plugin slots
 
 - `ui-panel` → under left rail or drawer extension (not marketplace column)  
-- `menu-item` → overflow / ops tool strip — must not displace **操作 \| 管理**
+- `menu-item` → overflow / ops tool strip — must not displace **操作 \| 管理** when that control is shown (admin only)
+
+## Follow-up amendments (post T0–T15)
+
+| Date | Change | Doc / code |
+| --- | --- | --- |
+| 2026-07-15 | Ops drawer **设备动作** for operator/admin (`command:send`); viewer read-only copy | [`2026-07-15-ops-role-actions-design.md`](./2026-07-15-ops-role-actions-design.md) |
+| 2026-07-15 | Logout clears device/scene stores + `engine.clearScene()` so the center viewport empties | ADR 0020 / `useAuthSessionSync` |
+| 2026-07-15 | Hide entire ops/admin mode switch for non-admins (no lone “操作” chip) | ADR 0020 + TopToolbar |
 
 ## §4 — Milestone scope, risks, acceptance
 
@@ -183,10 +197,10 @@ Unauthenticated users keep the existing login gate; admin mode is not rendered.
 
 ### Acceptance criteria
 
-1. All roles land on ops; only admin can enter management.  
+1. All roles land on ops; only admin can enter management; non-admins see **no** mode switch chrome.  
 2. Top bar includes **language immediately before user**; locale switches apply immediately.  
 3. User can change accent; preference survives reload; no hard-coded brand primary in components.  
-4. Ops has tree / viewport tools / detail structure; marketplace is **not** the ops right rail.  
+4. Ops has tree / viewport tools / detail structure (with role-gated device actions); marketplace is **not** the ops right rail.  
 5. Admin app market is a card grid; users/audit (and agreed modules) complete primary paths against live APIs.  
 6. Monorepo build and package boundaries (`ui-kit` ↛ engine/api) remain green.
 

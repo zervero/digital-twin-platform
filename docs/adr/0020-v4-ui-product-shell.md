@@ -69,15 +69,30 @@ current workspace:
 
 ### 2. Ops / admin mode split (Scheme 2)
 
-Persistent top-bar segmented control: **Ops | Admin**. Everyone
-defaults to ops. Locale control sits immediately before the user
-control. Marketplace lives under `/admin/marketplace`, not on the
-ops right rail.
+Persistent top-bar segmented control: **Ops | Admin**, shown **only when
+the session includes the `admin` role**. Everyone defaults to `/ops`;
+viewer and operator have no mode chrome. Locale control sits immediately
+before the user control. Marketplace lives under `/admin/marketplace`,
+not on the ops right rail.
 
 Admin side nav ships only modules with real or honestly mocked BFF
 (or session-honest pages such as `/admin/tenant`). Incomplete
 modules are removed from the nav rather than left as “建设中”
 stubs for release acceptance.
+
+### Ops role actions + auth session sync (amendment)
+
+Follow-ups on the ops surface after the initial shell landed:
+
+1. **Device actions** in `DeviceDetailDrawer` for roles with
+   `command:send` (operator/admin): acknowledge-alarm, reset-device,
+   request-maintenance (BFF echo-accept). Viewer sees a muted
+   read-only line instead of buttons. Design:
+   [`2026-07-15-ops-role-actions-design.md`](../plans/2026-07-15-ops-role-actions-design.md).
+2. **Logout / login sync** via `useAuthSessionSync`: re-gate plugins;
+   on logout clear device + scene stores so `SceneViewport` calls
+   `engine.clearScene()` (documented in `docs/architecture/engine-sdk.md`).
+3. **Mode switch omission** for non-admins (see Decision §1 above).
 
 ### 3. Brand accent is a user preference, not a ui-kit fork
 

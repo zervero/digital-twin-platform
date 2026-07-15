@@ -25,7 +25,7 @@
 | T2 | ui-kit primitives batch A (Segmented, Tabs, SideNav, StatCard) | — | Exported + component tests |
 | T3 | ui-kit primitives batch B (Tree, AppCard, ToolStrip) | T2 | Exported + component tests |
 | T4 | Add `vue-router`; refactor AppShell to layout + routes | T2 | `/ops` default; admin routes gated |
-| T5 | TopToolbar: mode switch, locale before user, factory chip | T2, T4 | Order + permissions match §2/§3 |
+| T5 | TopToolbar: mode switch (**admin only**), locale before user, factory chip | T2, T4 | Admin sees Ops\|Admin; non-admin no mode chrome |
 | T6 | Ops workspace: device tree + context drawer | T3, T4 | Marketplace gone from ops right rail |
 | T7 | Viewport tool strip wired to engine | T6 | Buttons call engine/scene commands |
 | T8 | Relocate plugin panel hosts | T6 | No raw permission dump in primary chrome |
@@ -222,14 +222,17 @@ Commit: `feat(app-shell): introduce vue-router with ops and admin workspaces`
 **Required chrome order (right cluster):**  
 `Search (optional stub) · Notifications (stub) · Help (stub) · [EN | 中文] · User`
 
-**Center:** `DtSegmentedControl` options `ops` / `admin`.  
+**Center:** `DtSegmentedControl` options `ops` / `admin`, rendered **only when
+the user has the `admin` role**. Non-admins must not see a lone “Ops” chip.
 - Switching `ops` → `router.push('/ops')`  
 - Switching `admin` → `router.push` last admin path or `/admin/marketplace`  
-- If not admin: hide admin option **or** disable with tooltip (prefer hide for viewer/operator).
+- Follow-up (shipped): omit the entire center control for viewer/operator
+  (see ADR 0020 amendment).
 
 **Left:** brand, version chip, factory/tenant label (read from auth/tenant context; dropdown may be visual-only until multi-factory API exists).
 
-Commit: `feat(app-shell): add mode switch and reorder toolbar locale before user`
+Commit: `feat(app-shell): add mode switch and reorder toolbar locale before user`  
+Later: `fix(app-shell): hide ops/admin mode switch for non-admins`
 
 ---
 
