@@ -51,6 +51,7 @@ async function runAction(type: DeviceActionType): Promise<void> {
   const tenantId =
     auth.state.kind === 'authenticated' ? auth.state.session.tenantId : null;
   if (!device || !tenantId || !canSend.value) return;
+  const deviceId = device.id;
   busyType.value = type;
   actionError.value = null;
   actionMessage.value = null;
@@ -59,16 +60,20 @@ async function runAction(type: DeviceActionType): Promise<void> {
       id: crypto.randomUUID(),
       tenantId,
       type,
-      deviceId: device.id,
+      deviceId,
     });
+    if (selectedDevice.value?.id !== deviceId) return;
     actionMessage.value = t('device.drawer.actions.accepted', {
       id: res.commandId,
     });
   } catch (err) {
+    if (selectedDevice.value?.id !== deviceId) return;
     actionError.value =
       err instanceof Error ? err.message : t('device.drawer.actions.failed');
   } finally {
-    busyType.value = null;
+    if (busyType.value === type) {
+      busyType.value = null;
+    }
   }
 }
 
@@ -226,7 +231,7 @@ const mockKpis = computed(() => {
               <DtButton
                 variant="primary"
                 :disabled="!canAcknowledge || busyType !== null"
-                :aria-busy="busyType === 'acknowledge-alarm'"
+                :aria-busy="busyType === 'acknowledge-alarm' || undefined"
                 @click="runAction('acknowledge-alarm')"
               >
                 {{ t('device.drawer.actions.acknowledge') }}
@@ -234,6 +239,7 @@ const mockKpis = computed(() => {
               <DtButton
                 variant="default"
                 :disabled="busyType !== null"
+                :aria-busy="busyType === 'reset-device' || undefined"
                 @click="runAction('reset-device')"
               >
                 {{ t('device.drawer.actions.reset') }}
@@ -241,6 +247,7 @@ const mockKpis = computed(() => {
               <DtButton
                 variant="default"
                 :disabled="busyType !== null"
+                :aria-busy="busyType === 'request-maintenance' || undefined"
                 @click="runAction('request-maintenance')"
               >
                 {{ t('device.drawer.actions.maintenance') }}

@@ -125,7 +125,7 @@ describe('DeviceDetailDrawer', () => {
     expect(wrapper.text()).toContain('No data for this tab yet');
   });
 
-  it('shows read-only copy for viewer and no acknowledge button', async () => {
+  it('shows read-only copy for viewer and no action buttons', async () => {
     const { wrapper } = mountDrawer(makeDevice(), { roles: ['viewer'] });
     await wrapper.vm.$nextTick();
 
@@ -133,6 +133,8 @@ describe('DeviceDetailDrawer', () => {
       'Read-only role — device actions are unavailable',
     );
     expect(wrapper.text()).not.toContain('Acknowledge alarm');
+    expect(wrapper.text()).not.toContain('Reset');
+    expect(wrapper.text()).not.toContain('Request maintenance');
   });
 
   it('shows three action buttons for operator with acknowledge disabled when online', async () => {
