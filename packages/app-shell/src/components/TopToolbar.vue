@@ -2,12 +2,13 @@
 /**
  * Product chrome top bar (V4 Task 5):
  *   Left   — brand, version chip, factory/tenant label
- *   Center — ops / admin mode switch (`DtSegmentedControl`)
+ *   Center — ops / admin mode switch (`DtSegmentedControl`),
+ *            only when the user has the `admin` role (a lone
+ *            "Ops" chip for viewer/operator is omitted)
  *   Right  — Search · Notifications · Help · [EN | 中文] · User
  *
  * Locale control sits immediately before the user control
- * (design requirement). Admin mode option is hidden for
- * non-admin roles. Last `/admin/*` path is restored via
+ * (design requirement). Last `/admin/*` path is restored via
  * `useLastAdminPath`.
  */
 import { computed, watch } from 'vue';
@@ -49,11 +50,10 @@ const mode = computed<'ops' | 'admin'>(() =>
   route.path.startsWith('/admin') ? 'admin' : 'ops',
 );
 
-const modeOptions = computed(() => {
-  const ops = { value: 'ops', label: t('shell.mode.ops') };
-  if (!isAdmin.value) return [ops];
-  return [ops, { value: 'admin', label: t('shell.mode.admin') }];
-});
+const modeOptions = computed(() => [
+  { value: 'ops', label: t('shell.mode.ops') },
+  { value: 'admin', label: t('shell.mode.admin') },
+]);
 
 watch(
   () => route.fullPath,
@@ -107,7 +107,11 @@ const activeLocale = computed(() =>
       </button>
     </div>
 
-    <div class="toolbar-center" :aria-label="t('shell.mode.ariaLabel')">
+    <div
+      v-if="isAdmin"
+      class="toolbar-center"
+      :aria-label="t('shell.mode.ariaLabel')"
+    >
       <DtSegmentedControl
         :model-value="mode"
         :options="modeOptions"

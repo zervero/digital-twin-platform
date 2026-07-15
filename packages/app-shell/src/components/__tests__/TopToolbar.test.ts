@@ -160,18 +160,25 @@ describe('TopToolbar product chrome', () => {
     expect(right.find('.locale + .auth-chrome').exists()).toBe(true);
   });
 
-  it('hides the admin mode option for non-admin roles', async () => {
+  it('hides the mode switch entirely for non-admin roles', async () => {
     const { wrapper } = await mountToolbar({ roles: ['operator'] });
 
-    const center = wrapper.find('.toolbar-center');
-    expect(center.text()).toContain('Ops');
-    expect(center.text()).not.toContain('Admin');
+    expect(wrapper.find('.toolbar-center').exists()).toBe(false);
+    expect(wrapper.text()).not.toContain('Ops');
+    expect(wrapper.text()).not.toContain('Admin');
   });
 
-  it('shows the admin mode option for admin roles', async () => {
+  it('hides the mode switch for viewers as well', async () => {
+    const { wrapper } = await mountToolbar({ roles: ['viewer'] });
+
+    expect(wrapper.find('.toolbar-center').exists()).toBe(false);
+  });
+
+  it('shows the ops/admin mode switch for admin roles', async () => {
     const { wrapper } = await mountToolbar({ roles: ['admin'] });
 
     const center = wrapper.find('.toolbar-center');
+    expect(center.exists()).toBe(true);
     expect(center.text()).toContain('Ops');
     expect(center.text()).toContain('Admin');
   });

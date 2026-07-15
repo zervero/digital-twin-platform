@@ -39,9 +39,11 @@ Introduce `vue-router` inside `@dt/app-shell` (`createAppRouter`).
 | `/settings/appearance` | All roles | Deep link: opens appearance **dialog**, then replaces to `/ops` |
 | `/admin/appearance` | admin | Deep link: opens appearance **dialog**, then replaces to marketplace |
 
-Non-admin navigation to `/admin/*` redirects to `/ops`. Admin mode
-in the top toolbar is hidden for non-admin roles. Last visited
-`/admin/*` child is restored when switching back to admin mode.
+Non-admin navigation to `/admin/*` redirects to `/ops`. The ops/admin
+mode switch in the top toolbar is shown **only for admin**; viewer and
+operator land on `/ops` with no mode chrome (a single “Ops” chip would
+be noise). Last visited `/admin/*` child is restored when an admin
+switches back to admin mode.
 
 ### Appearance UI is a shared dialog (amendment)
 
