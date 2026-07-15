@@ -29,8 +29,11 @@ app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scen
     #     the router; AppShell is toolbar + RouterView only.
     #   - V4 Task 9: admin marketplace / installed / publish are
     #     real pages (DtAppCard grid).
-    #   - V4 Task 10: `/settings/appearance` is personal accent
-    #     settings for all roles; `/admin/appearance` redirects there.
+    #   - V4 Task 10 (+ follow-up): appearance is a shared DtDialog
+    #     (`AppearanceSettingsDialog` on AppShell). Entries: admin
+    #     left nav + user-menu button (all authenticated roles).
+    #     Deep links `/settings/appearance` → open dialog + `/ops`;
+    #     `/admin/appearance` → open dialog + marketplace.
     #   - V4 Task 12: admin users + audit pages call api-client
     #     `listUsers` / `setUserRoles` / `listAuditEvents`.
     #   - V4 Task 13: `/admin/tenant` shows AuthSession context only;

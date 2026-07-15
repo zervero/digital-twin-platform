@@ -36,12 +36,31 @@ Introduce `vue-router` inside `@dt/app-shell` (`createAppRouter`).
 | `/` → `/ops` | All roles | Default landing after login (and for anonymous demo) |
 | `/ops` | All roles | Device tree + full-bleed stage + context drawer |
 | `/admin/*` | `admin` role only (`meta.requiresAdmin`) | Side nav + admin pages |
-| `/settings/appearance` | All roles | Personal accent preference |
-| `/admin/appearance` | — | Redirects to `/settings/appearance` |
+| `/settings/appearance` | All roles | Deep link: opens appearance **dialog**, then replaces to `/ops` |
+| `/admin/appearance` | admin | Deep link: opens appearance **dialog**, then replaces to marketplace |
 
 Non-admin navigation to `/admin/*` redirects to `/ops`. Admin mode
 in the top toolbar is hidden for non-admin roles. Last visited
 `/admin/*` child is restored when switching back to admin mode.
+
+### Appearance UI is a shared dialog (amendment)
+
+Initial T10 shipped `/settings/appearance` as a full page. Product
+follow-up moved it into a modal so accent changes do not leave the
+current workspace:
+
+- Presentational shell: `@dt/ui-kit` `DtDialog`.
+- Form + dialog chrome: `AppearanceSettingsForm` /
+  `AppearanceSettingsDialog` in `@dt/app-shell` (mounted on
+  `AppShell`).
+- **Entries (both open the same dialog):**
+  1. Admin left nav 「外观」/ Appearance — stays visible; click
+     opens dialog without changing the current `/admin/*` page.
+  2. Top toolbar user cluster 「外观」— available to **all**
+     authenticated roles (viewer / operator / admin).
+- Open/close state lives on `useAppearanceStore().dialogOpen`
+  (`openDialog` / `closeDialog`).
+- Deep links above remain supported for bookmarks and tests.
 
 ### 2. Ops / admin mode split (Scheme 2)
 

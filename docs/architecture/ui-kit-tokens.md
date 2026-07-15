@@ -197,6 +197,9 @@ example.
 - Token source: `packages/ui-kit/src/styles/tokens.css`
 - Accent apply helper: `packages/app-shell/src/theme/apply-accent.ts`
 - Appearance store: `packages/app-shell/src/stores/appearance-store.ts`
+- Appearance dialog: `packages/app-shell/src/components/AppearanceSettingsDialog.vue`
+  (form: `AppearanceSettingsForm.vue`; presentational modal: `DtDialog`)
 - Workspace boundary: `docs/architecture/workspace.md`
 - ADR 0006 (V1 closure): `docs/adr/0006-v1-closure.md`
-- ADR 0020 (V4 product shell): `docs/adr/0020-v4-ui-product-shell.md`
+- ADR 0020 (V4 product shell + appearance-dialog amendment):
+  `docs/adr/0020-v4-ui-product-shell.md`

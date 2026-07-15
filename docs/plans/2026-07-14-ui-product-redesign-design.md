@@ -81,10 +81,12 @@ Language control uses existing `@dt/i18n` (EN / zh-CN). Search / notifications /
 | Layer | Behavior |
 | --- | --- |
 | Tokens | `--dt-accent-primary` and `-hover` remain the single source of truth |
-| Settings | **系统设置 → 外观**: preset swatches (5–8) + optional custom color |
+| Settings UI | **Shared dialog** (`DtDialog` + `AppearanceSettingsForm`), not a full page |
+| Entries | (1) Admin left nav 「外观」 (2) Top toolbar user-cluster 「外观」 for all logged-in roles |
 | Persistence | Preference in `localStorage` first; sync to account/tenant settings API when available |
 | Apply | On boot and on change, set CSS variables on `document.documentElement` (and/or `data-accent`) |
 | Guardrail | Contrast check before save; auto-pick inverse label color on primary buttons |
+| Deep links | `/settings/appearance` and `/admin/appearance` open the dialog then return to `/ops` / marketplace |
 
 Default preset may be blue for first boot; product capability is **switchable**. Teal (or any preset) in mockups only demonstrates theming.
 
@@ -102,7 +104,7 @@ Default preset may be blue for first boot; product capability is **switchable**.
 
 ### ui-kit additions (presentational)
 
-`DtSegmentedControl`, `DtTree`, `DtTabs`, `DtStatCard`, `DtSideNav`, `DtAppCard` (+ grid), `DtToolStrip`; extend existing `DtPanel` / `DtEmptyState` / `DtStatusBadge` / `DtButton` / table patterns.
+`DtSegmentedControl`, `DtTree`, `DtTabs`, `DtStatCard`, `DtSideNav`, `DtAppCard` (+ grid), `DtToolStrip`, `DtDialog`; extend existing `DtPanel` / `DtEmptyState` / `DtStatusBadge` / `DtButton` / table patterns.
 
 Light theme: leave `[data-theme="light"]` hook; not a required deliverable this milestone.
 
