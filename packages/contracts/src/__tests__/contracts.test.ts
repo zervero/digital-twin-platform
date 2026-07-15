@@ -80,4 +80,30 @@ describe('@dt/contracts', () => {
       expect(event.payload.nodeId).toBe('node-1');
     }
   });
+
+  it('narrows device-action DigitalTwinCommand variants', () => {
+    const cmd: DigitalTwinCommand = {
+      id: 'c-ack',
+      tenantId: 'fixture-tenant',
+      type: 'acknowledge-alarm',
+      deviceId: 'd-1',
+    };
+    if (cmd.type === 'acknowledge-alarm') {
+      expect(cmd.deviceId).toBe('d-1');
+    }
+    const reset: DigitalTwinCommand = {
+      id: 'c-reset',
+      tenantId: 'fixture-tenant',
+      type: 'reset-device',
+      deviceId: 'd-1',
+    };
+    expect(reset.type).toBe('reset-device');
+    const maint: DigitalTwinCommand = {
+      id: 'c-maint',
+      tenantId: 'fixture-tenant',
+      type: 'request-maintenance',
+      deviceId: 'd-1',
+    };
+    expect(maint.type).toBe('request-maintenance');
+  });
 });
