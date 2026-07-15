@@ -1,9 +1,7 @@
 # High-Fidelity Viewport Assets (Scheme C) — Design
 
-> Status: **approved decisions locked** (2026-07-15); awaiting final
-> “批准” to start `writing-plans` / implementation.  
-> Branch: **`feat/viewport-gltf`** (cut from `feat/ui-product-v4` @
-> docs-mode-switch follow-ups).  
+> Status: **approved** in design review (2026-07-15).  
+> Branch: **`feat/viewport-gltf`**.  
 > Scope: **方案 C** — glTF/GLB equipment assets + loader +
 > host progress UX; procedural **A-light** primitives are
 > **placeholders + fail-closed fallback**.  
@@ -11,7 +9,7 @@
 > `docs/architecture/engine-sdk.md`.  
 > Contrasts: Scheme A-as-primary and B (procedural layout extras) are
 > **not** this milestone’s primary path.  
-> Next (after approval): implementation plan →
+> Next: implementation plan →
 > `docs/plans/2026-07-15-gltf-viewport.md`.
 
 ## Context
@@ -299,29 +297,21 @@ after C0–C2 are accepted — not in the same first delivery.
 - [ ] `engine-sdk` unit tests + typecheck green; app-shell SceneViewport tests green
 - [ ] Docs: engine-sdk.md + viewport assets guide + AGENTS/ADR satisfied
 
-## §12 — Open questions (resolve before C1 code)
+## §12 — Open questions
 
-1. **Branching:** continue on `feat/ui-product-v4` vs dedicated
-   `feat/viewport-gltf`?
-2. **Placeholder strategy:** invisible vs A-light cabinet until GLB swaps —
-   recommendation: **A-light placeholders**.
-3. **Asset authorship:** purchase kit vs procedural-to-GLB export vs
-   designer-provided — recommendation: **start with 1 purchased or
-   CC0 CNC + 1 sensor**, document in ASSETS.md.
-4. **Env lighting:** keep current key/ambient vs add optional env map
-   in C3 only?
+All previously open items are **locked** in §9.1. Remaining only if
+procurement blocks C0:
+
+- Exact CC0 vs paid SKU URLs once purchased/chosen (fill `ASSETS.md`
+  during C0; does not change architecture).
 
 ---
 
 ## Summary for reviewers
 
-Scheme **C** makes the twin stage **asset-driven**: contracts gain
-optional `modelId`, the host owns a small static catalog, and
-`@dt/engine-sdk` grows a real GLB loader with cache, status/selection
-accessories, and procedural fallback. This deliberately expands the
-engine beyond “no asset loading,” so an ADR is mandatory. Photoreal
-CAD ingest, layout props (Scheme B), and marketplace-of-models are out
-of scope for this pass.
+Scheme **C** on **`feat/viewport-gltf`**: host static catalog +
+optional `modelId`, engine GLB loader with **A-light placeholders**,
+status/selection accessories, C0–C2 delivery; **env map deferred to
+C3**. ADR required for “engine may load assets.”
 
-**Awaiting design approval** before `writing-plans` /
-implementation.
+**Ready for implementation** via `docs/plans/2026-07-15-gltf-viewport.md`.
