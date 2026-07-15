@@ -31,7 +31,8 @@ app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scen
     #     real pages (DtAppCard grid).
     #   - V4 Task 10 (+ follow-up): appearance is a shared DtDialog
     #     (`AppearanceSettingsDialog` on AppShell). Entries: admin
-    #     left nav + user-menu button (all authenticated roles).
+    #     left nav + toolbar appearance (anonymous + authenticated).
+    #     Sign-in uses DtDialog + pill trigger (no inline expand).
     #     Deep links `/settings/appearance` → open dialog + `/ops`;
     #     `/admin/appearance` → open dialog + marketplace.
     #   - V4 Task 12: admin users + audit pages call api-client

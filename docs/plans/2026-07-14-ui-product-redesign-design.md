@@ -82,7 +82,7 @@ Language control uses existing `@dt/i18n` (EN / zh-CN). Search / notifications /
 | --- | --- |
 | Tokens | `--dt-accent-primary` and `-hover` remain the single source of truth |
 | Settings UI | **Shared dialog** (`DtDialog` + `AppearanceSettingsForm`), not a full page |
-| Entries | (1) Admin left nav 「外观」 (2) Top toolbar user-cluster 「外观」 for all logged-in roles |
+| Entries | (1) Admin left nav 「外观」 (2) Toolbar 「外观」 for **anonymous + all logged-in roles** |
 | Persistence | Preference in `localStorage` first; sync to account/tenant settings API when available |
 | Apply | On boot and on change, set CSS variables on `document.documentElement` (and/or `data-accent`) |
 | Guardrail | Contrast check before save; auto-pick inverse label color on primary buttons |

@@ -131,7 +131,7 @@ describe('TopToolbar product chrome', () => {
       el.classList.contains('locale'),
     );
     const loginIdx = [...children].findIndex((el) =>
-      el.classList.contains('login-button'),
+      el.classList.contains('auth-chrome'),
     );
 
     expect(localeIdx).toBeGreaterThanOrEqual(0);
@@ -153,9 +153,11 @@ describe('TopToolbar product chrome', () => {
       'toolbar-locale',
       'toolbar-locale',
       'open-appearance',
+      'auth-user',
+      'auth-logout',
     ]);
-    expect(right.find('.login-button').exists()).toBe(true);
-    expect(right.find('.locale + .login-button').exists()).toBe(true);
+    expect(right.find('.auth-chrome').exists()).toBe(true);
+    expect(right.find('.locale + .auth-chrome').exists()).toBe(true);
   });
 
   it('hides the admin mode option for non-admin roles', async () => {

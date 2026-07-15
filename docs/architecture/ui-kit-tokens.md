@@ -66,7 +66,7 @@ preset before login).
 | Default tokens | `packages/ui-kit/src/styles/tokens.css` | `--dt-accent-primary`, `--dt-accent-primary-hover`, secondary / danger accents |
 | Apply helper | `packages/app-shell/src/theme/apply-accent.ts` | Writes `--dt-accent-primary` (+ optional hover) on `document.documentElement`; rejects hex that fails WCAG AA (≥4.5:1) against white primary-button labels |
 | Preference store | `packages/app-shell/src/stores/appearance-store.ts` | Preset id or custom hex; persists under `localStorage` key `dt.appearance.v1` |
-| Settings UI | Appearance dialog (`AppearanceSettingsDialog`) | Opened from admin left nav **and** user-menu button; deep links `/settings/appearance` (all roles → dialog + `/ops`) and `/admin/appearance` (admin → dialog + marketplace) |
+| Settings UI | Appearance dialog (`AppearanceSettingsDialog`) | Opened from admin left nav **and** toolbar appearance button (**including anonymous**); deep links `/settings/appearance` (→ dialog + `/ops`) and `/admin/appearance` (admin → dialog + marketplace) |
 | Must not rewrite | `--dt-status-*`, danger / semantic accents used for alarms | Status chips and alarm semantics stay fixed when brand accent changes |
 
 Rules for new presentational components:

@@ -56,11 +56,14 @@ current workspace:
 - **Entries (both open the same dialog):**
   1. Admin left nav 「外观」/ Appearance — stays visible; click
      opens dialog without changing the current `/admin/*` page.
-  2. Top toolbar user cluster 「外观」— available to **all**
-     authenticated roles (viewer / operator / admin).
+  2. Top toolbar appearance control — available to **anonymous**
+     and all authenticated roles (viewer / operator / admin).
 - Open/close state lives on `useAppearanceStore().dialogOpen`
   (`openDialog` / `closeDialog`).
 - Deep links above remain supported for bookmarks and tests.
+- Sign-in also uses a `DtDialog` (mock email form or OIDC CTA);
+  the toolbar trigger is an outlined pill button rather than an
+  inline-expanding form.
 
 ### 2. Ops / admin mode split (Scheme 2)
 
