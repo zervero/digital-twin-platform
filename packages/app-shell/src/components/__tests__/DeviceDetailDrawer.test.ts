@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { mount } from '@vue/test-utils';
 
@@ -7,6 +7,7 @@ import type { Device, LoginResponse, MeResponse } from '@dt/contracts';
 
 import DeviceDetailDrawer from '../DeviceDetailDrawer.vue';
 import { ApiClientKey } from '../../stores/api-store.js';
+import { useAuthStore } from '../../stores/auth-store.js';
 import { useDeviceStore } from '../../stores/device-store.js';
 
 function fakeApiClient(overrides: Partial<ApiClient> = {}): ApiClient {
@@ -41,16 +42,38 @@ function makeDevice(overrides: Partial<Device> = {}): Device {
   };
 }
 
-function mountDrawer(device: Device | null = makeDevice()) {
+function hydrateAuth(roles: Array<'viewer' | 'operator' | 'admin'>): void {
+  const auth = useAuthStore();
+  auth.state = {
+    kind: 'authenticated',
+    session: {
+      user: { id: 'u', displayName: 'u', email: 'u@x', roles },
+      token: 't',
+      expiresAt: '2026-12-31T00:00:00.000Z',
+      tenantId: 'acme-corp',
+    },
+  };
+}
+
+function mountDrawer(
+  device: Device | null = makeDevice(),
+  options: {
+    roles?: Array<'viewer' | 'operator' | 'admin'>;
+    api?: Partial<ApiClient>;
+  } = {},
+) {
   const pinia = createPinia();
   setActivePinia(pinia);
-  const client = fakeApiClient();
+  const client = fakeApiClient(options.api);
   const wrapper = mount(DeviceDetailDrawer, {
     global: {
       plugins: [pinia],
       provide: { [ApiClientKey as symbol]: client },
     },
   });
+  if (options.roles) {
+    hydrateAuth(options.roles);
+  }
   const deviceStore = useDeviceStore();
   if (device) {
     deviceStore.setDevices([device]);
@@ -59,7 +82,7 @@ function mountDrawer(device: Device | null = makeDevice()) {
     deviceStore.setDevices([]);
     deviceStore.selectDevice(null);
   }
-  return { wrapper, deviceStore };
+  return { wrapper, deviceStore, client };
 }
 
 describe('DeviceDetailDrawer', () => {
@@ -100,5 +123,78 @@ describe('DeviceDetailDrawer', () => {
     expect(runtimeTab).toBeTruthy();
     await runtimeTab!.trigger('click');
     expect(wrapper.text()).toContain('No data for this tab yet');
+  });
+
+  it('shows read-only copy for viewer and no acknowledge button', async () => {
+    const { wrapper } = mountDrawer(makeDevice(), { roles: ['viewer'] });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.text()).toContain(
+      'Read-only role — device actions are unavailable',
+    );
+    expect(wrapper.text()).not.toContain('Acknowledge alarm');
+  });
+
+  it('shows three action buttons for operator with acknowledge disabled when online', async () => {
+    const { wrapper } = mountDrawer(makeDevice({ status: 'online' }), {
+      roles: ['operator'],
+    });
+    await wrapper.vm.$nextTick();
+
+    const buttons = wrapper.findAll('button').filter((b) => {
+      const text = b.text();
+      return (
+        text === 'Acknowledge alarm' ||
+        text === 'Reset' ||
+        text === 'Request maintenance'
+      );
+    });
+    expect(buttons).toHaveLength(3);
+
+    const acknowledge = buttons.find((b) => b.text() === 'Acknowledge alarm');
+    expect(acknowledge).toBeTruthy();
+    expect(acknowledge!.attributes('disabled')).toBeDefined();
+  });
+
+  it('enables acknowledge for alarm and sends acknowledge-alarm command', async () => {
+    const sendCommand = vi.fn(async () => ({
+      accepted: true as const,
+      commandId: 'cmd-x',
+    }));
+    const { wrapper } = mountDrawer(makeDevice({ status: 'alarm', id: 'device-1' }), {
+      roles: ['operator'],
+      api: { sendCommand },
+    });
+    await wrapper.vm.$nextTick();
+
+    const acknowledge = wrapper
+      .findAll('button')
+      .find((b) => b.text() === 'Acknowledge alarm');
+    expect(acknowledge).toBeTruthy();
+    expect(acknowledge!.attributes('disabled')).toBeUndefined();
+
+    await acknowledge!.trigger('click');
+    await wrapper.vm.$nextTick();
+
+    expect(sendCommand).toHaveBeenCalledOnce();
+    expect(sendCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'acknowledge-alarm',
+        deviceId: 'device-1',
+        tenantId: 'acme-corp',
+      }),
+    );
+  });
+
+  it('shows action buttons for admin', async () => {
+    const { wrapper } = mountDrawer(makeDevice(), { roles: ['admin'] });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.text()).toContain('Acknowledge alarm');
+    expect(wrapper.text()).toContain('Reset');
+    expect(wrapper.text()).toContain('Request maintenance');
+    expect(wrapper.text()).not.toContain(
+      'Read-only role — device actions are unavailable',
+    );
   });
 });

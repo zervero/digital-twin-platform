@@ -2,13 +2,15 @@
 /**
  * Ops right-rail context drawer for the selected device.
  * KPI values are mocked until a telemetry API lands — see TODO(telemetry).
+ * Device actions (V4) are gated on command:send and echo-accepted by BFF.
  */
-import { computed, ref, watch } from 'vue';
+import { computed, inject, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 
-import type { Device } from '@dt/contracts';
+import type { Device, DigitalTwinCommand } from '@dt/contracts';
 import { useI18n } from '@dt/i18n';
 import {
+  DtButton,
   DtEmptyState,
   DtPanel,
   DtStatCard,
@@ -16,6 +18,9 @@ import {
   DtTabs,
 } from '@dt/ui-kit';
 
+import { usePermission } from '../composables/usePermission.js';
+import { ApiClientKey } from '../stores/api-store.js';
+import { useAuthStore } from '../stores/auth-store.js';
 import { useDeviceStore } from '../stores/device-store.js';
 
 const { t } = useI18n();
@@ -23,10 +28,56 @@ const { t } = useI18n();
 const deviceStore = useDeviceStore();
 const { selectedDevice } = storeToRefs(deviceStore);
 
+const canSend = usePermission('command:send');
+const auth = useAuthStore();
+const api = inject(ApiClientKey)!;
+
+const busyType = ref<string | null>(null);
+const actionMessage = ref<string | null>(null);
+const actionError = ref<string | null>(null);
+
+const canAcknowledge = computed(() => {
+  const s = selectedDevice.value?.status;
+  return s === 'alarm' || s === 'warning';
+});
+
+type DeviceActionType = Extract<
+  DigitalTwinCommand['type'],
+  'acknowledge-alarm' | 'reset-device' | 'request-maintenance'
+>;
+
+async function runAction(type: DeviceActionType): Promise<void> {
+  const device = selectedDevice.value;
+  const tenantId =
+    auth.state.kind === 'authenticated' ? auth.state.session.tenantId : null;
+  if (!device || !tenantId || !canSend.value) return;
+  busyType.value = type;
+  actionError.value = null;
+  actionMessage.value = null;
+  try {
+    const res = await api.sendCommand({
+      id: crypto.randomUUID(),
+      tenantId,
+      type,
+      deviceId: device.id,
+    });
+    actionMessage.value = t('device.drawer.actions.accepted', {
+      id: res.commandId,
+    });
+  } catch (err) {
+    actionError.value =
+      err instanceof Error ? err.message : t('device.drawer.actions.failed');
+  } finally {
+    busyType.value = null;
+  }
+}
+
 const activeTab = ref('overview');
 
 watch(selectedDevice, () => {
   activeTab.value = 'overview';
+  actionMessage.value = null;
+  actionError.value = null;
 });
 
 const tabs = computed(() => [
@@ -161,6 +212,47 @@ const mockKpis = computed(() => {
               </div>
             </dl>
           </DtPanel>
+          <section
+            class="device-drawer__actions"
+            :aria-label="t('device.drawer.actions.title')"
+          >
+            <h3 class="device-drawer__actions-title">
+              {{ t('device.drawer.actions.title') }}
+            </h3>
+            <p v-if="!canSend" class="device-drawer__actions-readonly">
+              {{ t('device.drawer.actions.readOnly') }}
+            </p>
+            <div v-else class="device-drawer__actions-row">
+              <DtButton
+                variant="primary"
+                :disabled="!canAcknowledge || busyType !== null"
+                :aria-busy="busyType === 'acknowledge-alarm'"
+                @click="runAction('acknowledge-alarm')"
+              >
+                {{ t('device.drawer.actions.acknowledge') }}
+              </DtButton>
+              <DtButton
+                variant="default"
+                :disabled="busyType !== null"
+                @click="runAction('reset-device')"
+              >
+                {{ t('device.drawer.actions.reset') }}
+              </DtButton>
+              <DtButton
+                variant="default"
+                :disabled="busyType !== null"
+                @click="runAction('request-maintenance')"
+              >
+                {{ t('device.drawer.actions.maintenance') }}
+              </DtButton>
+            </div>
+            <p v-if="actionMessage" class="device-drawer__actions-status" role="status">
+              {{ actionMessage }}
+            </p>
+            <p v-if="actionError" class="device-drawer__actions-error" role="alert">
+              {{ actionError }}
+            </p>
+          </section>
         </template>
         <p v-else class="device-drawer__placeholder">
           {{ t('device.drawer.tabPlaceholder') }}
@@ -249,5 +341,37 @@ const mockKpis = computed(() => {
   margin: 0;
   color: var(--dt-text-muted);
   font-size: var(--dt-text-sm);
+}
+.device-drawer__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dt-space-md);
+  margin-top: var(--dt-space-xl);
+}
+.device-drawer__actions-title {
+  margin: 0;
+  font-size: var(--dt-text-sm);
+  font-weight: var(--dt-weight-semi);
+  color: var(--dt-text-primary);
+}
+.device-drawer__actions-readonly {
+  margin: 0;
+  font-size: var(--dt-text-sm);
+  color: var(--dt-text-muted);
+}
+.device-drawer__actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dt-space-sm);
+}
+.device-drawer__actions-status {
+  margin: 0;
+  font-size: var(--dt-text-sm);
+  color: var(--dt-text-secondary);
+}
+.device-drawer__actions-error {
+  margin: 0;
+  font-size: var(--dt-text-sm);
+  color: var(--dt-accent-danger);
 }
 </style>
