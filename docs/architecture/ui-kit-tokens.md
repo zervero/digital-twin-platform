@@ -48,6 +48,7 @@ literal values. The tokens are consumed by importing
 | `DtTree` | Recursive device / hierarchy tree | Selected row uses `var(--dt-accent-primary)`; status dots use `--dt-status-*` |
 | `DtAppCard` | Marketplace / plugin card | Surfaces / borders / text tokens; primary action via `DtButton` |
 | `DtToolStrip` | Horizontal icon toolbar | Active button uses `var(--dt-accent-primary)` |
+| `DtDialog` | Modal dialog | Surfaces / borders / overlay; no fixed brand hex |
 
 Accent is not a fixed hex in these components: selected interactive
 states read `var(--dt-accent-primary)`, which apps may override at
@@ -65,7 +66,7 @@ preset before login).
 | Default tokens | `packages/ui-kit/src/styles/tokens.css` | `--dt-accent-primary`, `--dt-accent-primary-hover`, secondary / danger accents |
 | Apply helper | `packages/app-shell/src/theme/apply-accent.ts` | Writes `--dt-accent-primary` (+ optional hover) on `document.documentElement`; rejects hex that fails WCAG AA (≥4.5:1) against white primary-button labels |
 | Preference store | `packages/app-shell/src/stores/appearance-store.ts` | Preset id or custom hex; persists under `localStorage` key `dt.appearance.v1` |
-| Settings UI | `/settings/appearance` | All roles; `/admin/appearance` redirects here |
+| Settings UI | Appearance dialog (`AppearanceSettingsDialog`) | Opened from admin left nav **and** user-menu button; deep links `/settings/appearance` (all roles → dialog + `/ops`) and `/admin/appearance` (admin → dialog + marketplace) |
 | Must not rewrite | `--dt-status-*`, danger / semantic accents used for alarms | Status chips and alarm semantics stay fixed when brand accent changes |
 
 Rules for new presentational components:

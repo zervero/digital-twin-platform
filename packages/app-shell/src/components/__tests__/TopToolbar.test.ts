@@ -152,6 +152,7 @@ describe('TopToolbar product chrome', () => {
       'toolbar-help',
       'toolbar-locale',
       'toolbar-locale',
+      'open-appearance',
     ]);
     expect(right.find('.login-button').exists()).toBe(true);
     expect(right.find('.locale + .login-button').exists()).toBe(true);

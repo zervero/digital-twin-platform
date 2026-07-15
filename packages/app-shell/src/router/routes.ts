@@ -16,6 +16,7 @@ import AdminPublishPage from '../pages/admin/AdminPublishPage.vue';
 import AdminUsersPage from '../pages/admin/AdminUsersPage.vue';
 import AdminAuditPage from '../pages/admin/AdminAuditPage.vue';
 import AdminTenantPage from '../pages/admin/AdminTenantPage.vue';
+import AdminAppearanceRedirect from '../pages/admin/AdminAppearanceRedirect.vue';
 import AppearanceSettingsPage from '../pages/settings/AppearanceSettingsPage.vue';
 
 declare module 'vue-router' {
@@ -76,7 +77,7 @@ export const routes: RouteRecordRaw[] = [
       {
         path: 'appearance',
         name: 'admin-appearance',
-        redirect: { name: 'settings-appearance' },
+        component: AdminAppearanceRedirect,
       },
     ],
   },

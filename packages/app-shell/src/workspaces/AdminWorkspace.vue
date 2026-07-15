@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
  * Admin workspace shell: DtSideNav + nested RouterView + overview rail.
+ * Appearance opens the shared dialog (does not navigate away).
  */
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -8,9 +9,12 @@ import { useRoute, useRouter } from 'vue-router';
 import { DtSideNav, DtStatCard } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
 
+import { useAppearanceStore } from '../stores/appearance-store.js';
+
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const appearance = useAppearanceStore();
 
 const navItems = computed(() => [
   { id: 'marketplace', label: t('admin.nav.marketplace'), icon: 'Store' as const },
@@ -23,13 +27,14 @@ const navItems = computed(() => [
 ]);
 
 const activeId = computed(() => {
+  if (appearance.dialogOpen) return 'appearance';
   const segment = route.path.split('/').filter(Boolean)[1];
   return segment ?? 'marketplace';
 });
 
 function onSelect(id: string) {
   if (id === 'appearance') {
-    void router.push({ name: 'settings-appearance' });
+    appearance.openDialog();
     return;
   }
   void router.push(`/admin/${id}`);

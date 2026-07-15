@@ -99,6 +99,8 @@
   "settings": {
     "appearance": {
       "title": "Appearance",
+      "menuLabel": "Appearance",
+      "done": "Done",
       "subtitle": "Choose a brand accent for your session. Semantic status colors stay fixed.",
       "presetsLabel": "Accent presets",
       "customLabel": "Custom color",

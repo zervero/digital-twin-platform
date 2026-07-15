@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * App shell layout host: top chrome + routed workspaces.
+ * App shell layout host: top chrome + routed workspaces + global dialogs.
  *
  * Ops and admin bodies live under `<RouterView />` (see
  * `createAppRouter`). Mode switching in TopToolbar is Task 5.
@@ -8,12 +8,14 @@
 import { RouterView } from 'vue-router';
 
 import TopToolbar from './components/TopToolbar.vue';
+import AppearanceSettingsDialog from './components/AppearanceSettingsDialog.vue';
 </script>
 
 <template>
   <div class="app-shell">
     <TopToolbar />
     <RouterView />
+    <AppearanceSettingsDialog />
   </div>
 </template>
 

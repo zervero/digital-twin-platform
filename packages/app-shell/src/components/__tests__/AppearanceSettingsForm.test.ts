@@ -1,13 +1,12 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { mount, flushPromises } from '@vue/test-utils';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { createMemoryHistory, createRouter } from 'vue-router';
 
-import AppearanceSettingsPage from '../AppearanceSettingsPage.vue';
-import { useAppearanceStore } from '../../../stores/appearance-store.js';
-import { ACCENT_PRESETS } from '../../../theme/accent-presets.js';
+import AppearanceSettingsForm from '../AppearanceSettingsForm.vue';
+import { useAppearanceStore } from '../../stores/appearance-store.js';
+import { ACCENT_PRESETS } from '../../theme/accent-presets.js';
 
-describe('AppearanceSettingsPage', () => {
+describe('AppearanceSettingsForm', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     localStorage.clear();
@@ -17,15 +16,8 @@ describe('AppearanceSettingsPage', () => {
     const pinia = createPinia();
     setActivePinia(pinia);
 
-    const router = createRouter({
-      history: createMemoryHistory(),
-      routes: [{ path: '/', component: AppearanceSettingsPage }],
-    });
-    await router.push('/');
-    await router.isReady();
-
-    const wrapper = mount(AppearanceSettingsPage, {
-      global: { plugins: [pinia, router] },
+    const wrapper = mount(AppearanceSettingsForm, {
+      global: { plugins: [pinia] },
     });
 
     const teal = ACCENT_PRESETS.find((p) => p.id === 'teal');
@@ -50,15 +42,8 @@ describe('AppearanceSettingsPage', () => {
     const pinia = createPinia();
     setActivePinia(pinia);
 
-    const router = createRouter({
-      history: createMemoryHistory(),
-      routes: [{ path: '/', component: AppearanceSettingsPage }],
-    });
-    await router.push('/');
-    await router.isReady();
-
-    const wrapper = mount(AppearanceSettingsPage, {
-      global: { plugins: [pinia, router] },
+    const wrapper = mount(AppearanceSettingsForm, {
+      global: { plugins: [pinia] },
     });
 
     const store = useAppearanceStore();

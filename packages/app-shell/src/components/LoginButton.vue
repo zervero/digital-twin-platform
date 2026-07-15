@@ -20,11 +20,13 @@ import { DtButton, DtIcon } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
 
 import { useAuthStore } from '../stores/auth-store.js';
+import { useAppearanceStore } from '../stores/appearance-store.js';
 import { useOIDCStart } from '../composables/useOIDCStart.js';
 
 const { t } = useI18n();
 
 const authStore = useAuthStore();
+const appearance = useAppearanceStore();
 const { state, error, loading } = storeToRefs(authStore);
 const { loginHref, authMode } = useOIDCStart();
 
@@ -49,6 +51,15 @@ async function submitMockLogin(): Promise<void> {
         <DtIcon name="UserRound" size="sm" />
         {{ state.session.user.email }}
       </span>
+      <DtButton
+        variant="ghost"
+        data-testid="open-appearance"
+        :aria-label="t('settings.appearance.title')"
+        @click="appearance.openDialog()"
+      >
+        <DtIcon name="Palette" size="sm" />
+        {{ t('settings.appearance.menuLabel') }}
+      </DtButton>
       <DtButton variant="ghost" :disabled="loading" @click="authStore.logout()">
         <DtIcon name="LogOut" size="sm" />
         {{ t('auth.logout') }}

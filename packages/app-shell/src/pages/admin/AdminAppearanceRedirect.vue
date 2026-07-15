@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * Deep-link opener for `/settings/appearance`: opens the shared
- * dialog and returns the user to `/ops` (dialog stays open).
+ * Deep-link opener for `/admin/appearance`: opens the shared dialog
+ * without leaving the admin workspace (lands on marketplace).
  */
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
@@ -13,10 +13,10 @@ const appearance = useAppearanceStore();
 
 onMounted(() => {
   appearance.openDialog();
-  void router.replace('/ops');
+  void router.replace({ name: 'admin-marketplace' });
 });
 </script>
 
 <template>
-  <div class="appearance-settings-redirect" aria-hidden="true" />
+  <div class="admin-appearance-redirect" aria-hidden="true" />
 </template>

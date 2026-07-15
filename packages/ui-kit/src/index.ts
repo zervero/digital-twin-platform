@@ -25,3 +25,4 @@ export { default as DtStatCard } from './components/DtStatCard.vue';
 export { default as DtTree } from './components/DtTree.vue';
 export { default as DtAppCard } from './components/DtAppCard.vue';
 export { default as DtToolStrip } from './components/DtToolStrip.vue';
+export { default as DtDialog } from './components/DtDialog.vue';

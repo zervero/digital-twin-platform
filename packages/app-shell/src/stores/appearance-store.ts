@@ -40,6 +40,16 @@ function writePersisted(value: AppearancePersisted): void {
 export const useAppearanceStore = defineStore('dt:appearance', () => {
   const accentId = ref<string | null>(DEFAULT_ACCENT_ID);
   const customHex = ref<string | null>(null);
+  /** Shared chrome: left admin nav + user menu open the same dialog. */
+  const dialogOpen = ref(false);
+
+  function openDialog(): void {
+    dialogOpen.value = true;
+  }
+
+  function closeDialog(): void {
+    dialogOpen.value = false;
+  }
 
   const primary = computed(() => {
     if (customHex.value) return customHex.value;
@@ -91,10 +101,13 @@ export const useAppearanceStore = defineStore('dt:appearance', () => {
   return {
     accentId,
     customHex,
+    dialogOpen,
     primary,
     hover,
     hydrate,
     setPreset,
     setCustom,
+    openDialog,
+    closeDialog,
   };
 });

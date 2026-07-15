@@ -99,6 +99,8 @@
   "settings": {
     "appearance": {
       "title": "外观",
+      "menuLabel": "外观",
+      "done": "完成",
       "subtitle": "为当前会话选择品牌主色。语义状态色保持固定。",
       "presetsLabel": "主色预设",
       "customLabel": "自定义颜色",

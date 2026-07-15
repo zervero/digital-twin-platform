@@ -17,7 +17,17 @@ describe('settings appearance route', () => {
     expect(settings?.name).toBe('settings-appearance');
   });
 
-  it('redirects /admin/appearance to settings-appearance', async () => {
+  it('keeps /admin/appearance as an admin child route (dialog opener)', () => {
+    const admin = routes.find((r) => r.path === '/admin');
+    expect(admin && 'children' in admin).toBe(true);
+    const child = admin && 'children' in admin
+      ? admin.children?.find((c) => c.name === 'admin-appearance')
+      : undefined;
+    expect(child).toBeDefined();
+    expect(child?.path).toBe('appearance');
+  });
+
+  it('can navigate to /admin/appearance under the admin layout', async () => {
     const stubbed: RouteRecordRaw[] = routes.map((r) => {
       if (r.path === '/admin' && 'children' in r && r.children) {
         return {
@@ -44,7 +54,7 @@ describe('settings appearance route', () => {
     });
     await router.push('/admin/appearance');
     await router.isReady();
-    expect(router.currentRoute.value.name).toBe('settings-appearance');
-    expect(router.currentRoute.value.path).toBe('/settings/appearance');
+    expect(router.currentRoute.value.name).toBe('admin-appearance');
+    expect(router.currentRoute.value.path).toBe('/admin/appearance');
   });
 });
