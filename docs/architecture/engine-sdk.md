@@ -16,6 +16,7 @@ engine.selectNode('machine-1');
 engine.resetView();       // restore default 3/4 pose (`reset-view` command)
 engine.fitAll();          // frame all loaded nodes
 engine.focusNode('machine-1'); // orbit-focus a node (`focus` command)
+engine.clearScene();      // tear down meshes; keep the mounted renderer
 engine.dispose();
 ```
 
@@ -29,6 +30,8 @@ engine.dispose();
 - Auto-resizes when the container resizes.
 - Camera helpers: `resetView`, `fitAll`, `focusNode` (pure framing math in
   `camera-framing.ts`; no orbit controls yet).
+- `clearScene()` removes the loaded graph (and selection) without unmounting
+  the renderer — used when auth drops the scene snapshot on logout.
 - Disposes the renderer, scene, geometries, and materials on `dispose()`.
 
 ## What it does not do

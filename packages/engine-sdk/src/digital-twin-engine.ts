@@ -145,6 +145,15 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
       applySelection(builtScene.nodes, selectedNodeId);
     },
 
+    clearScene(): void {
+      if (builtScene && threeScene) {
+        threeScene.remove(builtScene.group);
+        disposeGroup(builtScene.group);
+      }
+      builtScene = null;
+      selectedNodeId = null;
+    },
+
     selectNode(nodeId: string | null): void {
       selectedNodeId = nodeId;
       if (builtScene) {

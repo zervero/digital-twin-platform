@@ -12,6 +12,7 @@ import { useSceneStore } from '../../stores/scene-store.js';
 const engineMocks = {
   mount: vi.fn(),
   loadScene: vi.fn(async () => undefined),
+  clearScene: vi.fn(),
   selectNode: vi.fn(),
   resetView: vi.fn(),
   fitAll: vi.fn(),
@@ -124,5 +125,16 @@ describe('SceneViewport tool strips', () => {
       expect(btn.attributes('disabled')).toBeDefined();
       expect(btn.attributes('aria-label')).toBeTruthy();
     }
+  });
+
+  it('clears the engine when the scene snapshot is dropped', async () => {
+    const { sceneStore } = await mountViewport();
+    expect(engineMocks.loadScene).toHaveBeenCalled();
+    engineMocks.clearScene.mockClear();
+
+    sceneStore.clear();
+    await flushPromises();
+
+    expect(engineMocks.clearScene).toHaveBeenCalledTimes(1);
   });
 });

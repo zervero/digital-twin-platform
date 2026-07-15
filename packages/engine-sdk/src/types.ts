@@ -23,6 +23,12 @@ export interface EngineOptions {
 export interface DigitalTwinEngine {
   mount(container: HTMLElement): void;
   loadScene(scene: SceneSnapshot): Promise<void>;
+  /**
+   * Remove the loaded scene graph and clear selection while keeping
+   * the renderer mounted. Used when the host drops the snapshot
+   * (e.g. logout) without disposing the whole viewport.
+   */
+  clearScene(): void;
   selectNode(nodeId: string | null): void;
   /**
    * Restore the default 3/4 camera pose (maps to the `reset-view` scene command).

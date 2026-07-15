@@ -88,7 +88,13 @@ onMounted(async () => {
 watch(
   () => sceneStore.snapshot,
   async (snapshot) => {
-    if (!mounted || !engine || !snapshot) return;
+    if (!mounted || !engine) return;
+    // Logout clears the store to null — tear down meshes so the
+    // viewport does not keep showing the previous tenant scene.
+    if (!snapshot) {
+      engine.clearScene();
+      return;
+    }
     await engine.loadScene(snapshot);
     if (sceneStore.selectedNodeId !== null) {
       engine.selectNode(sceneStore.selectedNodeId);
