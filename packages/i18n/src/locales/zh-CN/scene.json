@@ -11,6 +11,8 @@
       "settings": "视口设置（即将推出）"
     },
     "node": "节点",
-    "nodes": "节点"
+    "nodes": "节点",
+    "assetsLoading": "模型加载中… {percent}%",
+    "assetsFallback": "{count} 个使用占位体"
   }
 }

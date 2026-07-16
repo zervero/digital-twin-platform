@@ -53,6 +53,18 @@ describe('@dt/contracts', () => {
     expect(scene.nodes[0]?.position).toEqual([0, 0, 0]);
   });
 
+  it('accepts optional modelId on SceneNode for viewport assets', () => {
+    const node: SceneNode = {
+      id: 'node-1',
+      tenantId: 'fixture-tenant',
+      name: 'CNC-01',
+      type: 'machine',
+      position: [0, 0, 0],
+      modelId: 'dt.machine.cnc-v1',
+    };
+    expect(node.modelId).toBe('dt.machine.cnc-v1');
+  });
+
   it('narrows DigitalTwinCommand by type', () => {
     const cmd: DigitalTwinCommand = {
       id: 'c-1',

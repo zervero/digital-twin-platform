@@ -5,6 +5,33 @@
 
 import type { SceneSnapshot } from '@dt/contracts';
 
+import type { LoadGlbFn } from './asset-loader.js';
+
+export type { LoadGlbFn };
+
+export type AssetLoadEvent =
+  | { type: 'progress'; loaded: number; total: number }
+  | { type: 'node-fallback'; nodeId: string; reason: string }
+  | { type: 'complete' };
+
+export interface EngineAssetsOptions {
+  /**
+   * Host catalog hook: catalog id → absolute or same-origin URL.
+   * Return `null` when the id is unknown (engine keeps A-light).
+   */
+  resolveUrl(modelId: string): string | null;
+  /**
+   * Optional host byte-cache hook (ADR 0022 / `@dt/asset-system`).
+   * Called with the URL from `resolveUrl` before `loadGlb` / GLTFLoader.
+   * Return a local `blob:` / file / cached URL when the bytes are ready.
+   */
+  ensureLocalUrl?(url: string): Promise<string>;
+  /**
+   * Optional injectable loader for tests. Default uses Three.js GLTFLoader.
+   */
+  loadGlb?: LoadGlbFn;
+}
+
 export interface EngineOptions {
   /**
    * Whether to render with antialias. Default true.
@@ -18,6 +45,11 @@ export interface EngineOptions {
    * Background color of the renderer. Default is dark.
    */
   background?: number;
+  /**
+   * Scheme C / ADR 0021: host-owned GLB catalog resolution.
+   * Omit to keep A-light procedural stage only.
+   */
+  assets?: EngineAssetsOptions;
 }
 
 export interface DigitalTwinEngine {
@@ -46,4 +78,13 @@ export interface DigitalTwinEngine {
   resize(): void;
   dispose(): void;
   getSelectedNodeId(): string | null;
+  /**
+   * Progress 0–1 for the in-flight asset batch; `null` when idle.
+   */
+  getAssetLoadProgress(): number | null;
+  /**
+   * Subscribe to asset load progress / per-node fallback / complete.
+   * Returns an unsubscribe function.
+   */
+  onAssetLoad(listener: (ev: AssetLoadEvent) => void): () => void;
 }

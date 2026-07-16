@@ -1,0 +1,16 @@
+{
+  "dt.machine.cnc-v1": {
+    "url": "/assets/viewport/dt.machine.cnc-v1.glb",
+    "version": "1",
+    "kind": "machine",
+    "defaultScale": 1,
+    "yOffset": 0
+  },
+  "dt.sensor.probe-v1": {
+    "url": "/assets/viewport/dt.sensor.probe-v1.glb",
+    "version": "1",
+    "kind": "sensor",
+    "defaultScale": 1,
+    "yOffset": 0
+  }
+}

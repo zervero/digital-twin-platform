@@ -171,6 +171,12 @@ tooling/         # tsconfig presets
 docs/            # Architecture, ADRs, dev guides
 ```
 
+Viewport GLB kit (Scheme C) lives under
+`apps/web/public/assets/viewport/` — see
+[viewport-assets.md](./viewport-assets.md). Byte download/cache is owned by
+`@dt/asset-system` (ensure → local URL → engine decode). After `pnpm dev`,
+login and open `/ops` to see placeholders swap to CNC/sensor models.
+
 ## Adding a new package
 
 1. Create `packages/<name>/package.json` and `tsconfig.json`.

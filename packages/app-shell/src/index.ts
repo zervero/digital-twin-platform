@@ -27,6 +27,7 @@ export {
   APPEARANCE_STORAGE_KEY,
 } from './stores/appearance-store.js';
 export { provideApiClient, ApiClientKey } from './stores/api-store.js';
+export { EngineOptionsKey } from './injection/engine-options.js';
 export { applyAccent, contrastRatio, isAccentUsable } from './theme/apply-accent.js';
 export {
   ACCENT_PRESETS,

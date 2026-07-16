@@ -6,4 +6,10 @@
  */
 
 export { createEngine } from './digital-twin-engine.js';
-export type { DigitalTwinEngine, EngineOptions } from './types.js';
+export type {
+  AssetLoadEvent,
+  DigitalTwinEngine,
+  EngineAssetsOptions,
+  EngineOptions,
+  LoadGlbFn,
+} from './types.js';

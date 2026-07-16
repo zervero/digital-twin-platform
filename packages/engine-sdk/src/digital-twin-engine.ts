@@ -3,6 +3,9 @@
  *
  * Owns the renderer, scene, camera, and a small interaction surface. Vue code
  * must go through this class and never import Three.js directly.
+ *
+ * Scheme C: `loadScene` places A-light placeholders immediately, then
+ * progressively replaces resolvable `modelId` nodes with GLB instances.
  */
 
 import {
@@ -16,6 +19,8 @@ import {
 
 import type { SceneSnapshot } from '@dt/contracts';
 
+import { createAssetCache, type AssetCache } from './asset-loader.js';
+import { upgradeSceneAssets } from './asset-upgrade.js';
 import {
   computeFitAll,
   computeFocusOnPoint,
@@ -23,7 +28,11 @@ import {
   type CameraPose,
 } from './camera-framing.js';
 import { applySelection, buildSceneGraph, type BuiltScene } from './scene-factory.js';
-import type { DigitalTwinEngine, EngineOptions } from './types.js';
+import type {
+  AssetLoadEvent,
+  DigitalTwinEngine,
+  EngineOptions,
+} from './types.js';
 
 const DEFAULT_CAMERA: [number, number, number] = [10, 8, 10];
 const DEFAULT_BACKGROUND = 0x0d1117;
@@ -41,6 +50,33 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
 
   const cameraPos = options.cameraPosition ?? DEFAULT_CAMERA;
   const background = options.background ?? DEFAULT_BACKGROUND;
+
+  const assetCache: AssetCache | null = options.assets
+    ? createAssetCache(options.assets)
+    : null;
+
+  let loadGeneration = 0;
+  let progressLoaded = 0;
+  let progressTotal = 0;
+  let progressActive = false;
+  const assetListeners = new Set<(ev: AssetLoadEvent) => void>();
+
+  function emitAsset(ev: AssetLoadEvent): void {
+    for (const listener of assetListeners) {
+      try {
+        listener(ev);
+      } catch {
+        // Host listeners must not break the engine loop.
+      }
+    }
+    if (ev.type === 'progress') {
+      progressLoaded = ev.loaded;
+      progressTotal = ev.total;
+      progressActive = ev.total > 0 && ev.loaded < ev.total;
+    } else if (ev.type === 'complete') {
+      progressActive = false;
+    }
+  }
 
   function ensureContainerSize(el: HTMLElement): { width: number; height: number } {
     const rect = el.getBoundingClientRect();
@@ -60,15 +96,6 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
     resizeObserver = new ResizeObserver(() => {
       if (!renderer || !camera || !container) return;
       const { width, height } = ensureContainerSize(el);
-      // V4 follow-up: pass `updateStyle = true` (the three.js default) so
-      // the renderer writes `canvas.style.width / height` in CSS pixels.
-      // The previous `false` left CSS untouched, so on retina displays
-      // (`devicePixelRatio >= 2`) the canvas element rendered at its
-      // backing-store size (e.g. 1680x1528 inside an 840x764 column)
-      // and overflowed the viewport column, covering the marketplace
-      // panel to the right. With style updated, the attribute size
-      // still tracks `devicePixelRatio` for sharpness, but the layout
-      // box snaps to the parent's CSS size.
       renderer.setSize(width, height);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -101,15 +128,6 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
 
       renderer = new WebGLRenderer({ antialias: options.antialias ?? true });
       renderer.setPixelRatio(window.devicePixelRatio);
-      // V4 follow-up: pass `updateStyle = true` (the three.js default) so
-      // the renderer writes `canvas.style.width / height` in CSS pixels.
-      // The previous `false` left CSS untouched, so on retina displays
-      // (`devicePixelRatio >= 2`) the canvas element rendered at its
-      // backing-store size (e.g. 1680x1528 inside an 840x764 column)
-      // and overflowed the viewport column, covering the marketplace
-      // panel to the right. With style updated, the attribute size
-      // still tracks `devicePixelRatio` for sharpness, but the layout
-      // box snaps to the parent's CSS size.
       renderer.setSize(width, height);
       renderer.setClearColor(new Color(background));
       el.appendChild(renderer.domElement);
@@ -136,6 +154,9 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
       if (!threeScene) {
         throw new Error('[engine-sdk] loadScene() called before mount()');
       }
+      loadGeneration += 1;
+      const generation = loadGeneration;
+
       if (builtScene) {
         threeScene.remove(builtScene.group);
         disposeGroup(builtScene.group);
@@ -143,9 +164,27 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
       builtScene = buildSceneGraph(scene);
       threeScene.add(builtScene.group);
       applySelection(builtScene.nodes, selectedNodeId);
+
+      if (!assetCache) {
+        emitAsset({ type: 'complete' });
+        return;
+      }
+
+      await upgradeSceneAssets({
+        built: builtScene,
+        scene,
+        cache: assetCache,
+        selectedId: selectedNodeId,
+        isCancelled: () => generation !== loadGeneration,
+        onEvent: emitAsset,
+      });
     },
 
     clearScene(): void {
+      loadGeneration += 1;
+      progressActive = false;
+      progressLoaded = 0;
+      progressTotal = 0;
       if (builtScene && threeScene) {
         threeScene.remove(builtScene.group);
         disposeGroup(builtScene.group);
@@ -185,15 +224,6 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
     resize(): void {
       if (!renderer || !camera || !container) return;
       const { width, height } = ensureContainerSize(container);
-      // V4 follow-up: pass `updateStyle = true` (the three.js default) so
-      // the renderer writes `canvas.style.width / height` in CSS pixels.
-      // The previous `false` left CSS untouched, so on retina displays
-      // (`devicePixelRatio >= 2`) the canvas element rendered at its
-      // backing-store size (e.g. 1680x1528 inside an 840x764 column)
-      // and overflowed the viewport column, covering the marketplace
-      // panel to the right. With style updated, the attribute size
-      // still tracks `devicePixelRatio` for sharpness, but the layout
-      // box snaps to the parent's CSS size.
       renderer.setSize(width, height);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -203,7 +233,21 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
       return selectedNodeId;
     },
 
+    getAssetLoadProgress(): number | null {
+      if (!progressActive) return null;
+      if (progressTotal === 0) return null;
+      return progressLoaded / progressTotal;
+    },
+
+    onAssetLoad(listener: (ev: AssetLoadEvent) => void): () => void {
+      assetListeners.add(listener);
+      return () => {
+        assetListeners.delete(listener);
+      };
+    },
+
     dispose(): void {
+      loadGeneration += 1;
       if (rafHandle !== null) {
         cancelAnimationFrame(rafHandle);
         rafHandle = null;
@@ -216,6 +260,8 @@ export function createEngine(options: EngineOptions = {}): DigitalTwinEngine {
         disposeGroup(builtScene.group);
       }
       builtScene = null;
+      assetCache?.clearTemplates();
+      assetListeners.clear();
 
       renderer?.dispose();
       if (renderer?.domElement.parentNode) {

@@ -11,6 +11,8 @@
       "settings": "Viewport settings (coming soon)"
     },
     "node": "node",
-    "nodes": "nodes"
+    "nodes": "nodes",
+    "assetsLoading": "Loading models… {percent}%",
+    "assetsFallback": "{count} using placeholder"
   }
 }

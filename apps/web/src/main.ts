@@ -25,12 +25,21 @@ import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/jetbrains-mono/400.css';
 
-import { AppShell, createAppRouter, provideApiClient } from '@dt/app-shell';
+import {
+  AppShell,
+  createAppRouter,
+  EngineOptionsKey,
+  provideApiClient,
+} from '@dt/app-shell';
 import { createApiClient } from '@dt/api-client';
 import { createPinia } from 'pinia';
 
 import { helloPlugin } from './plugins/hello/index.js';
 import { readEnv } from './env.js';
+import {
+  createViewportAssetSystem,
+  viewportEngineAssets,
+} from './viewport-catalog.js';
 
 async function main(): Promise<void> {
   const { bffUrl, authMode } = readEnv();
@@ -41,6 +50,16 @@ async function main(): Promise<void> {
   app.use(pinia);
   app.use(createAppRouter());
   provideApiClient(app, apiClient);
+
+  // Scheme C + ADR 0022: catalog → ensure/cache → engine resolveUrl/ensureLocalUrl.
+  try {
+    const assetSystem = await createViewportAssetSystem();
+    app.provide(EngineOptionsKey, {
+      assets: viewportEngineAssets(assetSystem),
+    });
+  } catch (err) {
+    console.warn('[web] viewport catalog unavailable; A-light only', err);
+  }
 
   // V4: hydrate user accent preference and write CSS variables
   // before mount so the first paint uses the saved brand color.

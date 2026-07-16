@@ -22,6 +22,12 @@ export interface SceneNode {
   type: SceneNodeType;
   position: [number, number, number];
   status?: DeviceStatus;
+  /**
+   * Optional viewport asset catalog id (Scheme C / ADR 0021).
+   * Host resolves id → GLB URL. Unknown / failed loads use
+   * engine A-light procedural fallback.
+   */
+  modelId?: string;
 }
 
 export interface SceneSnapshot {

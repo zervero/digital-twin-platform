@@ -20,6 +20,8 @@ const engineMocks = {
   resize: vi.fn(),
   dispose: vi.fn(),
   getSelectedNodeId: vi.fn(() => null as string | null),
+  getAssetLoadProgress: vi.fn(() => null as number | null),
+  onAssetLoad: vi.fn(() => () => undefined),
 };
 
 vi.mock('@dt/engine-sdk', () => ({
@@ -136,5 +138,21 @@ describe('SceneViewport tool strips', () => {
     await flushPromises();
 
     expect(engineMocks.clearScene).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows asset progress overlay while models load', async () => {
+    let listener: ((ev: { type: string; loaded?: number; total?: number }) => void) | null =
+      null;
+    engineMocks.onAssetLoad.mockImplementation((fn) => {
+      listener = fn as typeof listener;
+      return () => undefined;
+    });
+    engineMocks.loadScene.mockImplementation(async () => {
+      listener?.({ type: 'progress', loaded: 1, total: 4 });
+    });
+
+    const { wrapper } = await mountViewport();
+    await flushPromises();
+    expect(wrapper.text()).toMatch(/Loading models/);
   });
 });

@@ -287,15 +287,15 @@ after C0–C2 are accepted — not in the same first delivery.
 
 ## §11 — Acceptance
 
-- [ ] ADR accepted (new or amended) stating engine may load GLB via host-resolved URLs
-- [ ] `SceneNode.modelId?` in contracts + demo data populated for acme machines
-- [ ] Default catalog + ≥1 machine + ≥1 sensor GLB served by web
+- [x] ADR accepted (new or amended) stating engine may load GLB via host-resolved URLs
+- [x] `SceneNode.modelId?` in contracts + demo data populated for acme machines
+- [x] Default catalog + ≥1 machine + ≥1 sensor GLB served by web
 - [ ] `/ops` shows high-fidelity models for mapped nodes under mock/OIDC login
-- [ ] Unknown/failing asset → procedural fallback without crashing stage
-- [ ] Selection + status still obvious; camera helpers work
+- [x] Unknown/failing asset → procedural fallback without crashing stage
+- [x] Selection + status still obvious; camera helpers work
 - [ ] Logout clears instance graphs; no permanent GPU leak in manual soak
-- [ ] `engine-sdk` unit tests + typecheck green; app-shell SceneViewport tests green
-- [ ] Docs: engine-sdk.md + viewport assets guide + AGENTS/ADR satisfied
+- [x] `engine-sdk` unit tests + typecheck green; app-shell SceneViewport tests green
+- [x] Docs: engine-sdk.md + viewport assets guide + AGENTS/ADR satisfied
 
 ## §12 — Open questions
 

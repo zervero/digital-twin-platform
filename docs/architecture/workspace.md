@@ -12,7 +12,11 @@ The contract is enforced socially in V1 (no automated boundary check) and
 will be enforced by a tooling check in V2. The allowed graph is:
 
 ```
-apps/web       -> app-shell, api-client, contracts, config
+apps/web       -> app-shell, api-client, contracts, config, asset-system
+#   Viewport kit bytes: apps/web/public/assets/viewport/ (dev fixtures).
+#   Catalog + ensure/cache live in @dt/asset-system; engine-sdk only gets
+#   resolveUrl + ensureLocalUrl (ADR 0021 / 0022). Production desktop should
+#   inject a disk ByteCache + CDN URLs (do not ship large GLBs in the installer).
 apps/desktop   -> apps/web (built), contracts
 apps/bff       -> contracts
 app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scene-domain, realtime, plugin-runtime
@@ -41,6 +45,7 @@ app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scen
     #     overview/org/assets/models/alarms stay out of the side nav
     #     until honest BFF exists (no “建设中” stubs in release).
 engine-sdk     -> contracts, three
+asset-system   -> (none local; host byte catalog / cache — ADR 0022)
 api-client     -> contracts
 device-domain  -> contracts
 scene-domain   -> contracts
@@ -60,6 +65,8 @@ Forbidden edges:
 - `ui-kit` must not depend on `api-client` or `engine-sdk`.
 - Domain packages must not depend on Vue or Three.js.
 - `engine-sdk` must not depend on Vue, the BFF, or any app code.
+- `asset-system` must not depend on Vue, Three.js, `engine-sdk`, or app code
+  (byte catalog only; disk I/O is injected via `ByteCache` / `DiskCacheIo`).
 - `@dt/tenant` must not depend on `@dt/auth-oidc` (or any
   other package that does I/O); the BFF composes the two
   at the route layer. This keeps the package a pure
@@ -82,7 +89,8 @@ Forbidden edges:
 | `@dt/api-client` | Platform | contracts | Typed BFF client. V4 T11: `listUsers` / `setUserRoles` / `listAuditEvents`. |
 | `@dt/device-domain` | Platform | contracts | Status labels, sorting, filtering, ops device-tree grouping (`buildDeviceTree`). |
 | `@dt/scene-domain` | Platform | contracts | Scene normalization & queries. |
-| `@dt/engine-sdk` | Engine | contracts, three | Three.js renderer behind SDK API. |
+| `@dt/engine-sdk` | Engine | contracts, three | Three.js renderer behind SDK API; optional host-resolved GLB load (ADR 0021). |
+| `@dt/asset-system` | Platform | — | Host byte catalog: manifest, versioned cache, download, ensureLocalUrl (ADR 0022). No Three/Vue. |
 | `@dt/ui-kit` | UI | contracts | Presentational Vue components. |
 | `@dt/app-shell` | UI | ui-kit, engine-sdk, api-client, domain, contracts | Layout, stores, vue-router workspaces (`/ops`, `/admin/*`), panel/viewport wiring. |
 | `@dt/realtime` | V2 | contracts | Stream interfaces + in-memory mock. |

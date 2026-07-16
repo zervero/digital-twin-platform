@@ -13,7 +13,11 @@ import type { MeshStandardMaterial } from 'three';
 import type { SceneSnapshot } from '@dt/contracts';
 
 import { STATUS_COLORS, SELECTION_COLOR } from '../colors.js';
-import { applySelection, buildSceneGraph } from '../scene-factory.js';
+import {
+  applySelection,
+  buildSceneGraph,
+  findStatusLamp,
+} from '../scene-factory.js';
 
 const scene: SceneSnapshot = {
   id: 'scene-1',
@@ -32,7 +36,7 @@ describe('@dt/engine-sdk state', () => {
     expect(colors.size).toBe(4);
   });
 
-  it('builds one mesh per node', () => {
+  it('builds one root per node', () => {
     const built = buildSceneGraph(scene);
     expect(built.nodes.size).toBe(3);
   });
@@ -43,18 +47,19 @@ describe('@dt/engine-sdk state', () => {
     expect(m1?.userData).toMatchObject({ nodeId: 'm-1', status: 'online' });
   });
 
-  it('positions meshes by node.position', () => {
+  it('positions roots by node.position', () => {
     const built = buildSceneGraph(scene);
     const s1 = built.nodes.get('s-1');
     expect(s1?.position.x).toBe(0);
+    expect(s1?.position.y).toBe(1);
     expect(s1?.position.z).toBe(0);
   });
 
-  it('tints selected mesh with the selection color and others with their status', () => {
+  it('tints selected lamp with the selection color and others with their status', () => {
     const built = buildSceneGraph(scene);
     applySelection(built.nodes, 'm-2');
-    const selected = built.nodes.get('m-2')?.material as MeshStandardMaterial;
-    const other = built.nodes.get('m-1')?.material as MeshStandardMaterial;
+    const selected = findStatusLamp(built.nodes.get('m-2')!)!.material as MeshStandardMaterial;
+    const other = findStatusLamp(built.nodes.get('m-1')!)!.material as MeshStandardMaterial;
     expect(selected.color.getHex()).toBe(SELECTION_COLOR);
     expect(other.color.getHex()).toBe(STATUS_COLORS.online);
   });
@@ -63,7 +68,7 @@ describe('@dt/engine-sdk state', () => {
     const built = buildSceneGraph(scene);
     applySelection(built.nodes, 'm-2');
     applySelection(built.nodes, null);
-    const m2 = built.nodes.get('m-2')?.material as MeshStandardMaterial;
+    const m2 = findStatusLamp(built.nodes.get('m-2')!)!.material as MeshStandardMaterial;
     expect(m2.color.getHex()).toBe(STATUS_COLORS.alarm);
   });
 
@@ -77,7 +82,7 @@ describe('@dt/engine-sdk state', () => {
       ],
     };
     const built = buildSceneGraph(partial);
-    const mesh = built.nodes.get('x')?.material as MeshStandardMaterial;
-    expect(mesh.color.getHex()).toBe(STATUS_COLORS.offline);
+    const lamp = findStatusLamp(built.nodes.get('x')!)!.material as MeshStandardMaterial;
+    expect(lamp.color.getHex()).toBe(STATUS_COLORS.offline);
   });
 });
