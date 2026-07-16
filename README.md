@@ -58,31 +58,37 @@ pnpm build        # production builds
 
 ```
 apps/
-  web/        # Browser app (Vue 3 + Vite)
+  web/        # Browser app (Vue 3 + Vite); serves viewport kit under public/assets/
   desktop/    # Tauri desktop shell
   bff/        # Node.js BFF service
 packages/
   contracts/        # Shared DTOs and event names
-  engine-sdk/       # Three.js engine SDK
+  engine-sdk/       # Three.js engine SDK (GLB decode + A-light fallback)
+  asset-system/     # Host byte catalog: manifest, versioned download/cache
   scene-domain/     # Scene business model
   device-domain/    # Device business model
   api-client/       # Typed BFF client
   ui-kit/           # Presentational Vue components
   app-shell/        # Shared composition: layout, stores, panels
-  realtime/         # V2 boundary: stream interfaces
-  plugin-runtime/   # V2 boundary: plugin manifest and registration
-  ai-agent/         # V3 boundary: command intent types
-  observability/    # V2 boundary: logger
+  i18n/             # Localization dictionaries (en + zh-CN)
+  realtime/         # Stream interfaces
+  plugin-runtime/   # Plugin manifest and registration
+  plugin-registry/  # Marketplace plugin index model
+  auth-oidc/        # OIDC verify helpers
+  tenant/           # Multi-tenant claim helpers
+  ai-agent/         # Command intent types
+  observability/    # Logger
+  otel/             # OpenTelemetry wiring
   config/           # Shared config helpers
 tooling/
   tsconfig/   # Shared tsconfig presets
 docs/
   architecture/  # Overview, workspace, engine SDK
   adr/           # Architecture decision records
-  development/   # Local dev guide
+  development/   # Local dev + viewport assets guides
 ```
 
-See [docs/architecture/workspace.md](docs/architecture/workspace.md) for package boundaries and dependency rules.
+See [docs/architecture/workspace.md](docs/architecture/workspace.md) for package boundaries and dependency rules. Viewport GLB catalog / cache flow: [docs/development/viewport-assets.md](docs/development/viewport-assets.md) (ADR 0021 / 0022).
 
 ## License
 

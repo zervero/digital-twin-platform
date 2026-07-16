@@ -71,6 +71,7 @@ pnpm --filter @dt/device-domain test
 pnpm --filter @dt/scene-domain test
 pnpm --filter @dt/api-client test
 pnpm --filter @dt/engine-sdk test
+pnpm --filter @dt/asset-system test
 pnpm --filter @dt/bff dev
 pnpm --filter @dt/web dev
 pnpm --filter @dt/desktop dev
@@ -80,31 +81,37 @@ pnpm --filter @dt/desktop dev
 
 ```
 apps/
-  web/        # 浏览器应用（Vue 3 + Vite）
+  web/        # 浏览器应用（Vue 3 + Vite）；视口资源在 public/assets/
   desktop/    # Tauri 桌面壳
   bff/        # Node.js BFF 服务
 packages/
   contracts/        # 共享 DTO 与事件名
-  engine-sdk/       # Three.js 引擎 SDK
+  engine-sdk/       # Three.js 引擎 SDK（GLB 解码 + A-light 回退）
+  asset-system/     # 宿主字节目录：清单、版本化下载与缓存
   scene-domain/     # 场景业务模型
   device-domain/    # 设备业务模型
   api-client/       # 类型化 BFF 客户端
   ui-kit/           # 展示型 Vue 组件
   app-shell/        # 共享组合层：布局、stores、面板
-  realtime/         # V2 边界：流接口
-  plugin-runtime/   # V2 边界：插件清单与注册
-  ai-agent/         # V3 边界：命令意图类型
-  observability/    # V2 边界：日志
+  i18n/             # 本地化词典（en + zh-CN）
+  realtime/         # 流接口
+  plugin-runtime/   # 插件清单与注册
+  plugin-registry/  # 市场插件索引模型
+  auth-oidc/        # OIDC 校验辅助
+  tenant/           # 多租户 claim 辅助
+  ai-agent/         # 命令意图类型
+  observability/    # 日志
+  otel/             # OpenTelemetry 接入
   config/           # 共享配置工具
 tooling/
   tsconfig/   # 共享 tsconfig 预设
 docs/
   architecture/  # 概览、工作区、引擎 SDK
   adr/           # 架构决策记录
-  development/   # 本地开发指南
+  development/   # 本地开发与视口资源指南
 ```
 
-包边界与依赖规则见 [docs/architecture/workspace.md](docs/architecture/workspace.md)。
+包边界与依赖规则见 [docs/architecture/workspace.md](docs/architecture/workspace.md)。视口 GLB 目录 / 缓存流程：[docs/development/viewport-assets.md](docs/development/viewport-assets.md)（ADR 0021 / 0022）。
 
 ## 环境变量
 
