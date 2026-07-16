@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.6.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.5.3...digital-twin-platform-v4.6.0) (2026-07-16)
+
+
+### Features
+
+* **viewport:** ship Scheme C glTF pipeline and asset-system ([3386358](https://github.com/zervero/digital-twin-platform/commit/33863581091c9418ad7c2920fdec69ee911d77c8))
+
 ## [4.5.3](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.5.2...digital-twin-platform-v4.5.3) (2026-07-13)
 
 
