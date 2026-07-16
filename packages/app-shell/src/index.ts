@@ -2,9 +2,10 @@
  * @dt/app-shell
  *
  * Shared composition layer used by both the web and the desktop app. Owns
- * Pinia stores, the layout, and the wiring between UI panels and the engine
- * SDK. Consumers must inject an `ApiClient` via `provideApiClient(app, client)`
- * before mounting `AppShell`.
+ * Pinia stores, vue-router workspaces (`/ops`, `/admin/*`), the layout, and
+ * the wiring between UI panels and the engine SDK. Consumers must inject an
+ * `ApiClient` via `provideApiClient(app, client)` and install the router via
+ * `app.use(createAppRouter())` before mounting `AppShell`.
  */
 
 import { createApp, type App } from 'vue';
@@ -21,13 +22,26 @@ export { useDeviceStore } from './stores/device-store.js';
 export { useSceneStore } from './stores/scene-store.js';
 export { useAuthStore } from './stores/auth-store.js';
 export { usePluginStore } from './stores/plugin-store.js';
+export {
+  useAppearanceStore,
+  APPEARANCE_STORAGE_KEY,
+} from './stores/appearance-store.js';
 export { provideApiClient, ApiClientKey } from './stores/api-store.js';
+export { EngineOptionsKey } from './injection/engine-options.js';
+export { applyAccent, contrastRatio, isAccentUsable } from './theme/apply-accent.js';
+export {
+  ACCENT_PRESETS,
+  DEFAULT_ACCENT_ID,
+  findAccentPreset,
+} from './theme/accent-presets.js';
+export type { AccentPreset } from './theme/accent-presets.js';
 export { default as DevicePanel } from './components/DevicePanel.vue';
+export { default as DeviceTreePanel } from './components/DeviceTreePanel.vue';
+export { default as DeviceDetailDrawer } from './components/DeviceDetailDrawer.vue';
 export { default as SceneViewport } from './components/SceneViewport.vue';
 export { default as TopToolbar } from './components/TopToolbar.vue';
 export { default as PluginPanelHost } from './components/PluginPanelHost.vue';
-export { default as MarketplacePanel } from './components/MarketplacePanel.vue';
-export { useDeviceStream } from './composables/useDeviceStream.js';
+export { default as MarketplacePanel } from './components/MarketplacePanel.vue';export { useDeviceStream } from './composables/useDeviceStream.js';
 export { useCurrentUser } from './composables/useCurrentUser.js';
 export { useOIDCStart, AuthModeKey, BffBaseUrlKey } from './composables/useOIDCStart.js';
 export type { AuthMode } from './composables/useOIDCStart.js';
@@ -36,19 +50,28 @@ export { usePluginPanels } from './composables/usePluginPanels.js';
 export {
   useMarketplaceInstall,
   createFetchMarketplaceApi,
+  isOfficialCatalogVendor,
 } from './composables/useMarketplaceInstall.js';
 export type {
   MarketplaceApi,
   UseMarketplaceInstallHandle,
+  CatalogPlugin,
+  CatalogPluginVersion,
 } from './composables/useMarketplaceInstall.js';
+export { useAdminMarketplace } from './composables/useAdminMarketplace.js';
+export type {
+  MarketplaceFilterId,
+  UseAdminMarketplaceHandle,
+} from './composables/useAdminMarketplace.js';
 export { usePluginMenu } from './composables/usePluginMenu.js';
 export { default as LoginButton } from './components/LoginButton.vue';
+export { createAppRouter, adminNavigationGuard, routes } from './router/index.js';
 
 /**
- * Bootstrap helper. Creates a Vue app, installs Pinia, provides the API
- * client, hydrates the auth store from sessionStorage + /api/auth/me,
- * activates any registered plugins, and mounts `AppShell` into the
- * given host element.
+ * Bootstrap helper. Creates a Vue app, installs Pinia + vue-router,
+ * provides the API client, hydrates the auth store from sessionStorage
+ * + /api/auth/me, activates any registered plugins, and mounts
+ * `AppShell` into the given host element.
  *
  * Activation order matters: auth hydration must finish before plugin
  * activation so the permission gate has current-user state. The
@@ -65,10 +88,12 @@ export async function bootstrapAppShell(opts: {
   const { useAuthStore } = await import('./stores/auth-store.js');
   const { usePluginStore } = await import('./stores/plugin-store.js');
   const { createPluginRegistry } = await import('@dt/plugin-runtime');
+  const { createAppRouter } = await import('./router/index.js');
 
   const app = createApp(AppShell);
   const pinia = createPinia();
   app.use(pinia);
+  app.use(createAppRouter());
   provideApiClient(app, opts.apiClient);
 
   // 1. Hydrate auth from sessionStorage + /api/auth/me.

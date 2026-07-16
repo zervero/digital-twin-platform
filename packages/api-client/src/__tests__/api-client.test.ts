@@ -244,3 +244,62 @@ describe('getAuthToken (V3.5 Track K T8.2)', () => {
     expect(client.getAuthToken()).toBe('mock-from-login');
   });
 });
+
+describe('api-client admin methods (V4 T11)', () => {
+  it('listUsers hits GET /api/admin/users', async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(
+      makeJsonResponse({
+        users: [
+          {
+            id: 'user-a',
+            displayName: 'a',
+            email: 'a@x',
+            roles: ['admin'],
+          },
+        ],
+      }),
+    );
+    const client = createApiClient({ baseUrl: 'http://example.test', fetchImpl });
+    client.setAuthToken('tok');
+    const res = await client.listUsers();
+    expect(res.users).toHaveLength(1);
+    expect(fetchImpl).toHaveBeenCalledWith(
+      'http://example.test/api/admin/users',
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+
+  it('setUserRoles PATCHes roles', async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(
+      makeJsonResponse({
+        user: {
+          id: 'user-a',
+          displayName: 'a',
+          email: 'a@x',
+          roles: ['viewer'],
+        },
+      }),
+    );
+    const client = createApiClient({ baseUrl: 'http://example.test', fetchImpl });
+    client.setAuthToken('tok');
+    const res = await client.setUserRoles('user-a', { roles: ['viewer'] });
+    expect(res.user.roles).toEqual(['viewer']);
+    const [url, init] = fetchImpl.mock.calls[0]!;
+    expect(url).toBe('http://example.test/api/admin/users/user-a/roles');
+    expect(init?.method).toBe('PATCH');
+    expect(init?.body).toBe(JSON.stringify({ roles: ['viewer'] }));
+  });
+
+  it('listAuditEvents forwards pagination query params', async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(
+      makeJsonResponse({ items: [], total: 0, page: 2, pageSize: 10 }),
+    );
+    const client = createApiClient({ baseUrl: 'http://example.test', fetchImpl });
+    client.setAuthToken('tok');
+    await client.listAuditEvents({ page: 2, pageSize: 10, type: 'plugin.publish' });
+    expect(fetchImpl).toHaveBeenCalledWith(
+      'http://example.test/api/admin/audit?page=2&pageSize=10&type=plugin.publish',
+      expect.any(Object),
+    );
+  });
+});

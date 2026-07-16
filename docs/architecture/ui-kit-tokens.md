@@ -27,9 +27,55 @@ V1 — no new tooling, no new build step, no new dependency direction.
 Add a single CSS file at
 [`packages/ui-kit/src/styles/tokens.css`](../../packages/ui-kit/src/styles/tokens.css)
 that defines the visual language as CSS custom properties on `:root`,
-and have the five components reference `var(--dt-*)` instead of
+and have the presentational components reference `var(--dt-*)` instead of
 literal values. The tokens are consumed by importing
 `@dt/ui-kit/styles` once at the application entry point.
+
+### Components (current)
+
+| Component | Role | Selected / accent note |
+| --- | --- | --- |
+| `DtButton` | Actions | Primary fill uses `var(--dt-accent-primary)` |
+| `DtPanel` | Surface chrome | Borders / surfaces only |
+| `DtStatusBadge` | Device status chip | Status tokens (`--dt-status-*`) |
+| `DtToolbar` | Top chrome row | Surfaces / borders |
+| `DtEmptyState` | Empty placeholder | Text / muted tokens |
+| `DtIcon` | Lucide wrapper | `currentColor` |
+| `DtSegmentedControl` | Exclusive option group | Selected option uses `var(--dt-accent-primary)` (runtime-variable accent) |
+| `DtTabs` | Tablist + panel | Active tab underline / label uses `var(--dt-accent-primary)` |
+| `DtSideNav` | Vertical nav list | Active item fill uses `var(--dt-accent-primary)` |
+| `DtStatCard` | KPI tile | Trend colors use status / danger tokens; no accent fill |
+| `DtTree` | Recursive device / hierarchy tree | Selected row uses `var(--dt-accent-primary)`; status dots use `--dt-status-*` |
+| `DtAppCard` | Marketplace / plugin card | Surfaces / borders / text tokens; primary action via `DtButton` |
+| `DtToolStrip` | Horizontal icon toolbar | Active button uses `var(--dt-accent-primary)` |
+| `DtDialog` | Modal dialog | Surfaces / borders / overlay; no fixed brand hex |
+
+Accent is not a fixed hex in these components: selected interactive
+states read `var(--dt-accent-primary)`, which apps may override at
+runtime (see [Accent override contract](#accent-override-contract-v4)).
+
+### Accent override contract (V4)
+
+`@dt/ui-kit` owns the **default** accent values in `tokens.css`.
+`@dt/app-shell` owns the **runtime preference** that rewrites brand
+accent for the signed-in session (and anonymous users who pick a
+preset before login).
+
+| Concern | Owner | Detail |
+| --- | --- | --- |
+| Default tokens | `packages/ui-kit/src/styles/tokens.css` | `--dt-accent-primary`, `--dt-accent-primary-hover`, secondary / danger accents |
+| Apply helper | `packages/app-shell/src/theme/apply-accent.ts` | Writes `--dt-accent-primary` (+ optional hover) on `document.documentElement`; rejects hex that fails WCAG AA (≥4.5:1) against white primary-button labels |
+| Preference store | `packages/app-shell/src/stores/appearance-store.ts` | Preset id or custom hex; persists under `localStorage` key `dt.appearance.v1` |
+| Settings UI | Appearance dialog (`AppearanceSettingsDialog`) | Opened from admin left nav **and** toolbar appearance button (**including anonymous**); deep links `/settings/appearance` (→ dialog + `/ops`) and `/admin/appearance` (admin → dialog + marketplace) |
+| Must not rewrite | `--dt-status-*`, danger / semantic accents used for alarms | Status chips and alarm semantics stay fixed when brand accent changes |
+
+Rules for new presentational components:
+
+1. Selected / active interactive fills and underlines use
+   `var(--dt-accent-primary)` (or `-hover`), never a hard-coded brand hex.
+2. Online / offline / warning / alarm use `--dt-status-*` only.
+3. Do not import `@dt/api-client` or `@dt/engine-sdk` from ui-kit; accent
+   application stays in app-shell.
 
 ### Token categories
 
@@ -149,5 +195,11 @@ example.
 
 - Components: `packages/ui-kit/src/components/`
 - Token source: `packages/ui-kit/src/styles/tokens.css`
+- Accent apply helper: `packages/app-shell/src/theme/apply-accent.ts`
+- Appearance store: `packages/app-shell/src/stores/appearance-store.ts`
+- Appearance dialog: `packages/app-shell/src/components/AppearanceSettingsDialog.vue`
+  (form: `AppearanceSettingsForm.vue`; presentational modal: `DtDialog`)
 - Workspace boundary: `docs/architecture/workspace.md`
 - ADR 0006 (V1 closure): `docs/adr/0006-v1-closure.md`
+- ADR 0020 (V4 product shell + appearance-dialog amendment):
+  `docs/adr/0020-v4-ui-product-shell.md`

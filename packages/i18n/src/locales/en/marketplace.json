@@ -10,6 +10,33 @@
     "loadingInstalled": "Loading installed plugins…",
     "empty": "No installed plugins yet.",
     "pluginId": "Plugin id",
-    "versions": "versions"
+    "versions": "versions",
+    "tagInstalled": "Installed",
+    "filter": {
+      "all": "All",
+      "official": "Official",
+      "thirdParty": "Third-party",
+      "installed": "Mine"
+    },
+    "admin": {
+      "title": "App marketplace",
+      "subtitle": "Browse catalog plugins and install them for this factory.",
+      "emptyHint": "Publish a plugin first, or switch filters to see more."
+    },
+    "installed": {
+      "title": "Installed plugins",
+      "subtitle": "Activate or remove versions installed for this factory.",
+      "emptyHint": "Install a plugin from the marketplace to see it here."
+    },
+    "publish": {
+      "title": "Publish plugin",
+      "subtitle": "Add a signed plugin version to the local registry.",
+      "name": "Display name",
+      "vendor": "Vendor",
+      "description": "Description",
+      "artifact": "Artifact (base64)",
+      "submit": "Publish",
+      "success": "Published {id}@{version}."
+    }
   }
 }

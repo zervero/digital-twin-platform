@@ -43,6 +43,14 @@ export const useSceneStore = defineStore('dt:scene', () => {
     }
   }
 
+  /** Drop the in-memory scene (logout / tenant loss). Does not touch the API. */
+  function clear(): void {
+    snapshot.value = null;
+    selectedNodeId.value = null;
+    error.value = null;
+    loading.value = false;
+  }
+
   function selectNode(id: string | null): void {
     selectedNodeId.value = id;
   }
@@ -54,6 +62,7 @@ export const useSceneStore = defineStore('dt:scene', () => {
     loading,
     error,
     load,
+    clear,
     selectNode,
   };
 });

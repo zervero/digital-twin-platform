@@ -22,19 +22,30 @@ export type {
   CommandAcceptedResponse,
 } from './api.js';
 
-// Auth (V2.1, extended in V3.3 + V3.4)
+// Auth (V2.1, extended in V3.3 + V3.4 + V4 T11)
 export type {
   AuthErrorCode,
   AuthSession,
   AuthState,
+  ListUsersResponse,
   LoginRequest,
   LoginResponse,
   MeResponse,
   Permission,
   Role,
+  SetUserRolesRequest,
+  SetUserRolesResponse,
   User,
 } from './auth.js';
 export { ALL_PERMISSIONS, ROLE_PERMISSIONS, permissionsFor } from './auth.js';
+
+// Audit (V4 T11)
+export type {
+  AuditEvent,
+  AuditEventType,
+  ListAuditEventsResponse,
+} from './audit.js';
+export { AUDIT_EVENT_TYPES } from './audit.js';
 
 // Plugin contract (V3.4: shape moved here from @dt/plugin-runtime
 // so the marketplace DTOs in `plugins.ts` can reference it without

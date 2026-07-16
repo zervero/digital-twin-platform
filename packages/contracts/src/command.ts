@@ -4,6 +4,10 @@
  * V1 keeps commands as a discriminated union so the BFF can dispatch them
  * without knowing the UI shape. Each command carries a stable `type` and an
  * `id` for traceability.
+ *
+ * Device-action variants (`acknowledge-alarm`, `reset-device`,
+ * `request-maintenance`) support V4 ops drawer role actions gated by
+ * `command:send`.
  */
 
 /**
@@ -17,6 +21,9 @@
 export type DigitalTwinCommand =
   | { id: string; tenantId: string; type: 'select'; nodeId: string }
   | { id: string; tenantId: string; type: 'focus'; nodeId: string }
-  | { id: string; tenantId: string; type: 'reset-view' };
+  | { id: string; tenantId: string; type: 'reset-view' }
+  | { id: string; tenantId: string; type: 'acknowledge-alarm'; deviceId: string }
+  | { id: string; tenantId: string; type: 'reset-device'; deviceId: string }
+  | { id: string; tenantId: string; type: 'request-maintenance'; deviceId: string };
 
 export type DigitalTwinCommandType = DigitalTwinCommand['type'];

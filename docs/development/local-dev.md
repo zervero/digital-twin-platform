@@ -118,6 +118,24 @@ Desktop (Tauri):
 ## Running the dev stack with OIDC
 
 `pnpm dev` defaults to `AUTH_PROVIDER=mock` (V2.3 behavior).
+
+### Mock login as operator (ops device actions)
+
+Toolbar login defaults to `viewer`. To exercise device actions in the
+ops drawer, mint an operator session from the browser console (BFF on
+http://localhost:3001):
+
+```js
+const res = await fetch('http://localhost:3001/api/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email: 'op@example.com', roles: ['operator'] }),
+});
+const { session } = await res.json();
+sessionStorage.setItem('dt:auth:token', session.token);
+location.reload();
+```
+
 To exercise the V3.0 OIDC code path locally:
 
 ```bash
@@ -152,6 +170,12 @@ packages/        # Shared libraries
 tooling/         # tsconfig presets
 docs/            # Architecture, ADRs, dev guides
 ```
+
+Viewport GLB kit (Scheme C) lives under
+`apps/web/public/assets/viewport/` — see
+[viewport-assets.md](./viewport-assets.md). Byte download/cache is owned by
+`@dt/asset-system` (ensure → local URL → engine decode). After `pnpm dev`,
+login and open `/ops` to see placeholders swap to CNC/sensor models.
 
 ## Adding a new package
 

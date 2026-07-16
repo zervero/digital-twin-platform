@@ -1,6 +1,7 @@
 /**
  * Auth contract for V2.1, extended in V3.3 (tenant identity
- * on `AuthSession`) and V3.4 (marketplace permissions).
+ * on `AuthSession`), V3.4 (marketplace permissions), and
+ * V4 T11 (admin user / audit permissions + DTOs).
  *
  * Discriminated `AuthState` keeps consumers honest about the three
  * real states the UI cares about (logged out, logged in, session
@@ -13,6 +14,9 @@
  * roles that should grant them. Older auth contracts that
  * exhaustively switch on the V3.3 union need a compile-time
  * bump to add the new cases.
+ *
+ * V4 T11 adds `admin:users` / `admin:audit` (admin-only)
+ * plus list / role-assignment DTOs for `/api/admin/users`.
  */
 
 export type Role = 'admin' | 'operator' | 'viewer';
@@ -32,7 +36,12 @@ export type Permission =
   // what enforces the gate at the route layer.
   | 'plugin:read'
   | 'plugin:install'
-  | 'plugin:publish';
+  | 'plugin:publish'
+  // V4 T11: admin console permissions. Only the admin
+  // role grants these; the BFF gates `/api/admin/users`
+  // and `/api/admin/audit` on them via requiresTenantScope.
+  | 'admin:users'
+  | 'admin:audit';
 
 /**
  * Canonical, ordered list of every Permission value.
@@ -55,6 +64,8 @@ export const ALL_PERMISSIONS = [
   'plugin:read',
   'plugin:install',
   'plugin:publish',
+  'admin:users',
+  'admin:audit',
 ] as const satisfies readonly Permission[];
 
 /**
@@ -68,6 +79,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     'scene:read', 'scene:write',
     'command:send', 'auth:login',
     'plugin:read', 'plugin:install', 'plugin:publish',
+    'admin:users', 'admin:audit',
   ],
   operator: [
     'device:read', 'device:write',
@@ -172,3 +184,26 @@ export type AuthErrorCode =
    * attempts vs missing-permission attempts.
    */
   | 'TENANT_FORBIDDEN';
+
+/**
+ * V4 T11: response for `GET /api/admin/users`.
+ * Users are scoped to the caller's tenant at the BFF.
+ */
+export interface ListUsersResponse {
+  users: User[];
+}
+
+/**
+ * V4 T11: body for `PATCH /api/admin/users/:id/roles`.
+ * Replaces the target user's role set entirely.
+ */
+export interface SetUserRolesRequest {
+  roles: Role[];
+}
+
+/**
+ * V4 T11: response for a successful role assignment.
+ */
+export interface SetUserRolesResponse {
+  user: User;
+}

@@ -278,6 +278,7 @@ When you delegate a task to an AI agent:
 ## Related guides
 
 - [Local development](./local-dev.md) — how to run `pnpm dev` on a fresh checkout.
+- [Viewport GLB assets](./viewport-assets.md) — Scheme C catalog, `@dt/asset-system` ensure/cache, licenses.
 - [Deployment](./deployment.md) — production-shape Dockerfiles, compose stack,
   env vars, health checks, graceful shutdown, pre-release pre-flight.
 - [OIDC](./oidc.md) — `AUTH_PROVIDER=oidc`, dev IdP, production env vars,
@@ -291,6 +292,18 @@ When you delegate a task to an AI agent:
 - [V3 overview](../plans/v3-overview.md) — V3 (real auth + production platform +
   Tauri releases + multi-tenant + plugin marketplace) tracks, ordering,
   open questions.
+- [UI product redesign (V4)](../plans/2026-07-14-ui-product-redesign-design.md)
+  — ops/admin IA (mode switch **admin-only**; viewer/operator stay on
+  `/ops` with no mode chrome), accent preference (shared appearance
+  **dialog**: admin left nav + toolbar for anonymous/authenticated),
+  login **dialog** with pill trigger, ops drawer **设备动作** for
+  `command:send` ([ops role actions](../plans/2026-07-15-ops-role-actions-design.md)),
+  logout clears the 3D viewport; admin API parallel track;
+  implementation on `feat/ui-product-v4` per
+  [`2026-07-14-ui-product-redesign.md`](../plans/2026-07-14-ui-product-redesign.md);
+  shell decisions in [ADR 0020](../adr/0020-v4-ui-product-shell.md)
+  (includes appearance/login-dialog/ops-actions/mode-switch amendments).
+  Mock operator login: [local-dev.md](./local-dev.md#mock-login-as-operator-ops-device-actions).
 - [Multi-tenant data model](./multi-tenant.md) — V3.3 model, JWT claim
   shape, dev IdP `mint` flow, troubleshooting tree for the four
   tenant-boundary error codes.

@@ -14,11 +14,13 @@
   "dependencies": {
     "@dt/api-client": "workspace:*",
     "@dt/app-shell": "workspace:*",
+    "@dt/asset-system": "workspace:*",
     "@dt/contracts": "workspace:*",
     "@dt/plugin-runtime": "workspace:*",
     "@dt/ui-kit": "workspace:*",
     "pinia": "^2.2.6",
     "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8"
   },

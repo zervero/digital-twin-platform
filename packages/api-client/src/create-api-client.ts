@@ -18,10 +18,14 @@ import type {
   CommandAcceptedResponse,
   Device,
   DigitalTwinCommand,
+  ListAuditEventsResponse,
+  ListUsersResponse,
   LoginRequest,
   LoginResponse,
   MeResponse,
   SceneSnapshot,
+  SetUserRolesRequest,
+  SetUserRolesResponse,
 } from '@dt/contracts';
 
 import { ApiClientError } from './errors.js';
@@ -29,6 +33,12 @@ import { ApiClientError } from './errors.js';
 export interface ApiClientOptions {
   baseUrl: string;
   fetchImpl?: typeof fetch;
+}
+
+export interface ListAuditEventsParams {
+  page?: number;
+  pageSize?: number;
+  type?: string;
 }
 
 export interface ApiClient {
@@ -47,10 +57,16 @@ export interface ApiClient {
    * the client is anonymous.
    */
   getAuthToken(): string | null;
+  /** V4 T11: list users in the caller's tenant (admin). */
+  listUsers(): Promise<ListUsersResponse>;
+  /** V4 T11: replace a user's roles (admin). */
+  setUserRoles(userId: string, req: SetUserRolesRequest): Promise<SetUserRolesResponse>;
+  /** V4 T11: paginated audit events (admin). */
+  listAuditEvents(params?: ListAuditEventsParams): Promise<ListAuditEventsResponse>;
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST';
+  method?: 'GET' | 'POST' | 'PATCH';
   body?: unknown;
 }
 
@@ -138,5 +154,21 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       token = next;
     },
     getAuthToken: () => token,
+    listUsers: () => request<ListUsersResponse>('/api/admin/users'),
+    setUserRoles: (userId, body) =>
+      request<SetUserRolesResponse>(`/api/admin/users/${encodeURIComponent(userId)}/roles`, {
+        method: 'PATCH',
+        body,
+      }),
+    listAuditEvents: (params = {}) => {
+      const qs = new URLSearchParams();
+      if (params.page !== undefined) qs.set('page', String(params.page));
+      if (params.pageSize !== undefined) qs.set('pageSize', String(params.pageSize));
+      if (params.type) qs.set('type', params.type);
+      const query = qs.toString();
+      return request<ListAuditEventsResponse>(
+        `/api/admin/audit${query ? `?${query}` : ''}`,
+      );
+    },
   };
 }

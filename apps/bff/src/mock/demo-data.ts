@@ -55,14 +55,14 @@ export const DEMO_SCENE: SceneSnapshot = {
   nodes: [
     { id: 'factory-a', tenantId: 'acme-corp', name: 'Factory A', type: 'factory', position: [0, 0, 0] },
     { id: 'area-1', tenantId: 'acme-corp', name: 'Workshop 1', type: 'area', position: [4, 0, 0] },
-    { id: 'machine-1', tenantId: 'acme-corp', name: 'CNC-01', type: 'machine', position: [5, 0.5, 1], status: 'online' },
-    { id: 'sensor-1', tenantId: 'acme-corp', name: 'CNC-01 Temp', type: 'sensor', position: [5, 1.4, 1], status: 'online' },
-    { id: 'machine-2', tenantId: 'acme-corp', name: 'CNC-02', type: 'machine', position: [7, 0.5, 1], status: 'warning' },
-    { id: 'sensor-2', tenantId: 'acme-corp', name: 'CNC-02 Temp', type: 'sensor', position: [7, 1.4, 1], status: 'warning' },
-    { id: 'machine-3', tenantId: 'acme-corp', name: 'CNC-03', type: 'machine', position: [5, 0.5, 3], status: 'alarm' },
-    { id: 'sensor-3', tenantId: 'acme-corp', name: 'CNC-03 Temp', type: 'sensor', position: [5, 1.4, 3], status: 'alarm' },
-    { id: 'machine-4', tenantId: 'acme-corp', name: 'CNC-04', type: 'machine', position: [7, 0.5, 3], status: 'offline' },
-    { id: 'sensor-4', tenantId: 'acme-corp', name: 'CNC-04 Temp', type: 'sensor', position: [7, 1.4, 3], status: 'offline' },
+    { id: 'machine-1', tenantId: 'acme-corp', name: 'CNC-01', type: 'machine', position: [5, 0.5, 1], status: 'online', modelId: 'dt.machine.cnc-v1' },
+    { id: 'sensor-1', tenantId: 'acme-corp', name: 'CNC-01 Temp', type: 'sensor', position: [5, 1.4, 1], status: 'online', modelId: 'dt.sensor.probe-v1' },
+    { id: 'machine-2', tenantId: 'acme-corp', name: 'CNC-02', type: 'machine', position: [7, 0.5, 1], status: 'warning', modelId: 'dt.machine.cnc-v1' },
+    { id: 'sensor-2', tenantId: 'acme-corp', name: 'CNC-02 Temp', type: 'sensor', position: [7, 1.4, 1], status: 'warning', modelId: 'dt.sensor.probe-v1' },
+    { id: 'machine-3', tenantId: 'acme-corp', name: 'CNC-03', type: 'machine', position: [5, 0.5, 3], status: 'alarm', modelId: 'dt.machine.cnc-v1' },
+    { id: 'sensor-3', tenantId: 'acme-corp', name: 'CNC-03 Temp', type: 'sensor', position: [5, 1.4, 3], status: 'alarm', modelId: 'dt.sensor.probe-v1' },
+    { id: 'machine-4', tenantId: 'acme-corp', name: 'CNC-04', type: 'machine', position: [7, 0.5, 3], status: 'offline', modelId: 'dt.machine.cnc-v1' },
+    { id: 'sensor-4', tenantId: 'acme-corp', name: 'CNC-04 Temp', type: 'sensor', position: [7, 1.4, 3], status: 'offline', modelId: 'dt.sensor.probe-v1' },
   ],
 };
 
@@ -151,6 +151,7 @@ function buildScene(
         type: 'machine',
         position: [x, 0.5, z],
         status,
+        modelId: 'dt.machine.cnc-v1',
       },
       {
         id: sensorId,
@@ -159,6 +160,7 @@ function buildScene(
         type: 'sensor',
         position: [x, 1.4, z],
         status,
+        modelId: 'dt.sensor.probe-v1',
       },
     );
   });

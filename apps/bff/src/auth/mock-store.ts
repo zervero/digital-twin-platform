@@ -40,12 +40,22 @@ import {
   type User,
 } from '@dt/contracts';
 
+import type { TenantUserDirectory } from '../admin/user-directory.js';
 import { AuthError, type AuthStore } from './store.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export class MockAuthStore implements AuthStore {
   private readonly sessions = new Map<string, AuthSession>();
+
+  /**
+   * @param userDirectory V4 T11: optional admin user
+   *   directory. When provided, login upserts the minted
+   *   user so `/api/admin/users` stays in sync with the
+   *   session table. Construction does not seed; callers
+   *   (`buildApp`) call `seedDemoUsers()` once.
+   */
+  constructor(private readonly userDirectory?: TenantUserDirectory) {}
 
   async login(req: LoginRequest): Promise<LoginResponse> {
     if (!EMAIL_RE.test(req.email)) {
@@ -77,6 +87,9 @@ export class MockAuthStore implements AuthStore {
       tenantId: 'acme-corp',
     };
     this.sessions.set(session.token, session);
+    // V4 T11: keep the admin user directory aligned with
+    // newly minted mock users.
+    this.userDirectory?.upsert(session.tenantId!, user);
     return { session };
   }
 
@@ -90,6 +103,14 @@ export class MockAuthStore implements AuthStore {
   async logout(headers: Headers): Promise<void> {
     const token = extractBearer(headers.get('authorization'));
     if (token) this.sessions.delete(token);
+  }
+
+  async updateUserRoles(userId: string, roles: readonly Role[]): Promise<void> {
+    for (const session of this.sessions.values()) {
+      if (session.user.id === userId) {
+        session.user = { ...session.user, roles: [...roles] };
+      }
+    }
   }
 }
 

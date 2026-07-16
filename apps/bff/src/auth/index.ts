@@ -16,6 +16,7 @@
 
 import type { AppEnv } from '@dt/config';
 
+import type { TenantUserDirectory } from '../admin/user-directory.js';
 import { MockAuthStore } from './mock-store.js';
 import { OidcAuthStore } from './oidc-store.js';
 import type { AuthStore } from './store.js';
@@ -25,7 +26,15 @@ export { AuthError } from './store.js';
 export { MockAuthStore } from './mock-store.js';
 export { OidcAuthStore } from './oidc-store.js';
 
-export function createAuthStore(env: AppEnv): AuthStore {
+export interface CreateAuthStoreOptions {
+  /** V4 T11: shared with admin users routes for demo seeding. */
+  userDirectory?: TenantUserDirectory;
+}
+
+export function createAuthStore(
+  env: AppEnv,
+  opts: CreateAuthStoreOptions = {},
+): AuthStore {
   if (env.authProvider === 'oidc') {
     if (!env.oidc) {
       // Production throws at config validation; dev may reach
@@ -37,9 +46,9 @@ export function createAuthStore(env: AppEnv): AuthStore {
           '[bff] AUTH_PROVIDER=oidc requires OIDC_* env vars (see @dt/config)',
         );
       }
-      return new MockAuthStore();
+      return new MockAuthStore(opts.userDirectory);
     }
     return new OidcAuthStore(env.oidc);
   }
-  return new MockAuthStore();
+  return new MockAuthStore(opts.userDirectory);
 }

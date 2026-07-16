@@ -2,9 +2,17 @@
   "scene": {
     "loading": "加载场景中…",
     "toolbar": {
-      "reset": "清除选择"
+      "camera": "相机工具",
+      "options": "视口选项",
+      "reset": "重置视角",
+      "fit": "适配全部",
+      "focus": "聚焦选中",
+      "layers": "图层（即将推出）",
+      "settings": "视口设置（即将推出）"
     },
     "node": "节点",
-    "nodes": "节点"
+    "nodes": "节点",
+    "assetsLoading": "模型加载中… {percent}%",
+    "assetsFallback": "{count} 个使用占位体"
   }
 }

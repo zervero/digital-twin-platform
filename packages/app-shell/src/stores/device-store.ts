@@ -51,6 +51,14 @@ export const useDeviceStore = defineStore('dt:devices', () => {
     }
   }
 
+  /** Drop the in-memory device list (logout / tenant loss). Does not touch the API. */
+  function clear(): void {
+    devices.value = [];
+    selectedDeviceId.value = null;
+    error.value = null;
+    loading.value = false;
+  }
+
   function selectDevice(id: string | null): void {
     selectedDeviceId.value = id;
   }
@@ -82,6 +90,7 @@ export const useDeviceStore = defineStore('dt:devices', () => {
     loading,
     error,
     load,
+    clear,
     selectDevice,
     setDevices,
     upsertDevice,

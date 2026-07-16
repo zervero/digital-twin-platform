@@ -1,0 +1,9 @@
+{
+  "plugin": {
+    "error": {
+      "blockedTitle": "{name} unavailable",
+      "permissionDenied": "This plugin needs permissions your account does not have.",
+      "activationFailed": "This plugin could not be activated."
+    }
+  }
+}

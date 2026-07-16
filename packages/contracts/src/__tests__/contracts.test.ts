@@ -53,6 +53,18 @@ describe('@dt/contracts', () => {
     expect(scene.nodes[0]?.position).toEqual([0, 0, 0]);
   });
 
+  it('accepts optional modelId on SceneNode for viewport assets', () => {
+    const node: SceneNode = {
+      id: 'node-1',
+      tenantId: 'fixture-tenant',
+      name: 'CNC-01',
+      type: 'machine',
+      position: [0, 0, 0],
+      modelId: 'dt.machine.cnc-v1',
+    };
+    expect(node.modelId).toBe('dt.machine.cnc-v1');
+  });
+
   it('narrows DigitalTwinCommand by type', () => {
     const cmd: DigitalTwinCommand = {
       id: 'c-1',
@@ -79,5 +91,31 @@ describe('@dt/contracts', () => {
     if (event.type === 'scene:node-selected') {
       expect(event.payload.nodeId).toBe('node-1');
     }
+  });
+
+  it('narrows device-action DigitalTwinCommand variants', () => {
+    const cmd: DigitalTwinCommand = {
+      id: 'c-ack',
+      tenantId: 'fixture-tenant',
+      type: 'acknowledge-alarm',
+      deviceId: 'd-1',
+    };
+    if (cmd.type === 'acknowledge-alarm') {
+      expect(cmd.deviceId).toBe('d-1');
+    }
+    const reset: DigitalTwinCommand = {
+      id: 'c-reset',
+      tenantId: 'fixture-tenant',
+      type: 'reset-device',
+      deviceId: 'd-1',
+    };
+    expect(reset.type).toBe('reset-device');
+    const maint: DigitalTwinCommand = {
+      id: 'c-maint',
+      tenantId: 'fixture-tenant',
+      type: 'request-maintenance',
+      deviceId: 'd-1',
+    };
+    expect(maint.type).toBe('request-maintenance');
   });
 });

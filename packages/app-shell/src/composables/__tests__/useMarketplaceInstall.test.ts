@@ -77,6 +77,22 @@ function makeApi(): FakeApi {
     uninstallCalls: [],
     manifestByVersion: new Map<string, unknown>(),
     failListInstalled: false,
+    async listCatalog() {
+      return this.installed.map((r) => ({
+        id: r.pluginId,
+        name: r.pluginId,
+        vendor: 'Acme',
+        versions: r.versions.map((v) => ({
+          pluginId: v.pluginId,
+          version: v.version,
+        })),
+      }));
+    },
+    async listInstalledVersions(tenantId: string, pluginId: string) {
+      void tenantId;
+      const rec = this.installed.find((r) => r.pluginId === pluginId);
+      return (rec?.versions ?? []) as readonly InstalledPluginVersion[];
+    },
     async listInstalled(tenantId: string) {
       void tenantId;
       this.installedCalls++;
@@ -84,6 +100,9 @@ function makeApi(): FakeApi {
         throw new Error('network down');
       }
       return this.installed as readonly InstallRecord[];
+    },
+    async publish() {
+      return {};
     },
     async install(tenantId: string, pluginId: string, version: string) {
       void tenantId;

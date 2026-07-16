@@ -1,0 +1,114 @@
+{
+  "shell": {
+    "mode": {
+      "ops": "Ops",
+      "admin": "Admin",
+      "ariaLabel": "Workspace mode"
+    },
+    "tenant": {
+      "ariaLabel": "Factory",
+      "unknown": "No factory"
+    },
+    "actions": {
+      "search": "Search",
+      "notifications": "Notifications",
+      "help": "Help"
+    },
+    "language": "Language"
+  },
+  "admin": {
+    "nav": {
+      "ariaLabel": "Admin sections",
+      "marketplace": "Marketplace",
+      "installed": "Installed",
+      "publish": "Publish",
+      "users": "Users",
+      "audit": "Audit",
+      "tenant": "Tenant",
+      "appearance": "Appearance"
+    },
+    "overview": {
+      "ariaLabel": "Admin overview",
+      "title": "Overview",
+      "subtitle": "Shortcuts and status for the management workspace.",
+      "modulesLabel": "Nav modules",
+      "modulesHint": "Side-nav entries available in admin"
+    },
+    "users": {
+      "title": "Users",
+      "subtitle": "Manage roles for users in this factory.",
+      "refresh": "Refresh",
+      "loading": "Loading users…",
+      "empty": "No users found",
+      "emptyHint": "Seeded demo users appear here after login as admin.",
+      "saveRole": "Save role",
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "actions": "Actions"
+      },
+      "roles": {
+        "admin": "Admin",
+        "operator": "Operator",
+        "viewer": "Viewer"
+      }
+    },
+    "audit": {
+      "title": "Audit log",
+      "subtitle": "Security and marketplace actions recorded for this factory.",
+      "refresh": "Refresh",
+      "loading": "Loading audit events…",
+      "empty": "No audit events",
+      "emptyHint": "Publish, install, or change roles to generate entries.",
+      "total": "{count} events",
+      "columns": {
+        "time": "Time",
+        "type": "Type",
+        "actor": "Actor",
+        "summary": "Summary"
+      },
+      "types": {
+        "all": "All",
+        "plugin": {
+          "publish": "Publish",
+          "install": "Install"
+        },
+        "user": {
+          "roles_change": "Role change"
+        }
+      }
+    },
+    "tenant": {
+      "title": "Tenant",
+      "subtitle": "Current session factory context from auth — not a tenant admin API.",
+      "empty": "Not signed in",
+      "emptyHint": "Sign in as an admin to see tenant and session details.",
+      "noTenant": "No tenant on this session",
+      "permissionsDerived": "Session has no explicit permissions list; roles drive access.",
+      "note": "Overview, org, assets, models, and alarms stay out of the side nav until real or honestly mocked BFF endpoints exist.",
+      "fields": {
+        "tenantId": "Tenant ID",
+        "user": "Signed-in user",
+        "roles": "Roles",
+        "permissions": "Permissions",
+        "expiresAt": "Session expires"
+      }
+    }
+  },
+  "settings": {
+    "appearance": {
+      "title": "Appearance",
+      "menuLabel": "Appearance",
+      "done": "Done",
+      "subtitle": "Choose a brand accent for your session. Semantic status colors stay fixed.",
+      "presetsLabel": "Accent presets",
+      "customLabel": "Custom color",
+      "customHint": "Must keep at least 4.5:1 contrast against white primary-button labels.",
+      "colorPicker": "Pick accent color",
+      "hexInput": "Accent hex value",
+      "applyCustom": "Apply custom",
+      "contrastReject": "That color is too light for white button labels. Pick a darker accent."
+    }
+  }
+}
