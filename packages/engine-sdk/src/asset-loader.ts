@@ -5,7 +5,7 @@
  * Default loader uses Three.js GLTFLoader; tests inject `loadGlb`.
  */
 
-import { Object3D } from 'three';
+import type { Object3D } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export type LoadGlbFn = (url: string) => Promise<Object3D>;

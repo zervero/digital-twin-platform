@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { flushPromises, mount } from '@vue/test-utils';
 
 import type { ApiClient } from '@dt/api-client';
-import type { DigitalTwinEngine } from '@dt/engine-sdk';
+import type { AssetLoadEvent, DigitalTwinEngine } from '@dt/engine-sdk';
 import type { LoginResponse, MeResponse } from '@dt/contracts';
 
 import { ApiClientKey } from '../../stores/api-store.js';
@@ -21,7 +21,7 @@ const engineMocks = {
   dispose: vi.fn(),
   getSelectedNodeId: vi.fn(() => null as string | null),
   getAssetLoadProgress: vi.fn(() => null as number | null),
-  onAssetLoad: vi.fn(() => () => undefined),
+  onAssetLoad: vi.fn((_listener: (ev: AssetLoadEvent) => void) => () => undefined),
 };
 
 vi.mock('@dt/engine-sdk', () => ({
@@ -141,10 +141,9 @@ describe('SceneViewport tool strips', () => {
   });
 
   it('shows asset progress overlay while models load', async () => {
-    let listener: ((ev: { type: string; loaded?: number; total?: number }) => void) | null =
-      null;
-    engineMocks.onAssetLoad.mockImplementation((fn) => {
-      listener = fn as typeof listener;
+    let listener: ((ev: AssetLoadEvent) => void) | null = null;
+    engineMocks.onAssetLoad.mockImplementation((fn: (ev: AssetLoadEvent) => void) => {
+      listener = fn;
       return () => undefined;
     });
     engineMocks.loadScene.mockImplementation(async () => {
