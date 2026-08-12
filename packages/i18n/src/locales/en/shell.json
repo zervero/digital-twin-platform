@@ -14,7 +14,17 @@
       "notifications": "Notifications",
       "help": "Help"
     },
-    "language": "Language"
+    "language": "Language",
+    "sidebar": {
+      "ariaLabel": "Device tree",
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar"
+    },
+    "detailDrawer": {
+      "ariaLabel": "Device detail",
+      "collapse": "Collapse detail",
+      "expand": "Expand detail"
+    }
   },
   "admin": {
     "nav": {

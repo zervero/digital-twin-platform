@@ -45,13 +45,13 @@ function onSelect(id: string): void {
 <template>
   <DtPanel :title="t('device.title')" density="compact">
     <template v-if="loading">
-      <div class="muted">
+      <div class="dt-inline-flex dt-items-center dt-gap-sm dt-text-secondary dt-text-sm dt-py-sm">
         <DtIcon name="Loader" size="sm" />
         {{ t('common.loading') }}
       </div>
     </template>
     <template v-else-if="error">
-      <div class="error">
+      <div class="dt-inline-flex dt-items-center dt-gap-sm dt-text-danger dt-text-sm dt-py-sm">
         <DtIcon name="AlertTriangle" size="sm" />
         {{ error }}
       </div>
@@ -67,20 +67,40 @@ function onSelect(id: string): void {
         v-for="device in sortedDevices"
         :key="device.id"
         type="button"
-        :class="['device-row', { 'is-selected': device.id === selectedDeviceId }]"
+        :class="[
+          'device-row',
+          'dt-gap-md',
+          'dt-items-center',
+          'dt-py-sm',
+          'dt-px-md',
+          'dt-border-transparent',
+          'dt-rounded-sm',
+          'dt-bg-transparent',
+          'dt-font-inherit',
+          'dt-text-left',
+          'dt-pointer',
+          { 'is-selected': device.id === selectedDeviceId },
+        ]"
         @click="onSelect(device.id)"
       >
-        <span class="device-row__icon" aria-hidden="true">
+        <span
+          class="device-row__icon dt-inline-flex dt-items-center dt-justify-center dt-rounded-sm dt-bg-surface dt-text-secondary"
+          aria-hidden="true"
+        >
           <DtIcon name="Cpu" size="md" />
         </span>
-        <span class="device-row__main">
-          <span class="device-row__name">{{ device.name }}</span>
-          <span class="device-row__id">{{ device.sceneNodeId }}</span>
+        <span class="device-row__main dt-flex dt-flex-col dt-min-w-0">
+          <span class="dt-font-medium dt-text-primary dt-text-sm dt-truncate">{{
+            device.name
+          }}</span>
+          <span class="dt-font-mono dt-text-xs dt-text-muted dt-truncate">{{
+            device.sceneNodeId
+          }}</span>
         </span>
         <DtStatusBadge :status="device.status" />
         <span
           v-if="device.sceneNodeId === selectedNodeId"
-          class="device-row__marker"
+          class="device-row__marker dt-inline-flex dt-items-center dt-justify-center"
           aria-label="selected"
         >
           <DtIcon name="Check" size="sm" />
@@ -91,36 +111,12 @@ function onSelect(id: string): void {
 </template>
 
 <style scoped>
-.muted {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-  padding: var(--dt-space-sm) 0;
-}
-.error {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  color: var(--dt-accent-danger);
-  font-size: var(--dt-text-sm);
-  padding: var(--dt-space-sm) 0;
-}
 .device-row {
   display: grid;
   grid-template-columns: auto 1fr auto auto;
-  gap: var(--dt-space-md);
-  align-items: center;
-  padding: var(--dt-space-sm) var(--dt-space-md);
-  border: 1px solid transparent;
-  border-radius: var(--dt-radius-sm);
-  background: transparent;
   color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: background var(--dt-duration-fast) var(--dt-ease-default),
+  transition:
+    background var(--dt-duration-fast) var(--dt-ease-default),
     border-color var(--dt-duration-fast) var(--dt-ease-default);
 }
 .device-row:hover {
@@ -131,46 +127,17 @@ function onSelect(id: string): void {
   border-color: var(--dt-accent-primary);
 }
 .device-row__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 24px;
   height: 24px;
-  border-radius: var(--dt-radius-sm);
-  background: var(--dt-bg-surface);
-  color: var(--dt-text-secondary);
 }
 .device-row.is-selected .device-row__icon {
   color: var(--dt-accent-primary);
-  background: rgba(79, 143, 255, 0.10);
+  background: rgba(79, 143, 255, 0.1);
 }
 .device-row__main {
-  display: flex;
-  flex-direction: column;
   gap: 2px;
-  min-width: 0;
-}
-.device-row__name {
-  font-weight: var(--dt-weight-medium);
-  color: var(--dt-text-primary);
-  font-size: var(--dt-text-sm);
-  /* truncate overflow */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.device-row__id {
-  font-family: var(--dt-font-mono);
-  font-size: var(--dt-text-xs);
-  color: var(--dt-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .device-row__marker {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 20px;
   height: 20px;
   border-radius: 50%;

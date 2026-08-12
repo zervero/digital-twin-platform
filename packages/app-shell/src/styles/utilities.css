@@ -1,0 +1,404 @@
+/**
+ * @dt/app-shell atomic utilities (UnoCSS-inspired, no UnoCSS runtime).
+ *
+ * Values map to `@dt/ui-kit` `--dt-*` tokens only. Prefer these classes for
+ * layout / spacing / type / surface in shell pages & components; keep
+ * component-specific chrome (gradients, absolute optical centering, complex
+ * :deep overrides) in scoped CSS.
+ *
+ * Naming: always `dt-*` prefix (option A).
+ *
+ * Import once from AppShell (or the host entry) so classes are global:
+ *   import './styles/utilities.css';
+ */
+
+/* --- Display / flex ------------------------------------------------- */
+.dt-flex {
+  display: flex;
+}
+.dt-inline-flex {
+  display: inline-flex;
+}
+.dt-block {
+  display: block;
+}
+.dt-hidden {
+  display: none;
+}
+
+.dt-flex-col {
+  flex-direction: column;
+}
+.dt-flex-row {
+  flex-direction: row;
+}
+.dt-flex-1 {
+  flex: 1 1 0%;
+}
+.dt-flex-shrink-0 {
+  flex-shrink: 0;
+}
+.dt-grow {
+  flex-grow: 1;
+}
+.dt-min-w-0 {
+  min-width: 0;
+}
+.dt-min-h-0 {
+  min-height: 0;
+}
+
+.dt-items-center {
+  align-items: center;
+}
+.dt-items-start {
+  align-items: flex-start;
+}
+.dt-items-end {
+  align-items: flex-end;
+}
+.dt-items-stretch {
+  align-items: stretch;
+}
+.dt-items-baseline {
+  align-items: baseline;
+}
+.dt-self-center {
+  align-self: center;
+}
+.dt-justify-center {
+  justify-content: center;
+}
+.dt-justify-start {
+  justify-content: flex-start;
+}
+.dt-justify-end {
+  justify-content: flex-end;
+}
+.dt-justify-between {
+  justify-content: space-between;
+}
+.dt-flex-wrap {
+  flex-wrap: wrap;
+}
+
+/* --- Gap (token scale) ---------------------------------------------- */
+.dt-gap-xs {
+  gap: var(--dt-space-xs);
+}
+.dt-gap-sm {
+  gap: var(--dt-space-sm);
+}
+.dt-gap-md {
+  gap: var(--dt-space-md);
+}
+.dt-gap-lg {
+  gap: var(--dt-space-lg);
+}
+.dt-gap-xl {
+  gap: var(--dt-space-xl);
+}
+.dt-gap-2xl {
+  gap: var(--dt-space-2xl);
+}
+.dt-gap-3xl {
+  gap: var(--dt-space-3xl);
+}
+
+/* --- Spacing -------------------------------------------------------- */
+.dt-p-0 {
+  padding: 0;
+}
+.dt-p-xs {
+  padding: var(--dt-space-xs);
+}
+.dt-p-sm {
+  padding: var(--dt-space-sm);
+}
+.dt-p-md {
+  padding: var(--dt-space-md);
+}
+.dt-p-lg {
+  padding: var(--dt-space-lg);
+}
+.dt-p-xl {
+  padding: var(--dt-space-xl);
+}
+.dt-p-2xl {
+  padding: var(--dt-space-2xl);
+}
+
+.dt-px-sm {
+  padding-left: var(--dt-space-sm);
+  padding-right: var(--dt-space-sm);
+}
+.dt-px-md {
+  padding-left: var(--dt-space-md);
+  padding-right: var(--dt-space-md);
+}
+.dt-px-lg {
+  padding-left: var(--dt-space-lg);
+  padding-right: var(--dt-space-lg);
+}
+.dt-px-xl {
+  padding-left: var(--dt-space-xl);
+  padding-right: var(--dt-space-xl);
+}
+.dt-px-2xl {
+  padding-left: var(--dt-space-2xl);
+  padding-right: var(--dt-space-2xl);
+}
+
+.dt-py-0 {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.dt-py-xs {
+  padding-top: var(--dt-space-xs);
+  padding-bottom: var(--dt-space-xs);
+}
+.dt-py-sm {
+  padding-top: var(--dt-space-sm);
+  padding-bottom: var(--dt-space-sm);
+}
+.dt-py-md {
+  padding-top: var(--dt-space-md);
+  padding-bottom: var(--dt-space-md);
+}
+.dt-py-lg {
+  padding-top: var(--dt-space-lg);
+  padding-bottom: var(--dt-space-lg);
+}
+.dt-py-xl {
+  padding-top: var(--dt-space-xl);
+  padding-bottom: var(--dt-space-xl);
+}
+
+.dt-m-0 {
+  margin: 0;
+}
+.dt-mt-0 {
+  margin-top: 0;
+}
+.dt-mt-xs {
+  margin-top: var(--dt-space-xs);
+}
+.dt-mt-sm {
+  margin-top: var(--dt-space-sm);
+}
+.dt-mt-md {
+  margin-top: var(--dt-space-md);
+}
+.dt-mt-lg {
+  margin-top: var(--dt-space-lg);
+}
+.dt-mt-xl {
+  margin-top: var(--dt-space-xl);
+}
+.dt-mb-0 {
+  margin-bottom: 0;
+}
+.dt-mb-sm {
+  margin-bottom: var(--dt-space-sm);
+}
+.dt-mb-xl {
+  margin-bottom: var(--dt-space-xl);
+}
+.dt-ml-0 {
+  margin-left: 0;
+}
+
+/* --- Size ------------------------------------------------------------ */
+.dt-w-full {
+  width: 100%;
+}
+.dt-h-full {
+  height: 100%;
+}
+.dt-overflow-auto {
+  overflow: auto;
+}
+.dt-overflow-hidden {
+  overflow: hidden;
+}
+/** Standard interactive control height (toolbar chips, ghost buttons). */
+.dt-h-control {
+  height: 32px;
+}
+/** Top chrome bar min height. */
+.dt-h-bar {
+  min-height: 48px;
+}
+.dt-w-control {
+  width: 32px;
+}
+.dt-size-mark {
+  width: 28px;
+  height: 28px;
+}
+
+/* --- Position ------------------------------------------------------- */
+.dt-relative {
+  position: relative;
+}
+.dt-absolute {
+  position: absolute;
+}
+.dt-inset-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.dt-z-1 {
+  z-index: 1;
+}
+
+/* --- Typography ----------------------------------------------------- */
+.dt-font-ui {
+  font-family: var(--dt-font-ui);
+}
+.dt-font-mono {
+  font-family: var(--dt-font-mono);
+}
+.dt-text-xs {
+  font-size: var(--dt-text-xs);
+}
+.dt-text-sm {
+  font-size: var(--dt-text-sm);
+}
+.dt-text-md {
+  font-size: var(--dt-text-md);
+}
+.dt-text-lg {
+  font-size: var(--dt-text-lg);
+}
+.dt-text-xl {
+  font-size: var(--dt-text-xl);
+}
+.dt-font-medium {
+  font-weight: var(--dt-weight-medium);
+}
+.dt-font-semi {
+  font-weight: var(--dt-weight-semi);
+}
+.dt-font-inherit {
+  font: inherit;
+}
+.dt-text-left {
+  text-align: left;
+}
+.dt-uppercase {
+  text-transform: uppercase;
+}
+.dt-tracking-wide {
+  letter-spacing: 0.04em;
+}
+.dt-leading-1 {
+  line-height: 1;
+}
+.dt-leading-normal {
+  line-height: var(--dt-line-normal);
+}
+.dt-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dt-text-primary {
+  color: var(--dt-text-primary);
+}
+.dt-text-secondary {
+  color: var(--dt-text-secondary);
+}
+.dt-text-muted {
+  color: var(--dt-text-muted);
+}
+.dt-text-inverse {
+  color: var(--dt-text-inverse);
+}
+.dt-text-danger {
+  color: var(--dt-accent-danger);
+}
+
+/* --- Surfaces / border ---------------------------------------------- */
+.dt-bg-base {
+  background: var(--dt-bg-base);
+}
+.dt-bg-elevated {
+  background: var(--dt-bg-elevated);
+}
+.dt-bg-surface {
+  background: var(--dt-bg-surface);
+}
+.dt-bg-transparent {
+  background: transparent;
+}
+
+.dt-border {
+  border: 1px solid var(--dt-border-default);
+}
+.dt-border-subtle {
+  border: 1px solid var(--dt-border-subtle);
+}
+.dt-border-transparent {
+  border: 1px solid transparent;
+}
+.dt-border-0 {
+  border: 0;
+}
+.dt-border-t-subtle {
+  border-top: 1px solid var(--dt-border-subtle);
+}
+.dt-border-b-subtle {
+  border-bottom: 1px solid var(--dt-border-subtle);
+}
+.dt-border-l-subtle {
+  border-left: 1px solid var(--dt-border-subtle);
+}
+.dt-border-r-subtle {
+  border-right: 1px solid var(--dt-border-subtle);
+}
+
+.dt-rounded-sm {
+  border-radius: var(--dt-radius-sm);
+}
+.dt-rounded-md {
+  border-radius: var(--dt-radius-md);
+}
+.dt-rounded-pill {
+  border-radius: var(--dt-radius-pill);
+}
+
+.dt-box-border {
+  box-sizing: border-box;
+}
+
+/* --- Misc helpers --------------------------------------------------- */
+.dt-select-none {
+  user-select: none;
+}
+.dt-pointer {
+  cursor: pointer;
+}
+.dt-cursor-default {
+  cursor: default;
+}
+.dt-appearance-none {
+  appearance: none;
+}
+.dt-list-none {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.dt-shrink-rule {
+  flex-shrink: 0;
+  width: 1px;
+  height: 20px;
+  background: var(--dt-border-subtle);
+}
+.dt-icon-block svg {
+  display: block;
+  flex-shrink: 0;
+}

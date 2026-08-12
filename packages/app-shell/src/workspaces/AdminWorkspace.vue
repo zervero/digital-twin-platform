@@ -42,7 +42,7 @@ function onSelect(id: string) {
 </script>
 
 <template>
-  <div class="admin-workspace">
+  <div class="admin-workspace dt-flex dt-flex-1 dt-min-h-0 dt-min-w-0">
     <DtSideNav
       class="admin-workspace__nav"
       :items="navItems"
@@ -50,12 +50,21 @@ function onSelect(id: string) {
       :aria-label="t('admin.nav.ariaLabel')"
       @update:model-value="onSelect"
     />
-    <main class="admin-workspace__main">
+    <main
+      class="admin-workspace__main dt-flex-1 dt-min-w-0 dt-min-h-0 dt-overflow-auto dt-p-lg dt-bg-base"
+    >
       <RouterView />
     </main>
-    <aside class="admin-workspace__overview" :aria-label="t('admin.overview.ariaLabel')">
-      <h2 class="admin-workspace__overview-title">{{ t('admin.overview.title') }}</h2>
-      <p class="admin-workspace__overview-subtitle">{{ t('admin.overview.subtitle') }}</p>
+    <aside
+      class="admin-workspace__overview dt-flex dt-flex-col dt-gap-md dt-p-lg dt-border-l-subtle dt-bg-elevated dt-min-h-0 dt-overflow-auto"
+      :aria-label="t('admin.overview.ariaLabel')"
+    >
+      <h2 class="dt-m-0 dt-text-md dt-font-semi dt-text-primary">
+        {{ t('admin.overview.title') }}
+      </h2>
+      <p class="dt-m-0 dt-text-xs dt-text-secondary dt-leading-normal">
+        {{ t('admin.overview.subtitle') }}
+      </p>
       <DtStatCard
         :label="t('admin.overview.modulesLabel')"
         :value="navItems.length"
@@ -66,45 +75,12 @@ function onSelect(id: string) {
 </template>
 
 <style scoped>
-.admin-workspace {
-  display: flex;
-  flex: 1 1 auto;
-  min-height: 0;
-  min-width: 0;
-}
+/* Fixed rail widths — one-off layout */
 .admin-workspace__nav {
   flex: 0 0 220px;
   min-height: 0;
 }
-.admin-workspace__main {
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-  overflow: auto;
-  padding: var(--dt-space-lg);
-  background: var(--dt-bg-base);
-}
 .admin-workspace__overview {
   flex: 0 0 240px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-md);
-  padding: var(--dt-space-lg);
-  border-left: 1px solid var(--dt-border-subtle);
-  background: var(--dt-bg-elevated);
-  min-height: 0;
-  overflow: auto;
-}
-.admin-workspace__overview-title {
-  margin: 0;
-  font-size: var(--dt-text-md);
-  font-weight: var(--dt-weight-semibold);
-  color: var(--dt-text-primary);
-}
-.admin-workspace__overview-subtitle {
-  margin: 0;
-  font-size: var(--dt-text-xs);
-  color: var(--dt-text-secondary);
-  line-height: var(--dt-line-normal);
 }
 </style>

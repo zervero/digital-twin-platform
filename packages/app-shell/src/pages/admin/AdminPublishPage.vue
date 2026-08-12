@@ -71,56 +71,92 @@ async function onSubmit(): Promise<void> {
 </script>
 
 <template>
-  <div class="admin-publish-page">
-    <header class="admin-publish-page__header">
-      <h1 class="admin-publish-page__title">{{ t('marketplace.publish.title') }}</h1>
-      <p class="admin-publish-page__subtitle">{{ t('marketplace.publish.subtitle') }}</p>
+  <div class="admin-publish-page dt-flex dt-flex-col dt-gap-lg">
+    <header class="dt-flex dt-flex-col dt-gap-xs">
+      <h1 class="dt-m-0 dt-text-xl dt-font-semi dt-text-primary">
+        {{ t('marketplace.publish.title') }}
+      </h1>
+      <p class="dt-m-0 dt-text-secondary dt-text-sm">
+        {{ t('marketplace.publish.subtitle') }}
+      </p>
     </header>
 
-    <p v-if="!canPublish" class="admin-publish-page__hint">
+    <p v-if="!canPublish" class="dt-m-0 dt-text-secondary dt-text-sm">
       {{ t('marketplace.installHint', { permission: 'plugin:publish' }) }}
     </p>
 
     <form
       v-else
-      class="admin-publish-page__form"
+      class="dt-flex dt-flex-col dt-gap-md dt-p-lg dt-bg-elevated dt-border-subtle dt-rounded-md"
       @submit.prevent="onSubmit"
     >
-      <label class="admin-publish-page__label">
+      <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.pluginId') }}</span>
-        <input v-model="pluginId" class="admin-publish-page__input" type="text" required />
+        <input
+          v-model="pluginId"
+          class="admin-publish-page__field dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
+          type="text"
+          required
+        />
       </label>
-      <label class="admin-publish-page__label">
+      <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.publish.name') }}</span>
-        <input v-model="name" class="admin-publish-page__input" type="text" required />
+        <input
+          v-model="name"
+          class="admin-publish-page__field dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
+          type="text"
+          required
+        />
       </label>
-      <label class="admin-publish-page__label">
+      <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.publish.vendor') }}</span>
-        <input v-model="vendor" class="admin-publish-page__input" type="text" required />
+        <input
+          v-model="vendor"
+          class="admin-publish-page__field dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
+          type="text"
+          required
+        />
       </label>
-      <label class="admin-publish-page__label">
+      <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.version') }}</span>
-        <input v-model="version" class="admin-publish-page__input" type="text" required />
+        <input
+          v-model="version"
+          class="admin-publish-page__field dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
+          type="text"
+          required
+        />
       </label>
-      <label class="admin-publish-page__label">
+      <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.publish.description') }}</span>
-        <input v-model="description" class="admin-publish-page__input" type="text" />
+        <input
+          v-model="description"
+          class="admin-publish-page__field dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
+          type="text"
+        />
       </label>
-      <label class="admin-publish-page__label">
+      <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.publish.artifact') }}</span>
         <textarea
           v-model="artifact"
-          class="admin-publish-page__textarea"
+          class="admin-publish-page__field admin-publish-page__textarea dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-mono dt-text-sm"
           rows="4"
           required
         />
       </label>
 
-      <p v-if="errorMessage" class="admin-publish-page__error" role="alert">
+      <p
+        v-if="errorMessage"
+        class="dt-inline-flex dt-items-center dt-gap-xs dt-m-0 dt-text-danger dt-text-xs"
+        role="alert"
+      >
         <DtIcon name="AlertTriangle" size="sm" />
         {{ errorMessage }}
       </p>
-      <p v-if="successMessage" class="admin-publish-page__success" role="status">
+      <p
+        v-if="successMessage"
+        class="admin-publish-page__success dt-inline-flex dt-items-center dt-gap-xs dt-m-0 dt-text-xs"
+        role="status"
+      >
         <DtIcon name="CheckCircle2" size="sm" />
         {{ successMessage }}
       </p>
@@ -135,82 +171,16 @@ async function onSubmit(): Promise<void> {
 
 <style scoped>
 .admin-publish-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-lg);
   max-width: 560px;
 }
-.admin-publish-page__header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-xs);
-}
-.admin-publish-page__title {
-  margin: 0;
-  font-size: var(--dt-text-xl);
-  font-weight: var(--dt-weight-semibold);
-  color: var(--dt-text-primary);
-}
-.admin-publish-page__subtitle {
-  margin: 0;
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-}
-.admin-publish-page__hint {
-  margin: 0;
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-}
-.admin-publish-page__form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-md);
-  padding: var(--dt-space-lg);
-  background: var(--dt-bg-elevated);
-  border: 1px solid var(--dt-border-subtle);
-  border-radius: var(--dt-radius-md);
-}
-.admin-publish-page__label {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-xs);
-  font-size: var(--dt-text-xs);
-  color: var(--dt-text-secondary);
-}
-.admin-publish-page__input,
-.admin-publish-page__textarea {
-  appearance: none;
-  background: var(--dt-bg-base);
-  border: 1px solid var(--dt-border-default);
-  color: var(--dt-text-primary);
-  padding: var(--dt-space-sm) var(--dt-space-md);
-  border-radius: var(--dt-radius-sm);
-  font: inherit;
-  font-size: var(--dt-text-sm);
-}
-.admin-publish-page__input:focus,
-.admin-publish-page__textarea:focus {
+.admin-publish-page__field:focus {
   outline: none;
   border-color: var(--dt-accent-primary);
 }
 .admin-publish-page__textarea {
-  font-family: var(--dt-font-mono);
   resize: vertical;
 }
-.admin-publish-page__error {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
-  margin: 0;
-  color: var(--dt-accent-danger);
-  font-size: var(--dt-text-xs);
-}
 .admin-publish-page__success {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
-  margin: 0;
   color: var(--dt-status-online);
-  font-size: var(--dt-text-xs);
 }
 </style>

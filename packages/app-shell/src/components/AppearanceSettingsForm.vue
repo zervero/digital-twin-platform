@@ -51,43 +51,57 @@ watch(
 </script>
 
 <template>
-  <div class="appearance-settings">
-    <p class="appearance-settings__subtitle">{{ t('settings.appearance.subtitle') }}</p>
+  <div class="dt-flex dt-flex-col dt-gap-xl">
+    <p class="dt-m-0 dt-text-secondary dt-text-sm">
+      {{ t('settings.appearance.subtitle') }}
+    </p>
 
-    <section class="appearance-settings__section" :aria-label="t('settings.appearance.presetsLabel')">
-      <h3 class="appearance-settings__section-title">{{ t('settings.appearance.presetsLabel') }}</h3>
-      <div class="appearance-settings__presets" role="list">
+    <section
+      class="dt-flex dt-flex-col dt-gap-md"
+      :aria-label="t('settings.appearance.presetsLabel')"
+    >
+      <h3 class="dt-m-0 dt-text-md dt-font-semi dt-text-primary">
+        {{ t('settings.appearance.presetsLabel') }}
+      </h3>
+      <div class="appearance-settings__presets dt-gap-md" role="list">
         <button
           v-for="preset in ACCENT_PRESETS"
           :key="preset.id"
           type="button"
           role="listitem"
-          class="appearance-settings__swatch"
+          class="appearance-settings__swatch dt-appearance-none dt-flex dt-flex-col dt-items-center dt-gap-sm dt-p-md dt-border dt-rounded-md dt-bg-base dt-pointer dt-text-primary dt-font-inherit"
           :class="{ 'appearance-settings__swatch--active': selectedPresetId === preset.id }"
           :aria-pressed="selectedPresetId === preset.id"
           :aria-label="preset.label"
           :style="{ '--swatch-color': preset.primary }"
           @click="onSelectPreset(preset.id)"
         >
-          <span class="appearance-settings__swatch-color" />
-          <span class="appearance-settings__swatch-label">{{ preset.label }}</span>
+          <span class="appearance-settings__swatch-color dt-rounded-pill dt-border-subtle" />
+          <span class="dt-text-xs dt-font-medium">{{ preset.label }}</span>
         </button>
       </div>
     </section>
 
-    <section class="appearance-settings__section" :aria-label="t('settings.appearance.customLabel')">
-      <h3 class="appearance-settings__section-title">{{ t('settings.appearance.customLabel') }}</h3>
-      <p class="appearance-settings__hint">{{ t('settings.appearance.customHint') }}</p>
-      <div class="appearance-settings__custom-row">
+    <section
+      class="dt-flex dt-flex-col dt-gap-md"
+      :aria-label="t('settings.appearance.customLabel')"
+    >
+      <h3 class="dt-m-0 dt-text-md dt-font-semi dt-text-primary">
+        {{ t('settings.appearance.customLabel') }}
+      </h3>
+      <p class="dt-m-0 dt-text-xs dt-text-secondary">
+        {{ t('settings.appearance.customHint') }}
+      </p>
+      <div class="dt-flex dt-flex-wrap dt-items-center dt-gap-md">
         <input
           v-model="customDraft"
-          class="appearance-settings__color"
+          class="appearance-settings__color dt-p-0 dt-border dt-rounded-sm dt-bg-transparent dt-pointer"
           type="color"
           :aria-label="t('settings.appearance.colorPicker')"
         />
         <input
           v-model="customDraft"
-          class="appearance-settings__hex"
+          class="appearance-settings__hex dt-min-w-0 dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-mono dt-text-sm"
           type="text"
           spellcheck="false"
           :aria-label="t('settings.appearance.hexInput')"
@@ -97,7 +111,7 @@ watch(
           {{ t('settings.appearance.applyCustom') }}
         </DtButton>
       </div>
-      <p v-if="contrastError" class="appearance-settings__error" role="alert">
+      <p v-if="contrastError" class="dt-m-0 dt-text-danger dt-text-xs" role="alert">
         {{ contrastError }}
       </p>
     </section>
@@ -105,50 +119,9 @@ watch(
 </template>
 
 <style scoped>
-.appearance-settings {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-xl);
-}
-.appearance-settings__subtitle {
-  margin: 0;
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-}
-.appearance-settings__section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-md);
-}
-.appearance-settings__section-title {
-  margin: 0;
-  font-size: var(--dt-text-md);
-  font-weight: var(--dt-weight-semi);
-  color: var(--dt-text-primary);
-}
-.appearance-settings__hint {
-  margin: 0;
-  font-size: var(--dt-text-xs);
-  color: var(--dt-text-secondary);
-}
 .appearance-settings__presets {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: var(--dt-space-md);
-}
-.appearance-settings__swatch {
-  appearance: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  padding: var(--dt-space-md);
-  border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-md);
-  background: var(--dt-bg-base);
-  cursor: pointer;
-  color: var(--dt-text-primary);
-  font: inherit;
 }
 .appearance-settings__swatch:hover {
   border-color: var(--dt-border-strong);
@@ -161,40 +134,14 @@ watch(
 .appearance-settings__swatch-color {
   width: 36px;
   height: 36px;
-  border-radius: var(--dt-radius-pill);
   background: var(--swatch-color);
-  border: 1px solid var(--dt-border-subtle);
-}
-.appearance-settings__swatch-label {
-  font-size: var(--dt-text-xs);
-  font-weight: var(--dt-weight-medium);
-}
-.appearance-settings__custom-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--dt-space-md);
 }
 .appearance-settings__color {
   width: 44px;
   height: 36px;
-  padding: 0;
-  border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-sm);
-  background: transparent;
-  cursor: pointer;
 }
 .appearance-settings__hex {
   flex: 1 1 140px;
-  min-width: 0;
-  appearance: none;
-  background: var(--dt-bg-base);
-  border: 1px solid var(--dt-border-default);
-  color: var(--dt-text-primary);
-  padding: var(--dt-space-sm) var(--dt-space-md);
-  border-radius: var(--dt-radius-sm);
-  font-family: var(--dt-font-mono);
-  font-size: var(--dt-text-sm);
 }
 .appearance-settings__hex:focus {
   outline: none;
@@ -202,10 +149,5 @@ watch(
 }
 .appearance-settings__hex[aria-invalid='true'] {
   border-color: var(--dt-accent-danger);
-}
-.appearance-settings__error {
-  margin: 0;
-  color: var(--dt-accent-danger);
-  font-size: var(--dt-text-xs);
 }
 </style>

@@ -63,10 +63,11 @@ async function mountOps(regs: PluginRegistration[] = []) {
 }
 
 describe('PluginPanelHost tokens', () => {
-  it('avoids hardcoded hex colors in favor of --dt-* tokens', () => {
+  it('avoids hardcoded hex colors in favor of dt-* utilities / --dt-* tokens', () => {
     const src = readFileSync(resolve(__dirname, '../PluginPanelHost.vue'), 'utf8');
     expect(src).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
-    expect(src).toMatch(/--dt-/);
+    // Token-backed utilities (dt-bg-elevated, …) or inline --dt-* both count.
+    expect(src).toMatch(/(?:--dt-|class="[^"]*\bdt-)/);
   });
 });
 

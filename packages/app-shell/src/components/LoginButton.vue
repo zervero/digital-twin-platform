@@ -1,19 +1,22 @@
 <script setup lang="ts">
 /**
- * Auth chrome + shared appearance entry.
+ * Auth chrome + shared appearance entry + signed-in user hover menu.
  *
  * - Appearance is always available (anonymous or signed-in).
  * - Sign-in opens a DtDialog (mock email form or OIDC redirect CTA).
- * - Signed-in: email chip + logout.
+ * - Signed-in: email chip with hover menu — Ops / Admin (admin only) / Logout.
+ *   Mode switching used to live in TopToolbar's center segmented control.
  */
 import { storeToRefs } from 'pinia';
-import { ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import { DtButton, DtDialog, DtIcon } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
 
 import { useAuthStore } from '../stores/auth-store.js';
 import { useAppearanceStore } from '../stores/appearance-store.js';
+import { useLastAdminPath } from '../composables/useLastAdminPath.js';
 import { useOIDCStart } from '../composables/useOIDCStart.js';
 
 const { t } = useI18n();
@@ -23,18 +26,75 @@ const appearance = useAppearanceStore();
 const { state, error, loading } = storeToRefs(authStore);
 const { loginHref, authMode } = useOIDCStart();
 
+const route = useRoute();
+const router = useRouter();
+const lastAdminPath = useLastAdminPath();
+
 const dialogOpen = ref(false);
 const email = ref('');
+const menuOpen = ref(false);
+let hideTimer: ReturnType<typeof setTimeout> | null = null;
+
+const isAdmin = computed(() => {
+  if (state.value.kind !== 'authenticated') return false;
+  return state.value.session.user.roles.includes('admin');
+});
+
+const mode = computed<'ops' | 'admin'>(() =>
+  route.path.startsWith('/admin') ? 'admin' : 'ops',
+);
+
+watch(
+  () => route.fullPath,
+  (path) => {
+    lastAdminPath.remember(path);
+  },
+  { immediate: true },
+);
 
 watch(dialogOpen, (open) => {
   if (!open) {
     email.value = '';
     if (error.value) {
-      // Clear residual form error without adding a store API.
       error.value = null;
     }
   }
 });
+
+function clearHideTimer(): void {
+  if (hideTimer !== null) {
+    clearTimeout(hideTimer);
+    hideTimer = null;
+  }
+}
+
+function openMenu(): void {
+  clearHideTimer();
+  menuOpen.value = true;
+}
+
+function scheduleCloseMenu(): void {
+  clearHideTimer();
+  hideTimer = setTimeout(() => {
+    menuOpen.value = false;
+    hideTimer = null;
+  }, 120);
+}
+
+function goOps(): void {
+  menuOpen.value = false;
+  void router.push('/ops');
+}
+
+function goAdmin(): void {
+  menuOpen.value = false;
+  void router.push(lastAdminPath.get());
+}
+
+async function logout(): Promise<void> {
+  menuOpen.value = false;
+  await authStore.logout();
+}
 
 function openLogin(): void {
   dialogOpen.value = true;
@@ -53,45 +113,98 @@ async function submitMockLogin(): Promise<void> {
     /* error ref is populated by the store */
   }
 }
+
+onBeforeUnmount(() => {
+  clearHideTimer();
+});
 </script>
 
 <template>
-  <div class="auth-chrome">
+  <div class="auth-chrome dt-inline-flex dt-items-center dt-gap-sm dt-icon-block">
     <DtButton
+      class="dt-inline-flex dt-items-center"
       variant="ghost"
       data-testid="open-appearance"
       :aria-label="t('settings.appearance.title')"
       @click="appearance.openDialog()"
     >
       <DtIcon name="Palette" size="sm" />
-      <span class="auth-chrome__label">{{ t('settings.appearance.menuLabel') }}</span>
+      <span class="dt-leading-1 dt-px-sm">{{ t('settings.appearance.menuLabel') }}</span>
     </DtButton>
 
-    <template v-if="state.kind === 'authenticated'">
-      <span class="auth-chrome__user" data-testid="auth-user">
+    <div
+      v-if="state.kind === 'authenticated'"
+      class="auth-chrome__user-wrap dt-relative"
+      data-testid="auth-user-menu"
+      @mouseenter="openMenu"
+      @mouseleave="scheduleCloseMenu"
+    >
+      <span
+        class="auth-chrome__user dt-inline-flex dt-items-center dt-gap-sm dt-h-control dt-px-md dt-rounded-sm dt-text-xs dt-leading-1 dt-text-secondary dt-truncate dt-pointer"
+        data-testid="auth-user"
+        :aria-expanded="menuOpen"
+        aria-haspopup="menu"
+      >
         <DtIcon name="UserRound" size="sm" />
         {{ state.session.user.email }}
       </span>
-      <DtButton
-        variant="ghost"
-        data-testid="auth-logout"
-        :disabled="loading"
-        @click="authStore.logout()"
+
+      <div
+        v-show="menuOpen"
+        class="auth-chrome__menu dt-absolute dt-bg-elevated dt-border dt-rounded-md dt-overflow-hidden"
+        role="menu"
+        data-testid="auth-user-menu-panel"
+        @mouseenter="openMenu"
+        @mouseleave="scheduleCloseMenu"
       >
-        <DtIcon name="LogOut" size="sm" />
-        <span class="auth-chrome__label">{{ t('auth.logout') }}</span>
-      </DtButton>
-    </template>
+        <button
+          type="button"
+          role="menuitem"
+          class="auth-chrome__menu-item dt-appearance-none dt-flex dt-items-center dt-gap-sm dt-w-full dt-text-left dt-pointer dt-border-0 dt-bg-transparent dt-text-sm dt-text-primary dt-font-inherit"
+          :class="{ 'is-active': mode === 'ops' }"
+          data-testid="auth-menu-ops"
+          @click="goOps"
+        >
+          <DtIcon name="LayoutDashboard" size="sm" />
+          {{ t('shell.mode.ops') }}
+        </button>
+        <button
+          v-if="isAdmin"
+          type="button"
+          role="menuitem"
+          class="auth-chrome__menu-item dt-appearance-none dt-flex dt-items-center dt-gap-sm dt-w-full dt-text-left dt-pointer dt-border-0 dt-bg-transparent dt-text-sm dt-text-primary dt-font-inherit"
+          :class="{ 'is-active': mode === 'admin' }"
+          data-testid="auth-menu-admin"
+          @click="goAdmin"
+        >
+          <DtIcon name="Settings2" size="sm" />
+          {{ t('shell.mode.admin') }}
+        </button>
+        <button
+          type="button"
+          role="menuitem"
+          class="auth-chrome__menu-item auth-chrome__menu-item--danger dt-appearance-none dt-flex dt-items-center dt-gap-sm dt-w-full dt-text-left dt-pointer dt-border-0 dt-bg-transparent dt-text-sm dt-font-inherit"
+          data-testid="auth-logout"
+          :disabled="loading"
+          @click="logout"
+        >
+          <DtIcon name="LogOut" size="sm" />
+          {{ t('auth.logout') }}
+        </button>
+      </div>
+    </div>
 
     <button
       v-else
       type="button"
-      class="auth-chrome__login-trigger"
+      class="auth-chrome__login-trigger dt-appearance-none dt-inline-flex dt-items-center dt-justify-center dt-gap-sm dt-h-control dt-px-lg dt-border dt-rounded-pill dt-bg-surface dt-text-primary dt-text-sm dt-font-medium dt-leading-1 dt-pointer"
       :data-testid="authMode === 'oidc' ? 'login-redirect' : 'login-mock-open'"
       @click="openLogin"
     >
       <DtIcon name="LogIn" size="sm" />
-      <span>{{ authMode === 'oidc' ? t('auth.login') : t('auth.loginDev') }}</span>
+      <span class="dt-leading-1">{{
+        authMode === 'oidc' ? t('auth.login') : t('auth.loginDev')
+      }}</span>
     </button>
 
     <DtDialog
@@ -104,7 +217,7 @@ async function submitMockLogin(): Promise<void> {
         <p class="auth-dialog__lead">{{ t('auth.oidcHint') }}</p>
         <a
           :href="loginHref"
-          class="auth-dialog__oidc-link"
+          class="auth-dialog__oidc-link dt-inline-flex dt-items-center dt-justify-center dt-gap-sm dt-w-full dt-px-xl dt-rounded-sm dt-text-inverse dt-text-sm dt-font-medium dt-leading-1"
           data-testid="login-oidc-continue"
         >
           <DtIcon name="LogIn" size="sm" />
@@ -114,14 +227,20 @@ async function submitMockLogin(): Promise<void> {
 
       <form
         v-else
-        class="auth-dialog__form"
+        class="dt-flex dt-flex-col dt-gap-md"
         data-testid="login-mock-form"
         @submit.prevent="submitMockLogin"
       >
-        <p class="auth-dialog__lead">{{ t('auth.mockHint') }}</p>
-        <label class="auth-dialog__field">
-          <span class="auth-dialog__field-label">{{ t('auth.emailLabel') }}</span>
-          <span class="auth-dialog__input-wrap">
+        <p class="auth-dialog__lead dt-m-0 dt-text-secondary dt-text-sm dt-leading-normal">
+          {{ t('auth.mockHint') }}
+        </p>
+        <label class="dt-flex dt-flex-col dt-gap-sm">
+          <span class="dt-text-xs dt-font-medium dt-text-secondary">{{
+            t('auth.emailLabel')
+          }}</span>
+          <span
+            class="auth-dialog__input-wrap dt-inline-flex dt-items-center dt-gap-sm dt-p-sm dt-px-md dt-bg-base dt-border dt-rounded-sm dt-text-secondary"
+          >
             <DtIcon name="Mail" size="sm" />
             <input
               v-model="email"
@@ -129,13 +248,15 @@ async function submitMockLogin(): Promise<void> {
               required
               autocomplete="username"
               :placeholder="t('auth.emailPlaceholder')"
-              class="auth-dialog__input"
+              class="auth-dialog__input dt-flex-1 dt-min-w-0 dt-bg-transparent dt-border-0 dt-text-primary dt-text-sm"
               data-testid="login-email"
             />
           </span>
         </label>
-        <p v-if="error" class="auth-dialog__error" role="alert">{{ error }}</p>
-        <div class="auth-dialog__actions">
+        <p v-if="error" class="dt-m-0 dt-text-danger dt-text-xs" role="alert">
+          {{ error }}
+        </p>
+        <div class="dt-flex dt-justify-end dt-gap-sm dt-mt-sm">
           <DtButton variant="ghost" type="button" @click="closeLogin">
             {{ t('common.cancel') }}
           </DtButton>
@@ -149,125 +270,91 @@ async function submitMockLogin(): Promise<void> {
 </template>
 
 <style scoped>
-.auth-chrome {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-}
-.auth-chrome__label {
-  margin-left: var(--dt-space-xs);
-}
 .auth-chrome__user {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
   max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: var(--dt-text-xs);
-  color: var(--dt-text-secondary);
 }
-.auth-chrome__login-trigger {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  height: 32px;
-  padding: 0 var(--dt-space-lg);
-  border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-pill);
-  background: var(--dt-bg-surface);
+
+.auth-chrome__user:hover,
+.auth-chrome__user-wrap:hover .auth-chrome__user {
   color: var(--dt-text-primary);
-  font: inherit;
-  font-size: var(--dt-text-sm);
-  font-weight: var(--dt-weight-medium);
-  cursor: pointer;
+  background: var(--dt-bg-surface-hover);
+}
+
+.auth-chrome__menu {
+  top: calc(100% + 2px);
+  right: 0;
+  z-index: 20;
+  min-width: 10rem;
+  padding: var(--dt-space-xs);
+  box-shadow: var(--dt-shadow-md);
+}
+
+.auth-chrome__menu-item {
+  padding: var(--dt-space-sm) var(--dt-space-md);
+  border-radius: var(--dt-radius-sm);
+  color: var(--dt-text-primary);
+  transition: background var(--dt-duration-fast) var(--dt-ease-default);
+}
+
+.auth-chrome__menu-item:hover:not(:disabled) {
+  background: var(--dt-bg-surface-hover);
+}
+
+.auth-chrome__menu-item.is-active {
+  color: var(--dt-accent-primary);
+  background: var(--dt-bg-surface);
+}
+
+.auth-chrome__menu-item--danger {
+  color: var(--dt-accent-danger);
+}
+
+.auth-chrome__menu-item--danger:hover:not(:disabled) {
+  background: var(--dt-status-alarm-bg);
+}
+
+.auth-chrome__menu-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-chrome__login-trigger {
   transition:
     background var(--dt-duration-fast) var(--dt-ease-default),
     border-color var(--dt-duration-fast) var(--dt-ease-default),
     color var(--dt-duration-fast) var(--dt-ease-default);
 }
+
 .auth-chrome__login-trigger:hover {
   border-color: var(--dt-accent-primary);
   color: var(--dt-accent-primary);
   background: var(--dt-bg-elevated);
 }
+
 .auth-chrome__login-trigger:focus-visible {
   outline: 2px solid var(--dt-accent-primary);
   outline-offset: 2px;
 }
 
 .auth-dialog__lead {
-  margin: 0 0 var(--dt-space-lg);
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-  line-height: var(--dt-line-normal);
+  margin-bottom: var(--dt-space-lg);
 }
-.auth-dialog__form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-md);
-}
-.auth-dialog__field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-sm);
-}
-.auth-dialog__field-label {
-  font-size: var(--dt-text-xs);
-  font-weight: var(--dt-weight-medium);
-  color: var(--dt-text-secondary);
-}
-.auth-dialog__input-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  padding: var(--dt-space-sm) var(--dt-space-md);
-  background: var(--dt-bg-base);
-  border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-sm);
-  color: var(--dt-text-secondary);
-}
+
 .auth-dialog__input-wrap:focus-within {
   border-color: var(--dt-accent-primary);
 }
+
 .auth-dialog__input {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  border: 0;
-  color: var(--dt-text-primary);
   font: inherit;
-  font-size: var(--dt-text-sm);
   outline: none;
 }
-.auth-dialog__error {
-  margin: 0;
-  color: var(--dt-accent-danger);
-  font-size: var(--dt-text-xs);
-}
-.auth-dialog__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--dt-space-sm);
-  margin-top: var(--dt-space-sm);
-}
+
 .auth-dialog__oidc-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--dt-space-sm);
-  width: 100%;
   height: 40px;
-  padding: 0 var(--dt-space-xl);
-  border-radius: var(--dt-radius-sm);
   background: var(--dt-accent-primary);
-  color: var(--dt-text-inverse);
-  font-size: var(--dt-text-sm);
-  font-weight: var(--dt-weight-medium);
   text-decoration: none;
 }
+
 .auth-dialog__oidc-link:hover {
   background: var(--dt-accent-primary-hover);
 }

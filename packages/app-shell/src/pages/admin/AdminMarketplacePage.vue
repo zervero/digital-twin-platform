@@ -49,23 +49,34 @@ function cardTag(pluginId: string, version: string | undefined): string | undefi
 </script>
 
 <template>
-  <div class="admin-marketplace-page">
-    <header class="admin-marketplace-page__header">
-      <h1 class="admin-marketplace-page__title">{{ t('marketplace.admin.title') }}</h1>
-      <p class="admin-marketplace-page__subtitle">{{ t('marketplace.admin.subtitle') }}</p>
-      <p v-if="errorMessage" class="admin-marketplace-page__error" role="alert">
+  <div class="admin-marketplace-page dt-flex dt-flex-col dt-gap-lg">
+    <header class="dt-flex dt-flex-col dt-gap-xs">
+      <h1 class="dt-m-0 dt-text-xl dt-font-semi dt-text-primary">
+        {{ t('marketplace.admin.title') }}
+      </h1>
+      <p class="dt-m-0 dt-text-secondary dt-text-sm">
+        {{ t('marketplace.admin.subtitle') }}
+      </p>
+      <p
+        v-if="errorMessage"
+        class="dt-inline-flex dt-items-center dt-gap-xs dt-m-0 dt-text-danger dt-text-xs"
+        role="alert"
+      >
         <DtIcon name="AlertTriangle" size="sm" />
         {{ errorMessage }}
       </p>
     </header>
 
     <DtTabs v-model="filter" :tabs="tabs">
-      <div v-if="loading" class="admin-marketplace-page__loading">
+      <div
+        v-if="loading"
+        class="dt-inline-flex dt-items-center dt-gap-sm dt-py-xl dt-text-secondary dt-text-sm"
+      >
         <DtIcon name="Loader" size="sm" />
         {{ t('marketplace.loadingInstalled') }}
       </div>
 
-      <div v-else-if="visible.length > 0" class="admin-marketplace-page__grid">
+      <div v-else-if="visible.length > 0" class="admin-marketplace-page__grid dt-gap-lg dt-py-lg">
         <DtAppCard
           v-for="plugin in visible"
           :key="plugin.id"
@@ -91,10 +102,9 @@ function cardTag(pluginId: string, version: string | undefined): string | undefi
               >
                 {{ t('marketplace.activate') }}
               </DtButton>
-              <span
-                v-else
-                class="admin-marketplace-page__active-label"
-              >{{ t('marketplace.active') }}</span>
+              <span v-else class="dt-text-secondary dt-text-sm dt-font-medium">{{
+                t('marketplace.active')
+              }}</span>
             </template>
           </template>
         </DtAppCard>
@@ -111,52 +121,10 @@ function cardTag(pluginId: string, version: string | undefined): string | undefi
 
 <style scoped>
 .admin-marketplace-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-lg);
   max-width: 1100px;
-}
-.admin-marketplace-page__header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-xs);
-}
-.admin-marketplace-page__title {
-  margin: 0;
-  font-size: var(--dt-text-xl);
-  font-weight: var(--dt-weight-semibold);
-  color: var(--dt-text-primary);
-}
-.admin-marketplace-page__subtitle {
-  margin: 0;
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-}
-.admin-marketplace-page__error {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
-  margin: 0;
-  color: var(--dt-accent-danger);
-  font-size: var(--dt-text-xs);
-}
-.admin-marketplace-page__loading {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  padding: var(--dt-space-xl) 0;
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
 }
 .admin-marketplace-page__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--dt-space-lg);
-  padding: var(--dt-space-lg) 0;
-}
-.admin-marketplace-page__active-label {
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-  font-weight: var(--dt-weight-medium);
 }
 </style>

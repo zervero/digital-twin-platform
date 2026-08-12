@@ -41,11 +41,15 @@ function roleLabel(role: Role): string {
 </script>
 
 <template>
-  <div class="admin-users-page">
-    <header class="admin-users-page__header">
+  <div class="admin-users-page dt-flex dt-flex-col dt-gap-lg">
+    <header class="dt-flex dt-items-start dt-justify-between dt-gap-md">
       <div>
-        <h1 class="admin-users-page__title">{{ t('admin.users.title') }}</h1>
-        <p class="admin-users-page__subtitle">{{ t('admin.users.subtitle') }}</p>
+        <h1 class="dt-m-0 dt-text-xl dt-font-semi dt-text-primary">
+          {{ t('admin.users.title') }}
+        </h1>
+        <p class="dt-m-0 dt-mt-xs dt-text-secondary dt-text-sm">
+          {{ t('admin.users.subtitle') }}
+        </p>
       </div>
       <DtButton variant="ghost" :disabled="isLoading" @click="refresh">
         <DtIcon name="RefreshCw" size="sm" />
@@ -53,18 +57,28 @@ function roleLabel(role: Role): string {
       </DtButton>
     </header>
 
-    <p v-if="errorMessage" class="admin-users-page__error" role="alert">
+    <p
+      v-if="errorMessage"
+      class="dt-inline-flex dt-items-center dt-gap-xs dt-m-0 dt-text-danger dt-text-xs"
+      role="alert"
+    >
       <DtIcon name="AlertTriangle" size="sm" />
       {{ errorMessage }}
     </p>
 
-    <div v-if="isLoading" class="admin-users-page__loading">
+    <div
+      v-if="isLoading"
+      class="dt-inline-flex dt-items-center dt-gap-sm dt-text-secondary dt-text-sm"
+    >
       <DtIcon name="Loader" size="sm" />
       {{ t('admin.users.loading') }}
     </div>
 
-    <div v-else-if="users && users.length > 0" class="admin-users-page__table-wrap">
-      <table class="admin-users-page__table">
+    <div
+      v-else-if="users && users.length > 0"
+      class="dt-overflow-auto dt-border dt-rounded-md dt-bg-elevated"
+    >
+      <table class="admin-users-page__table dt-w-full dt-text-sm">
         <thead>
           <tr>
             <th>{{ t('admin.users.columns.name') }}</th>
@@ -80,7 +94,7 @@ function roleLabel(role: Role): string {
             <td>
               <select
                 v-model="draftRoles[user.id]"
-                class="admin-users-page__select"
+                class="admin-users-page__select dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit"
                 :aria-label="t('admin.users.columns.role')"
               >
                 <option v-for="role in ADMIN_ROLES" :key="role" :value="role">
@@ -112,53 +126,10 @@ function roleLabel(role: Role): string {
 
 <style scoped>
 .admin-users-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-lg);
   max-width: 960px;
 }
-.admin-users-page__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--dt-space-md);
-}
-.admin-users-page__title {
-  margin: 0;
-  font-size: var(--dt-text-xl);
-  font-weight: var(--dt-weight-semibold);
-  color: var(--dt-text-primary);
-}
-.admin-users-page__subtitle {
-  margin: var(--dt-space-xs) 0 0;
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-}
-.admin-users-page__error {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
-  margin: 0;
-  color: var(--dt-accent-danger);
-  font-size: var(--dt-text-xs);
-}
-.admin-users-page__loading {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-}
-.admin-users-page__table-wrap {
-  overflow: auto;
-  border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-md);
-  background: var(--dt-bg-elevated);
-}
 .admin-users-page__table {
-  width: 100%;
   border-collapse: collapse;
-  font-size: var(--dt-text-sm);
 }
 .admin-users-page__table th,
 .admin-users-page__table td {
@@ -176,13 +147,6 @@ function roleLabel(role: Role): string {
   border-bottom: none;
 }
 .admin-users-page__select {
-  appearance: none;
-  background: var(--dt-bg-base);
-  border: 1px solid var(--dt-border-default);
-  color: var(--dt-text-primary);
-  padding: var(--dt-space-sm) var(--dt-space-md);
-  border-radius: var(--dt-radius-sm);
-  font: inherit;
   min-width: 120px;
 }
 .admin-users-page__select:focus {

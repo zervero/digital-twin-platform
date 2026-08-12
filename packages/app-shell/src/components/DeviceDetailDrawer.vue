@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
- * Ops right-rail context drawer for the selected device.
+ * Ops right push-drawer for the selected device. Open state is owned by
+ * the workspace via `v-model:open` so the grid column can collapse.
  * KPI values are mocked until a telemetry API lands — see TODO(telemetry).
  * Device actions (V4) are gated on command:send and echo-accepted by BFF.
  */
@@ -12,6 +13,7 @@ import { useI18n } from '@dt/i18n';
 import {
   DtButton,
   DtEmptyState,
+  DtIcon,
   DtPanel,
   DtStatCard,
   DtStatusBadge,
@@ -22,6 +24,8 @@ import { usePermission } from '../composables/usePermission.js';
 import { ApiClientKey } from '../stores/api-store.js';
 import { useAuthStore } from '../stores/auth-store.js';
 import { useDeviceStore } from '../stores/device-store.js';
+
+const open = defineModel<boolean>('open', { default: true });
 
 const { t } = useI18n();
 
@@ -79,11 +83,17 @@ async function runAction(type: DeviceActionType): Promise<void> {
 
 const activeTab = ref('overview');
 
-watch(selectedDevice, () => {
+watch(selectedDevice, (device) => {
   activeTab.value = 'overview';
   actionMessage.value = null;
   actionError.value = null;
+  // Selecting a device re-opens the drawer so context is never hidden.
+  if (device) open.value = true;
 });
+
+function collapse(): void {
+  open.value = false;
+}
 
 const tabs = computed(() => [
   { id: 'overview', label: t('device.drawer.tabs.overview') },
@@ -177,208 +187,177 @@ const mockKpis = computed(() => {
 </script>
 
 <template>
-  <aside class="device-drawer" aria-label="device detail">
-    <DtEmptyState
-      v-if="!selectedDevice"
-      :title="t('device.drawer.emptyTitle')"
-      :description="t('device.drawer.emptyDescription')"
-    />
-    <template v-else>
-      <header class="device-drawer__header">
-        <div class="device-drawer__title-block">
-          <h2 class="device-drawer__title">{{ selectedDevice.name }}</h2>
-          <p class="device-drawer__id">{{ selectedDevice.id }}</p>
-        </div>
-        <DtStatusBadge :status="selectedDevice.status" />
-      </header>
-
-      <DtTabs v-model="activeTab" :tabs="tabs">
-        <template v-if="activeTab === 'overview'">
-          <div class="device-drawer__kpis">
-            <DtStatCard
-              v-for="kpi in mockKpis"
-              :key="kpi.label"
-              :label="kpi.label"
-              :value="kpi.value"
-              :hint="kpi.hint"
-              :trend="kpi.trend"
-              :trend-label="kpi.trendLabel"
-            />
+  <aside
+    id="ops-detail-drawer"
+    class="device-drawer dt-border-l-subtle dt-bg-elevated dt-min-h-0 dt-min-w-0 dt-h-full dt-flex dt-flex-col"
+    :class="{ 'is-collapsed': !open }"
+    :aria-label="t('shell.detailDrawer.ariaLabel')"
+    :aria-hidden="!open"
+  >
+    <div
+      class="device-drawer__body dt-flex dt-flex-col dt-gap-xl dt-p-md dt-overflow-auto dt-min-h-0 dt-flex-1"
+    >
+      <DtEmptyState
+        v-if="!selectedDevice"
+        :title="t('device.drawer.emptyTitle')"
+        :description="t('device.drawer.emptyDescription')"
+      />
+      <template v-else>
+        <header class="dt-flex dt-items-start dt-justify-between dt-gap-md">
+          <div class="device-drawer__title-block dt-min-w-0 dt-flex dt-flex-col">
+            <h2 class="dt-m-0 dt-text-md dt-font-semi dt-text-primary dt-truncate">
+              {{ selectedDevice.name }}
+            </h2>
+            <p class="dt-m-0 dt-font-mono dt-text-xs dt-text-muted dt-truncate">
+              {{ selectedDevice.id }}
+            </p>
           </div>
-          <DtPanel :title="t('device.drawer.telemetry.title')" density="compact">
-            <dl class="device-drawer__telemetry">
-              <div
-                v-for="row in rows"
-                :key="row.key"
-                class="device-drawer__telemetry-row"
-              >
-                <dt>{{ row.label }}</dt>
-                <dd>{{ row.value }}</dd>
-              </div>
-            </dl>
-          </DtPanel>
-          <section
-            class="device-drawer__actions"
-            :aria-label="t('device.drawer.actions.title')"
-          >
-            <h3 class="device-drawer__actions-title">
-              {{ t('device.drawer.actions.title') }}
-            </h3>
-            <p v-if="!canSend" class="device-drawer__actions-readonly">
-              {{ t('device.drawer.actions.readOnly') }}
-            </p>
-            <div v-else class="device-drawer__actions-row">
-              <DtButton
-                variant="primary"
-                :disabled="!canAcknowledge || busyType !== null"
-                :aria-busy="busyType === 'acknowledge-alarm' || undefined"
-                @click="runAction('acknowledge-alarm')"
-              >
-                {{ t('device.drawer.actions.acknowledge') }}
-              </DtButton>
-              <DtButton
-                variant="default"
-                :disabled="busyType !== null"
-                :aria-busy="busyType === 'reset-device' || undefined"
-                @click="runAction('reset-device')"
-              >
-                {{ t('device.drawer.actions.reset') }}
-              </DtButton>
-              <DtButton
-                variant="default"
-                :disabled="busyType !== null"
-                :aria-busy="busyType === 'request-maintenance' || undefined"
-                @click="runAction('request-maintenance')"
-              >
-                {{ t('device.drawer.actions.maintenance') }}
-              </DtButton>
+          <DtStatusBadge :status="selectedDevice.status" />
+        </header>
+
+        <DtTabs v-model="activeTab" :tabs="tabs">
+          <template v-if="activeTab === 'overview'">
+            <div class="device-drawer__kpis dt-gap-md dt-mb-xl">
+              <DtStatCard
+                v-for="kpi in mockKpis"
+                :key="kpi.label"
+                :label="kpi.label"
+                :value="kpi.value"
+                :hint="kpi.hint"
+                :trend="kpi.trend"
+                :trend-label="kpi.trendLabel"
+              />
             </div>
-            <p v-if="actionMessage" class="device-drawer__actions-status" role="status">
-              {{ actionMessage }}
-            </p>
-            <p v-if="actionError" class="device-drawer__actions-error" role="alert">
-              {{ actionError }}
-            </p>
-          </section>
-        </template>
-        <p v-else class="device-drawer__placeholder">
-          {{ t('device.drawer.tabPlaceholder') }}
-        </p>
-      </DtTabs>
-    </template>
+            <DtPanel :title="t('device.drawer.telemetry.title')" density="compact">
+              <dl class="dt-m-0 dt-flex dt-flex-col dt-gap-sm">
+                <div
+                  v-for="row in rows"
+                  :key="row.key"
+                  class="device-drawer__telemetry-row dt-gap-md dt-items-baseline"
+                >
+                  <dt class="dt-m-0 dt-text-secondary dt-text-xs">{{ row.label }}</dt>
+                  <dd class="dt-m-0 dt-text-primary dt-text-sm dt-font-mono dt-truncate">
+                    {{ row.value }}
+                  </dd>
+                </div>
+              </dl>
+            </DtPanel>
+            <section
+              class="dt-flex dt-flex-col dt-gap-md dt-mt-xl"
+              :aria-label="t('device.drawer.actions.title')"
+            >
+              <h3 class="dt-m-0 dt-text-sm dt-font-semi dt-text-primary">
+                {{ t('device.drawer.actions.title') }}
+              </h3>
+              <p v-if="!canSend" class="dt-m-0 dt-text-sm dt-text-muted">
+                {{ t('device.drawer.actions.readOnly') }}
+              </p>
+              <div v-else class="dt-flex dt-flex-wrap dt-gap-sm">
+                <DtButton
+                  variant="primary"
+                  :disabled="!canAcknowledge || busyType !== null"
+                  :aria-busy="busyType === 'acknowledge-alarm' || undefined"
+                  @click="runAction('acknowledge-alarm')"
+                >
+                  {{ t('device.drawer.actions.acknowledge') }}
+                </DtButton>
+                <DtButton
+                  variant="default"
+                  :disabled="busyType !== null"
+                  :aria-busy="busyType === 'reset-device' || undefined"
+                  @click="runAction('reset-device')"
+                >
+                  {{ t('device.drawer.actions.reset') }}
+                </DtButton>
+                <DtButton
+                  variant="default"
+                  :disabled="busyType !== null"
+                  :aria-busy="busyType === 'request-maintenance' || undefined"
+                  @click="runAction('request-maintenance')"
+                >
+                  {{ t('device.drawer.actions.maintenance') }}
+                </DtButton>
+              </div>
+              <p
+                v-if="actionMessage"
+                class="dt-m-0 dt-text-sm dt-text-secondary"
+                role="status"
+              >
+                {{ actionMessage }}
+              </p>
+              <p v-if="actionError" class="dt-m-0 dt-text-sm dt-text-danger" role="alert">
+                {{ actionError }}
+              </p>
+            </section>
+          </template>
+          <p v-else class="dt-m-0 dt-text-muted dt-text-sm">
+            {{ t('device.drawer.tabPlaceholder') }}
+          </p>
+        </DtTabs>
+      </template>
+    </div>
+
+    <div class="device-drawer__footer dt-flex-shrink-0 dt-border-t-subtle dt-p-md">
+      <DtButton
+        variant="ghost"
+        class="device-drawer__toggle"
+        data-testid="ops-detail-collapse"
+        aria-controls="ops-detail-drawer"
+        :aria-expanded="open"
+        :aria-label="t('shell.detailDrawer.collapse')"
+        @click="collapse"
+      >
+        <DtIcon name="ChevronsRight" size="md" />
+        <span>{{ t('shell.detailDrawer.collapse') }}</span>
+      </DtButton>
+    </div>
   </aside>
 </template>
 
 <style scoped>
 .device-drawer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-xl);
-  min-height: 0;
-  min-width: 0;
-  height: 100%;
-  padding: var(--dt-space-md);
-  overflow: auto;
-  background: var(--dt-bg-elevated);
-  border-left: 1px solid var(--dt-border-subtle);
+  overflow: hidden;
+  transition:
+    opacity var(--dt-duration-base) var(--dt-ease-default),
+    border-color var(--dt-duration-base) var(--dt-ease-default);
 }
-.device-drawer__header {
-  display: flex;
-  align-items: flex-start;
+
+.device-drawer.is-collapsed {
+  opacity: 0;
+  border-left-color: transparent;
+  pointer-events: none;
+}
+
+:deep(.device-drawer__toggle.dt-button) {
+  display: inline-flex;
+  align-items: center;
   justify-content: space-between;
-  gap: var(--dt-space-md);
+  width: 100%;
+  height: 32px;
+  padding: 0 var(--dt-space-md);
+  gap: var(--dt-space-sm);
+  border: 1px solid transparent;
+  border-radius: var(--dt-radius-sm);
+  color: var(--dt-text-secondary);
+  font-size: var(--dt-text-sm);
+  font-weight: var(--dt-weight-medium);
 }
-.device-drawer__title-block {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.device-drawer__title {
-  margin: 0;
-  font-size: var(--dt-text-md);
-  font-weight: var(--dt-weight-semi);
+
+:deep(.device-drawer__toggle.dt-button:hover:not(:disabled)) {
+  background: var(--dt-bg-surface-hover);
+  border-color: var(--dt-border-default);
   color: var(--dt-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
-.device-drawer__id {
-  margin: 0;
-  font-family: var(--dt-font-mono);
-  font-size: var(--dt-text-xs);
-  color: var(--dt-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+
+.device-drawer__title-block {
+  gap: 2px;
 }
 .device-drawer__kpis {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--dt-space-md);
-  margin-bottom: var(--dt-space-xl);
-}
-.device-drawer__telemetry {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-sm);
 }
 .device-drawer__telemetry-row {
   display: grid;
   grid-template-columns: minmax(72px, 30%) 1fr;
-  gap: var(--dt-space-md);
-  align-items: baseline;
-}
-.device-drawer__telemetry-row dt {
-  margin: 0;
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-xs);
-}
-.device-drawer__telemetry-row dd {
-  margin: 0;
-  color: var(--dt-text-primary);
-  font-size: var(--dt-text-sm);
-  font-family: var(--dt-font-mono);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.device-drawer__placeholder {
-  margin: 0;
-  color: var(--dt-text-muted);
-  font-size: var(--dt-text-sm);
-}
-.device-drawer__actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-md);
-  margin-top: var(--dt-space-xl);
-}
-.device-drawer__actions-title {
-  margin: 0;
-  font-size: var(--dt-text-sm);
-  font-weight: var(--dt-weight-semi);
-  color: var(--dt-text-primary);
-}
-.device-drawer__actions-readonly {
-  margin: 0;
-  font-size: var(--dt-text-sm);
-  color: var(--dt-text-muted);
-}
-.device-drawer__actions-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--dt-space-sm);
-}
-.device-drawer__actions-status {
-  margin: 0;
-  font-size: var(--dt-text-sm);
-  color: var(--dt-text-secondary);
-}
-.device-drawer__actions-error {
-  margin: 0;
-  font-size: var(--dt-text-sm);
-  color: var(--dt-accent-danger);
 }
 </style>

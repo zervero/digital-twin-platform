@@ -155,7 +155,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="scene-viewport">
+  <div class="scene-viewport dt-relative dt-w-full dt-h-full dt-min-h-0 dt-min-w-0">
     <div ref="container" class="scene-viewport__canvas" />
 
     <div class="scene-viewport__tools scene-viewport__tools--top">
@@ -175,7 +175,7 @@ onBeforeUnmount(() => {
 
     <div
       v-if="sceneStore.loading || sceneStore.error || sceneStore.snapshot || showAssetProgress"
-      class="scene-viewport__overlay"
+      class="scene-viewport__overlay dt-inline-flex dt-items-center dt-gap-sm dt-py-sm dt-px-lg dt-border-subtle dt-rounded-pill dt-text-secondary dt-font-ui dt-text-xs dt-font-medium"
       aria-live="polite"
     >
       <template v-if="sceneStore.loading">
@@ -202,7 +202,7 @@ onBeforeUnmount(() => {
           {{ sceneStore.nodeCount }}
           {{ sceneStore.nodeCount === 1 ? t('scene.node') : t('scene.nodes') }}
         </span>
-        <span v-if="assetFallbackCount > 0" class="scene-viewport__fallback">
+        <span v-if="assetFallbackCount > 0" class="dt-text-muted">
           · {{ t('scene.assetsFallback', { count: assetFallbackCount }) }}
         </span>
       </template>
@@ -211,13 +211,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.scene-viewport {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  min-width: 0;
-}
+/* Absolute overlays / canvas fill — keep in scoped */
 .scene-viewport__canvas {
   position: absolute;
   inset: 0;
@@ -241,21 +235,8 @@ onBeforeUnmount(() => {
   left: var(--dt-space-lg);
   bottom: var(--dt-space-lg);
   z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  padding: var(--dt-space-sm) var(--dt-space-lg);
   background: var(--dt-bg-overlay);
-  border: 1px solid var(--dt-border-subtle);
-  border-radius: var(--dt-radius-pill);
-  color: var(--dt-text-secondary);
-  font-family: var(--dt-font-ui);
-  font-size: var(--dt-text-xs);
-  font-weight: var(--dt-weight-medium);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-}
-.scene-viewport__fallback {
-  color: var(--dt-text-muted, var(--dt-text-secondary));
 }
 </style>

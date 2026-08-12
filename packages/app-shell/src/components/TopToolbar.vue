@@ -1,26 +1,21 @@
 <script setup lang="ts">
 /**
- * Product chrome top bar (V4 Task 5):
+ * Product chrome top bar:
  *   Left   — brand, version chip, factory/tenant label
- *   Center — ops / admin mode switch (`DtSegmentedControl`),
- *            only when the user has the `admin` role (a lone
- *            "Ops" chip for viewer/operator is omitted)
  *   Right  — Search · Notifications · Help · [EN | 中文] · User
  *
- * Locale control sits immediately before the user control
- * (design requirement). Last `/admin/*` path is restored via
- * `useLastAdminPath`.
+ * Ops/Admin mode switching lives on the signed-in user hover menu
+ * in `LoginButton` (admin-only Admin entry). Locale sits immediately
+ * before the user control.
  */
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useRoute, useRouter } from 'vue-router';
 
-import { DtButton, DtIcon, DtSegmentedControl, DtToolbar } from '@dt/ui-kit';
+import { DtButton, DtIcon, DtToolbar } from '@dt/ui-kit';
 import { useI18n, useLocaleStore } from '@dt/i18n';
 
 import LoginButton from './LoginButton.vue';
 import { useAuthStore } from '../stores/auth-store.js';
-import { useLastAdminPath } from '../composables/useLastAdminPath.js';
 
 const { t, setLocale } = useI18n();
 const localeStore = useLocaleStore();
@@ -28,16 +23,7 @@ const localeStore = useLocaleStore();
 const authStore = useAuthStore();
 const { state } = storeToRefs(authStore);
 
-const route = useRoute();
-const router = useRouter();
-const lastAdminPath = useLastAdminPath();
-
 const APP_VERSION = '4.3.0';
-
-const isAdmin = computed(() => {
-  if (state.value.kind !== 'authenticated') return false;
-  return state.value.session.user.roles.includes('admin');
-});
 
 const tenantLabel = computed(() => {
   if (state.value.kind === 'authenticated' && state.value.session.tenantId) {
@@ -45,33 +31,6 @@ const tenantLabel = computed(() => {
   }
   return t('shell.tenant.unknown');
 });
-
-const mode = computed<'ops' | 'admin'>(() =>
-  route.path.startsWith('/admin') ? 'admin' : 'ops',
-);
-
-const modeOptions = computed(() => [
-  { value: 'ops', label: t('shell.mode.ops') },
-  { value: 'admin', label: t('shell.mode.admin') },
-]);
-
-watch(
-  () => route.fullPath,
-  (path) => {
-    lastAdminPath.remember(path);
-  },
-  { immediate: true },
-);
-
-function onModeChange(next: string): void {
-  if (next === 'ops') {
-    void router.push('/ops');
-    return;
-  }
-  if (next === 'admin') {
-    void router.push(lastAdminPath.get());
-  }
-}
 
 const localeOptions = [
   { value: 'en' as const, label: 'EN' },
@@ -85,72 +44,102 @@ const activeLocale = computed(() =>
 </script>
 
 <template>
-  <DtToolbar>
-    <div class="toolbar-left">
-      <div class="brand">
-        <span class="brand__mark">
-          <DtIcon name="Boxes" size="lg" />
+  <DtToolbar class="top-toolbar" :divided="false">
+    <div
+      class="dt-inline-flex dt-items-center dt-flex-1 dt-min-w-0 dt-h-control dt-gap-xl toolbar-left"
+    >
+      <div class="dt-inline-flex dt-items-center dt-gap-md dt-h-control dt-font-ui">
+        <span
+          class="brand__mark dt-inline-flex dt-items-center dt-justify-center dt-size-mark dt-rounded-sm dt-text-inverse dt-flex-shrink-0"
+          aria-hidden="true"
+        >
+          <DtIcon name="Boxes" size="md" />
         </span>
-        <span class="brand__name">Digital Twin</span>
-        <span class="brand__version">{{ APP_VERSION }}</span>
+        <span class="dt-text-lg dt-font-semi dt-leading-1 dt-text-primary">
+          Digital Twin
+        </span>
+        <span
+          class="dt-inline-flex dt-items-center dt-px-md dt-font-mono dt-text-xs dt-font-medium dt-leading-1 dt-text-secondary dt-bg-surface dt-border-subtle dt-rounded-pill brand__version"
+        >
+          {{ APP_VERSION }}
+        </span>
       </div>
+
+      <span class="dt-shrink-rule" aria-hidden="true" />
 
       <button
         type="button"
-        class="tenant"
+        class="tenant dt-appearance-none dt-inline-flex dt-items-center dt-gap-sm dt-h-control dt-px-lg dt-border dt-rounded-sm dt-bg-surface dt-text-secondary dt-text-sm dt-leading-1 dt-cursor-default"
         :aria-label="t('shell.tenant.ariaLabel')"
         disabled
       >
-        <DtIcon name="Building2" size="sm" />
-        <span class="tenant__label">{{ tenantLabel }}</span>
+        <DtIcon name="Building2" size="md" />
+        <span class="dt-truncate tenant__label">{{ tenantLabel }}</span>
         <DtIcon name="ChevronDown" size="sm" />
       </button>
     </div>
 
     <div
-      v-if="isAdmin"
-      class="toolbar-center"
-      :aria-label="t('shell.mode.ariaLabel')"
+      class="dt-inline-flex dt-items-center dt-flex-1 dt-min-w-0 dt-h-control dt-justify-end dt-gap-xl toolbar-right"
     >
-      <DtSegmentedControl
-        :model-value="mode"
-        :options="modeOptions"
-        @update:model-value="onModeChange"
-      />
-    </div>
+      <div class="dt-inline-flex dt-items-center dt-gap-xs">
+        <DtButton
+          variant="ghost"
+          class="toolbar-icon-btn"
+          :aria-label="t('shell.actions.search')"
+          data-testid="toolbar-search"
+          disabled
+        >
+          <DtIcon name="Search" size="md" />
+        </DtButton>
+        <DtButton
+          variant="ghost"
+          class="toolbar-icon-btn"
+          :aria-label="t('shell.actions.notifications')"
+          data-testid="toolbar-notifications"
+          disabled
+        >
+          <DtIcon name="Bell" size="md" />
+        </DtButton>
+        <DtButton
+          variant="ghost"
+          class="toolbar-icon-btn"
+          :aria-label="t('shell.actions.help')"
+          data-testid="toolbar-help"
+          disabled
+        >
+          <DtIcon name="CircleHelp" size="md" />
+        </DtButton>
+      </div>
 
-    <div class="toolbar-right">
-      <DtButton
-        variant="ghost"
-        :aria-label="t('shell.actions.search')"
-        data-testid="toolbar-search"
-        disabled
-      >
-        <DtIcon name="Search" size="sm" />
-      </DtButton>
-      <DtButton
-        variant="ghost"
-        :aria-label="t('shell.actions.notifications')"
-        data-testid="toolbar-notifications"
-        disabled
-      >
-        <DtIcon name="Bell" size="sm" />
-      </DtButton>
-      <DtButton
-        variant="ghost"
-        :aria-label="t('shell.actions.help')"
-        data-testid="toolbar-help"
-        disabled
-      >
-        <DtIcon name="CircleHelp" size="sm" />
-      </DtButton>
+      <span class="dt-shrink-rule" aria-hidden="true" />
 
-      <div class="locale" role="group" :aria-label="t('shell.language')">
+      <div
+        class="locale dt-inline-flex dt-items-center dt-h-control dt-bg-surface dt-border dt-rounded-pill dt-box-border"
+        role="group"
+        :aria-label="t('shell.language')"
+      >
         <button
           v-for="opt in localeOptions"
           :key="opt.value"
           type="button"
-          :class="['locale__opt', { 'is-active': activeLocale === opt.value }]"
+          :class="[
+            'locale__opt',
+            'dt-appearance-none',
+            'dt-inline-flex',
+            'dt-items-center',
+            'dt-justify-center',
+            'dt-border-0',
+            'dt-bg-transparent',
+            'dt-text-secondary',
+            'dt-px-md',
+            'dt-rounded-pill',
+            'dt-text-xs',
+            'dt-font-medium',
+            'dt-leading-1',
+            'dt-pointer',
+            { 'is-active': activeLocale === opt.value },
+          ]"
           :aria-pressed="activeLocale === opt.value"
           data-testid="toolbar-locale"
           @click="setLocale(opt.value)"
@@ -165,112 +154,78 @@ const activeLocale = computed(() =>
 </template>
 
 <style scoped>
+:deep(.dt-toolbar.top-toolbar) {
+  position: relative;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 var(--dt-space-2xl);
+  gap: 0;
+}
+
 .toolbar-left {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-md);
-  min-width: 0;
+  padding-right: var(--dt-space-2xl);
 }
-.toolbar-center {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
+
 .toolbar-right {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--dt-space-sm);
-  min-width: 0;
+  padding-left: var(--dt-space-2xl);
 }
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-md);
-  font-family: var(--dt-font-ui);
-  letter-spacing: 0;
-}
+
 .brand__mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--dt-radius-sm);
   background: linear-gradient(
     135deg,
     var(--dt-accent-primary),
     var(--dt-accent-secondary)
   );
-  color: var(--dt-text-inverse);
 }
-.brand__name {
-  font-size: var(--dt-text-lg);
-  font-weight: var(--dt-weight-semi);
-  color: var(--dt-text-primary);
-}
+
 .brand__version {
-  font-family: var(--dt-font-mono);
-  font-size: var(--dt-text-xs);
-  font-weight: var(--dt-weight-medium);
-  color: var(--dt-text-secondary);
-  background: var(--dt-bg-surface);
-  border: 1px solid var(--dt-border-subtle);
-  padding: 1px 6px;
-  border-radius: var(--dt-radius-pill);
+  height: 22px;
 }
-.tenant {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
-  padding: 2px var(--dt-space-sm);
-  border: 1px solid var(--dt-border-subtle);
-  border-radius: var(--dt-radius-sm);
-  background: var(--dt-bg-surface);
-  color: var(--dt-text-secondary);
-  font: inherit;
-  font-size: var(--dt-text-sm);
-  cursor: default;
-}
+
 .tenant:disabled {
   opacity: 1;
 }
+
 .tenant__label {
   max-width: 12rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
-.locale {
+
+:deep(.toolbar-icon-btn.dt-button) {
   display: inline-flex;
   align-items: center;
-  gap: 1px;
-  padding: 2px;
-  background: var(--dt-bg-surface);
-  border: 1px solid var(--dt-border-subtle);
-  border-radius: var(--dt-radius-pill);
-}
-.locale__opt {
-  appearance: none;
-  border: 0;
-  background: transparent;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--dt-radius-sm);
   color: var(--dt-text-secondary);
-  padding: 2px var(--dt-space-sm);
-  border-radius: var(--dt-radius-pill);
-  font: inherit;
-  font-size: var(--dt-text-xs);
-  font-weight: var(--dt-weight-medium);
-  cursor: pointer;
-  transition: background var(--dt-duration-fast) var(--dt-ease-default),
+}
+
+:deep(.toolbar-icon-btn.dt-button:hover:not(:disabled)) {
+  background: var(--dt-bg-surface-hover);
+  border-color: var(--dt-border-default);
+  color: var(--dt-text-primary);
+}
+
+.locale {
+  gap: 2px;
+  padding: 2px;
+}
+
+.locale__opt {
+  height: 100%;
+  min-width: 3rem;
+  transition:
+    background var(--dt-duration-fast) var(--dt-ease-default),
     color var(--dt-duration-fast) var(--dt-ease-default);
 }
+
 .locale__opt:hover:not(.is-active) {
   color: var(--dt-text-primary);
   background: var(--dt-bg-surface-hover);
 }
+
 .locale__opt.is-active {
   background: var(--dt-accent-primary);
   color: var(--dt-text-inverse);

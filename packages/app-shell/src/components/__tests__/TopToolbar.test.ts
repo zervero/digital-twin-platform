@@ -73,8 +73,6 @@ async function mountToolbar(opts: {
     },
   });
 
-  // Auth must be hydrated before navigating to `/admin/*` so the
-  // navigation guard does not bounce the initial path to `/ops`.
   if (opts.authenticated !== false && (opts.roles || opts.tenantId !== undefined)) {
     const auth = useAuthStore();
     auth.state = {
@@ -153,81 +151,20 @@ describe('TopToolbar product chrome', () => {
       'toolbar-locale',
       'toolbar-locale',
       'open-appearance',
+      'auth-user-menu',
       'auth-user',
+      'auth-user-menu-panel',
+      'auth-menu-ops',
       'auth-logout',
     ]);
     expect(right.find('.auth-chrome').exists()).toBe(true);
     expect(right.find('.locale + .auth-chrome').exists()).toBe(true);
   });
 
-  it('hides the mode switch entirely for non-admin roles', async () => {
-    const { wrapper } = await mountToolbar({ roles: ['operator'] });
-
-    expect(wrapper.find('.toolbar-center').exists()).toBe(false);
-    expect(wrapper.text()).not.toContain('Ops');
-    expect(wrapper.text()).not.toContain('Admin');
-  });
-
-  it('hides the mode switch for viewers as well', async () => {
-    const { wrapper } = await mountToolbar({ roles: ['viewer'] });
-
-    expect(wrapper.find('.toolbar-center').exists()).toBe(false);
-  });
-
-  it('shows the ops/admin mode switch for admin roles', async () => {
+  it('does not render a center ops/admin mode switch', async () => {
     const { wrapper } = await mountToolbar({ roles: ['admin'] });
 
-    const center = wrapper.find('.toolbar-center');
-    expect(center.exists()).toBe(true);
-    expect(center.text()).toContain('Ops');
-    expect(center.text()).toContain('Admin');
-  });
-
-  it('navigates to /ops when selecting ops mode', async () => {
-    const { wrapper, router } = await mountToolbar({
-      roles: ['admin'],
-      initialPath: '/admin/marketplace',
-    });
-
-    const buttons = wrapper.find('.toolbar-center').findAll('button');
-    const opsBtn = buttons.find((b) => b.text() === 'Ops');
-    expect(opsBtn).toBeTruthy();
-    await opsBtn!.trigger('click');
-    await flushPromises();
-
-    expect(router.currentRoute.value.path).toBe('/ops');
-  });
-
-  it('navigates to last admin path when selecting admin mode', async () => {
-    const { wrapper, router } = await mountToolbar({
-      roles: ['admin'],
-      initialPath: '/admin/users',
-    });
-
-    // Leave admin so mode is ops, then switch back.
-    await router.push('/ops');
-    await flushPromises();
-
-    const buttons = wrapper.find('.toolbar-center').findAll('button');
-    const adminBtn = buttons.find((b) => b.text() === 'Admin');
-    expect(adminBtn).toBeTruthy();
-    await adminBtn!.trigger('click');
-    await flushPromises();
-
-    expect(router.currentRoute.value.path).toBe('/admin/users');
-  });
-
-  it('falls back to /admin/marketplace when no last admin path exists', async () => {
-    const { wrapper, router } = await mountToolbar({
-      roles: ['admin'],
-      initialPath: '/ops',
-    });
-
-    const buttons = wrapper.find('.toolbar-center').findAll('button');
-    const adminBtn = buttons.find((b) => b.text() === 'Admin');
-    await adminBtn!.trigger('click');
-    await flushPromises();
-
-    expect(router.currentRoute.value.path).toBe('/admin/marketplace');
+    expect(wrapper.find('.toolbar-center').exists()).toBe(false);
+    expect(wrapper.find('.dt-segmented').exists()).toBe(false);
   });
 });

@@ -199,4 +199,21 @@ describe('DeviceDetailDrawer', () => {
       'Read-only role — device actions are unavailable',
     );
   });
+
+  it('collapses via the chrome control and re-opens when a device is selected', async () => {
+    const { wrapper, deviceStore } = mountDrawer(makeDevice());
+    await wrapper.vm.$nextTick();
+
+    const aside = wrapper.get('#ops-detail-drawer');
+    expect(aside.classes()).not.toContain('is-collapsed');
+
+    await wrapper.get('[data-testid="ops-detail-collapse"]').trigger('click');
+    expect(aside.classes()).toContain('is-collapsed');
+
+    deviceStore.selectDevice(null);
+    await wrapper.vm.$nextTick();
+    deviceStore.selectDevice('device-1');
+    await wrapper.vm.$nextTick();
+    expect(aside.classes()).not.toContain('is-collapsed');
+  });
 });

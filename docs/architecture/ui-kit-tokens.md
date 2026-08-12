@@ -200,6 +200,7 @@ example.
 - Appearance dialog: `packages/app-shell/src/components/AppearanceSettingsDialog.vue`
   (form: `AppearanceSettingsForm.vue`; presentational modal: `DtDialog`)
 - Workspace boundary: `docs/architecture/workspace.md`
+- App-shell layout utilities (`dt-*`, token-backed): `docs/architecture/app-shell-utilities.md`
 - ADR 0006 (V1 closure): `docs/adr/0006-v1-closure.md`
 - ADR 0020 (V4 product shell + appearance-dialog amendment):
   `docs/adr/0020-v4-ui-product-shell.md`

@@ -73,43 +73,54 @@ function canUninstall(versionCount: number): boolean {
 </script>
 
 <template>
-  <section class="marketplace-panel" :aria-label="t('marketplace.title')">
-    <header class="marketplace-panel__header">
-      <h2 class="marketplace-panel__title">
+  <section
+    class="marketplace-panel dt-flex dt-flex-col dt-gap-md dt-p-lg dt-border dt-rounded-md dt-bg-base dt-text-primary dt-font-ui dt-text-sm dt-leading-normal"
+    :aria-label="t('marketplace.title')"
+  >
+    <header class="dt-flex dt-flex-col dt-gap-xs">
+      <h2
+        class="dt-inline-flex dt-items-center dt-gap-sm dt-m-0 dt-text-lg dt-font-semi dt-text-primary"
+      >
         <DtIcon name="Store" size="md" />
         {{ t('marketplace.title') }}
       </h2>
-      <p class="marketplace-panel__legacy-hint">
+      <p class="dt-m-0 dt-text-secondary dt-text-xs">
         {{ t('marketplace.admin.subtitle') }}
       </p>
-      <p v-if="errorMessage" class="marketplace-panel__error">
+      <p
+        v-if="errorMessage"
+        class="dt-inline-flex dt-items-center dt-gap-xs dt-m-0 dt-text-danger dt-text-xs"
+      >
         <DtIcon name="AlertTriangle" size="sm" />
         {{ errorMessage }}
       </p>
     </header>
 
-    <div v-if="canPublish" class="marketplace-panel__install-form">
-      <label class="marketplace-panel__label">
+    <div
+      v-if="canPublish"
+      class="dt-flex dt-flex-col dt-gap-sm dt-p-md dt-bg-elevated dt-border-subtle dt-rounded-sm"
+    >
+      <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.pluginId') }}</span>
         <input
           v-model="newPluginId"
-          class="marketplace-panel__input"
+          class="marketplace-panel__input dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
           type="text"
           placeholder="hello-plugin"
         />
       </label>
-      <label class="marketplace-panel__label">
+      <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.version') }}</span>
         <input
           v-model="newVersion"
-          class="marketplace-panel__input"
+          class="marketplace-panel__input dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
           type="text"
           placeholder="1.0.0"
         />
       </label>
       <button
         type="button"
-        class="marketplace-panel__button marketplace-panel__button--primary"
+        class="marketplace-panel__button marketplace-panel__button--primary dt-appearance-none dt-inline-flex dt-items-center dt-justify-center dt-gap-sm dt-border dt-bg-surface dt-py-sm dt-px-lg dt-rounded-sm dt-font-inherit dt-text-sm dt-font-medium dt-pointer"
         :disabled="!newPluginId || !newVersion"
         @click="submitInstall"
       >
@@ -117,51 +128,65 @@ function canUninstall(versionCount: number): boolean {
         {{ t('marketplace.install') }}
       </button>
     </div>
-    <p v-else class="marketplace-panel__hint">
+    <p
+      v-else
+      class="dt-inline-flex dt-items-center dt-gap-xs dt-m-0 dt-text-xs dt-text-secondary"
+    >
       {{ t('marketplace.installHint', { permission: 'plugin:publish' }) }}
     </p>
 
-    <div v-if="loading" class="marketplace-panel__loading">
+    <div
+      v-if="loading"
+      class="dt-inline-flex dt-items-center dt-gap-sm dt-m-0 dt-text-xs dt-text-secondary"
+    >
       <DtIcon name="Loader" size="sm" />
       {{ t('marketplace.loadingInstalled') }}
     </div>
 
-    <ol v-else-if="installed.length > 0" class="marketplace-panel__list">
+    <ol
+      v-else-if="installed.length > 0"
+      class="dt-flex dt-flex-col dt-gap-md dt-list-none"
+    >
       <li
         v-for="record in installed"
         :key="record.pluginId"
-        class="marketplace-panel__record"
+        class="dt-flex dt-flex-col dt-gap-sm dt-p-md dt-border-subtle dt-rounded-sm dt-bg-elevated"
       >
-        <header class="marketplace-panel__record-header">
+        <header class="dt-flex dt-items-baseline dt-justify-between dt-gap-sm">
           <strong>{{ record.pluginId }}</strong>
-          <span class="marketplace-panel__record-count">
-            {{ record.versions.length }} {{ record.versions.length === 1 ? t('marketplace.version') : t('marketplace.versions') }}
+          <span class="dt-font-mono dt-text-xs dt-text-secondary">
+            {{ record.versions.length }}
+            {{
+              record.versions.length === 1
+                ? t('marketplace.version')
+                : t('marketplace.versions')
+            }}
           </span>
         </header>
-        <ul class="marketplace-panel__versions">
+        <ul class="dt-flex dt-flex-col dt-gap-xs dt-list-none">
           <li
             v-for="version in record.versions"
             :key="version.version"
-            class="marketplace-panel__version"
+            class="marketplace-panel__version dt-flex dt-items-center dt-justify-between dt-gap-sm dt-py-sm dt-px-md dt-text-sm dt-rounded-sm"
             :data-active="isActive(record.pluginId, version.version)"
           >
-            <span class="marketplace-panel__version-id">
+            <span class="dt-inline-flex dt-items-center dt-gap-sm dt-text-primary">
               <DtIcon
                 v-if="isActive(record.pluginId, version.version)"
                 name="ShieldCheck"
                 size="sm"
               />
               <DtIcon v-else name="Package" size="sm" />
-              <span class="marketplace-panel__version-num">{{ version.version }}</span>
+              <span class="dt-font-mono">{{ version.version }}</span>
               <span
                 v-if="isActive(record.pluginId, version.version)"
-                class="marketplace-panel__badge"
+                class="marketplace-panel__badge dt-rounded-pill dt-text-inverse dt-font-mono dt-text-xs dt-font-semi"
               >{{ t('marketplace.active') }}</span>
             </span>
-            <span class="marketplace-panel__actions">
+            <span class="dt-inline-flex dt-gap-xs">
               <button
                 type="button"
-                class="marketplace-panel__action"
+                class="marketplace-panel__action dt-inline-flex dt-items-center dt-gap-xs dt-appearance-none dt-border dt-bg-transparent dt-rounded-sm dt-font-inherit dt-text-xs dt-pointer"
                 :disabled="!canInstall || isActive(record.pluginId, version.version)"
                 @click="handle.activate(record.pluginId, version.version)"
               >
@@ -170,7 +195,7 @@ function canUninstall(versionCount: number): boolean {
               </button>
               <button
                 type="button"
-                class="marketplace-panel__action marketplace-panel__action--danger"
+                class="marketplace-panel__action marketplace-panel__action--danger dt-inline-flex dt-items-center dt-gap-xs dt-appearance-none dt-border dt-bg-transparent dt-rounded-sm dt-font-inherit dt-text-xs dt-pointer"
                 :disabled="!canInstall || !canUninstall(record.versions.length)"
                 @click="handle.uninstall(record.pluginId, version.version)"
               >
@@ -182,7 +207,10 @@ function canUninstall(versionCount: number): boolean {
         </ul>
       </li>
     </ol>
-    <p v-else class="marketplace-panel__empty">
+    <p
+      v-else
+      class="dt-inline-flex dt-items-center dt-gap-sm dt-m-0 dt-text-xs dt-text-secondary"
+    >
       <DtIcon name="PackageOpen" size="sm" />
       {{ t('marketplace.empty') }}
     </p>
@@ -190,72 +218,7 @@ function canUninstall(versionCount: number): boolean {
 </template>
 
 <style scoped>
-.marketplace-panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-md);
-  padding: var(--dt-space-lg);
-  border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-md);
-  background: var(--dt-bg-base);
-  color: var(--dt-text-primary);
-  font-family: var(--dt-font-ui);
-  font-size: var(--dt-text-sm);
-  line-height: var(--dt-line-normal);
-}
-.marketplace-panel__header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-xs);
-}
-.marketplace-panel__title {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  margin: 0;
-  font-size: var(--dt-text-lg);
-  font-weight: var(--dt-weight-semi);
-  color: var(--dt-text-primary);
-  letter-spacing: 0;
-}
-.marketplace-panel__legacy-hint {
-  margin: 0;
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-xs);
-}
-.marketplace-panel__error {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
-  margin: 0;
-  color: var(--dt-accent-danger);
-  font-size: var(--dt-text-xs);
-}
-.marketplace-panel__install-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-sm);
-  padding: var(--dt-space-md);
-  background: var(--dt-bg-elevated);
-  border: 1px solid var(--dt-border-subtle);
-  border-radius: var(--dt-radius-sm);
-}
-.marketplace-panel__label {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-xs);
-  font-size: var(--dt-text-xs);
-  color: var(--dt-text-secondary);
-}
 .marketplace-panel__input {
-  appearance: none;
-  background: var(--dt-bg-base);
-  border: 1px solid var(--dt-border-default);
-  color: var(--dt-text-primary);
-  padding: var(--dt-space-sm) var(--dt-space-md);
-  border-radius: var(--dt-radius-sm);
-  font: inherit;
-  font-size: var(--dt-text-sm);
   transition: border-color var(--dt-duration-fast) var(--dt-ease-default);
 }
 .marketplace-panel__input:focus {
@@ -263,21 +226,8 @@ function canUninstall(versionCount: number): boolean {
   border-color: var(--dt-accent-primary);
 }
 .marketplace-panel__button {
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--dt-space-sm);
-  border: 1px solid var(--dt-border-default);
-  background: var(--dt-bg-surface);
-  color: inherit;
-  padding: var(--dt-space-sm) var(--dt-space-lg);
-  border-radius: var(--dt-radius-sm);
-  font: inherit;
-  font-size: var(--dt-text-sm);
-  font-weight: var(--dt-weight-medium);
-  cursor: pointer;
-  transition: background var(--dt-duration-fast) var(--dt-ease-default),
+  transition:
+    background var(--dt-duration-fast) var(--dt-ease-default),
     border-color var(--dt-duration-fast) var(--dt-ease-default);
 }
 .marketplace-panel__button:hover:not(:disabled) {
@@ -297,110 +247,17 @@ function canUninstall(versionCount: number): boolean {
   background: var(--dt-accent-primary-hover);
   border-color: var(--dt-accent-primary-hover);
 }
-.marketplace-panel__hint {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
-  margin: 0;
-  font-size: var(--dt-text-xs);
-  color: var(--dt-text-secondary);
-}
-.marketplace-panel__loading,
-.marketplace-panel__empty {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  margin: 0;
-  font-size: var(--dt-text-xs);
-  color: var(--dt-text-secondary);
-}
-.marketplace-panel__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-md);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.marketplace-panel__record {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-sm);
-  padding: var(--dt-space-md);
-  border: 1px solid var(--dt-border-subtle);
-  border-radius: var(--dt-radius-sm);
-  background: var(--dt-bg-elevated);
-}
-.marketplace-panel__record-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--dt-space-sm);
-}
-.marketplace-panel__record-count {
-  font-family: var(--dt-font-mono);
-  font-size: var(--dt-text-xs);
-  color: var(--dt-text-secondary);
-}
-.marketplace-panel__versions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-xs);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.marketplace-panel__version {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--dt-space-sm);
-  padding: var(--dt-space-sm) var(--dt-space-md);
-  font-size: var(--dt-text-sm);
-  border-radius: var(--dt-radius-sm);
-}
 .marketplace-panel__version[data-active='true'] {
   background: var(--dt-bg-surface);
   border: 1px solid var(--dt-border-default);
 }
-.marketplace-panel__version-id {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  color: var(--dt-text-primary);
-}
-.marketplace-panel__version-num {
-  font-family: var(--dt-font-mono);
-}
 .marketplace-panel__badge {
-  display: inline-block;
   padding: 1px 8px;
   background: var(--dt-accent-secondary);
-  color: var(--dt-text-inverse);
-  border-radius: var(--dt-radius-pill);
-  font-family: var(--dt-font-mono);
-  font-size: var(--dt-text-xs);
-  font-weight: var(--dt-weight-semi);
-  letter-spacing: 0;
   text-transform: lowercase;
 }
-.marketplace-panel__actions {
-  display: inline-flex;
-  gap: var(--dt-space-xs);
-}
 .marketplace-panel__action {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
-  appearance: none;
-  border: 1px solid var(--dt-border-default);
-  background: transparent;
-  color: inherit;
   padding: 2px var(--dt-space-sm);
-  border-radius: var(--dt-radius-sm);
-  font: inherit;
-  font-size: var(--dt-text-xs);
-  cursor: pointer;
   transition: background var(--dt-duration-fast) var(--dt-ease-default);
 }
 .marketplace-panel__action:hover:not(:disabled) {

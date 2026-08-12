@@ -52,13 +52,13 @@ function onSelect(nodeId: string): void {
 <template>
   <DtPanel :title="t('device.title')" density="compact">
     <template v-if="loading">
-      <div class="muted">
+      <div class="dt-inline-flex dt-items-center dt-gap-sm dt-text-secondary dt-text-sm dt-py-sm">
         <DtIcon name="Loader" size="sm" />
         {{ t('common.loading') }}
       </div>
     </template>
     <template v-else-if="error">
-      <div class="error">
+      <div class="dt-inline-flex dt-items-center dt-gap-sm dt-text-danger dt-text-sm dt-py-sm">
         <DtIcon name="AlertTriangle" size="sm" />
         {{ error }}
       </div>
@@ -78,22 +78,3 @@ function onSelect(nodeId: string): void {
     </template>
   </DtPanel>
 </template>
-
-<style scoped>
-.muted {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-  padding: var(--dt-space-sm) 0;
-}
-.error {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  color: var(--dt-accent-danger);
-  font-size: var(--dt-text-sm);
-  padding: var(--dt-space-sm) 0;
-}
-</style>

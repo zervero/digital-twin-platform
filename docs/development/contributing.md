@@ -278,6 +278,7 @@ When you delegate a task to an AI agent:
 ## Related guides
 
 - [Local development](./local-dev.md) — how to run `pnpm dev` on a fresh checkout.
+- [App-shell utilities](../architecture/app-shell-utilities.md) — curated `dt-*` atomic classes (token-backed, no Tailwind/UnoCSS).
 - [Viewport GLB assets](./viewport-assets.md) — Scheme C catalog, `@dt/asset-system` ensure/cache, licenses.
 - [Deployment](./deployment.md) — production-shape Dockerfiles, compose stack,
   env vars, health checks, graceful shutdown, pre-release pre-flight.

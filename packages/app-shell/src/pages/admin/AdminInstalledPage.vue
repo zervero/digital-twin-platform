@@ -43,22 +43,33 @@ async function onUninstall(pluginId: string, version: string): Promise<void> {
 </script>
 
 <template>
-  <div class="admin-installed-page">
-    <header class="admin-installed-page__header">
-      <h1 class="admin-installed-page__title">{{ t('marketplace.installed.title') }}</h1>
-      <p class="admin-installed-page__subtitle">{{ t('marketplace.installed.subtitle') }}</p>
-      <p v-if="errorMessage" class="admin-installed-page__error" role="alert">
+  <div class="admin-installed-page dt-flex dt-flex-col dt-gap-lg">
+    <header class="dt-flex dt-flex-col dt-gap-xs">
+      <h1 class="dt-m-0 dt-text-xl dt-font-semi dt-text-primary">
+        {{ t('marketplace.installed.title') }}
+      </h1>
+      <p class="dt-m-0 dt-text-secondary dt-text-sm">
+        {{ t('marketplace.installed.subtitle') }}
+      </p>
+      <p
+        v-if="errorMessage"
+        class="dt-inline-flex dt-items-center dt-gap-xs dt-m-0 dt-text-danger dt-text-xs"
+        role="alert"
+      >
         <DtIcon name="AlertTriangle" size="sm" />
         {{ errorMessage }}
       </p>
     </header>
 
-    <div v-if="loading" class="admin-installed-page__loading">
+    <div
+      v-if="loading"
+      class="dt-inline-flex dt-items-center dt-gap-sm dt-text-secondary dt-text-sm"
+    >
       <DtIcon name="Loader" size="sm" />
       {{ t('marketplace.loadingInstalled') }}
     </div>
 
-    <div v-else-if="cards.length > 0" class="admin-installed-page__grid">
+    <div v-else-if="cards.length > 0" class="admin-installed-page__grid dt-gap-lg">
       <DtAppCard
         v-for="card in cards"
         :key="`${card.pluginId}@${card.version}`"
@@ -95,45 +106,10 @@ async function onUninstall(pluginId: string, version: string): Promise<void> {
 
 <style scoped>
 .admin-installed-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-lg);
   max-width: 1100px;
-}
-.admin-installed-page__header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--dt-space-xs);
-}
-.admin-installed-page__title {
-  margin: 0;
-  font-size: var(--dt-text-xl);
-  font-weight: var(--dt-weight-semibold);
-  color: var(--dt-text-primary);
-}
-.admin-installed-page__subtitle {
-  margin: 0;
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
-}
-.admin-installed-page__error {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-xs);
-  margin: 0;
-  color: var(--dt-accent-danger);
-  font-size: var(--dt-text-xs);
-}
-.admin-installed-page__loading {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--dt-space-sm);
-  color: var(--dt-text-secondary);
-  font-size: var(--dt-text-sm);
 }
 .admin-installed-page__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--dt-space-lg);
 }
 </style>

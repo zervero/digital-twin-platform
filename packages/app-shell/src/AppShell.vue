@@ -10,6 +10,8 @@
  */
 import { RouterView } from 'vue-router';
 
+import './styles/utilities.css';
+
 import TopToolbar from './components/TopToolbar.vue';
 import AppearanceSettingsDialog from './components/AppearanceSettingsDialog.vue';
 import { useAuthSessionSync } from './composables/useAuthSessionSync.js';
@@ -18,23 +20,11 @@ useAuthSessionSync();
 </script>
 
 <template>
-  <div class="app-shell">
+  <div
+    class="dt-flex dt-flex-col dt-h-full dt-w-full dt-bg-base dt-text-primary dt-font-ui dt-text-md dt-leading-normal"
+  >
     <TopToolbar />
     <RouterView />
     <AppearanceSettingsDialog />
   </div>
 </template>
-
-<style scoped>
-.app-shell {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  background: var(--dt-bg-base);
-  color: var(--dt-text-primary);
-  font-family: var(--dt-font-ui);
-  font-size: var(--dt-text-md);
-  line-height: var(--dt-line-normal);
-}
-</style>
