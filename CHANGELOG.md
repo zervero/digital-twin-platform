@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Versions are produced by [release-please](https://github.com/googleapis/release-please)
 from [Conventional Commits](https://www.conventionalcommits.org/) history.
 
+## [4.7.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.6.0...digital-twin-platform-v4.7.0) (2026-08-12)
+
+
+### Features
+
+* **app-shell:** polish ops chrome layout and navigation ([cc0b42a](https://github.com/zervero/digital-twin-platform/commit/cc0b42afaedc877af9f2060b1ee260180033f8ca))
+
 ## [4.6.0](https://github.com/zervero/digital-twin-platform/compare/digital-twin-platform-v4.5.3...digital-twin-platform-v4.6.0) (2026-07-16)
 
 
