@@ -92,7 +92,9 @@ packages/
   device-domain/    # 设备业务模型
   api-client/       # 类型化 BFF 客户端
   ui-kit/           # 展示型 Vue 组件
-  app-shell/        # 共享组合层：布局、stores、面板
+  document-schema/  # Schema 驱动的单据定义与校验（SPEC 0001）
+  document-shell/   # 单据列表 + 详情/编辑运行时（vxe-table）
+  app-shell/        # 共享组合层：布局、stores、面板、/documents/*
   i18n/             # 本地化词典（en + zh-CN）
   realtime/         # 流接口
   plugin-runtime/   # 插件清单与注册
@@ -108,10 +110,11 @@ tooling/
 docs/
   architecture/  # 概览、工作区、引擎 SDK
   adr/           # 架构决策记录
+  specs/         # 轻量功能规格（ADR 0023）；单据工作台 = SPEC 0001
   development/   # 本地开发与视口资源指南
 ```
 
-包边界与依赖规则见 [docs/architecture/workspace.md](docs/architecture/workspace.md)。视口 GLB 目录 / 缓存流程：[docs/development/viewport-assets.md](docs/development/viewport-assets.md)（ADR 0021 / 0022）。
+包边界与依赖规则见 [docs/architecture/workspace.md](docs/architecture/workspace.md)。单据工作台：[docs/specs/0001-document-workbench.md](docs/specs/0001-document-workbench.md)（ADR 0024）。视口 GLB 目录 / 缓存流程：[docs/development/viewport-assets.md](docs/development/viewport-assets.md)（ADR 0021 / 0022）。
 
 ## 环境变量
 

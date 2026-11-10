@@ -69,7 +69,9 @@ packages/
   device-domain/    # Device business model
   api-client/       # Typed BFF client
   ui-kit/           # Presentational Vue components
-  app-shell/        # Shared composition: layout, stores, panels
+  document-schema/  # Schema-driven document definitions + validation (SPEC 0001)
+  document-shell/   # Document list + detail/edit runtime (vxe-table)
+  app-shell/        # Shared composition: layout, stores, panels, /documents/*
   i18n/             # Localization dictionaries (en + zh-CN)
   realtime/         # Stream interfaces
   plugin-runtime/   # Plugin manifest and registration
@@ -85,10 +87,11 @@ tooling/
 docs/
   architecture/  # Overview, workspace, engine SDK
   adr/           # Architecture decision records
+  specs/         # Lightweight feature specs (ADR 0023); document workbench = SPEC 0001
   development/   # Local dev + viewport assets guides
 ```
 
-See [docs/architecture/workspace.md](docs/architecture/workspace.md) for package boundaries and dependency rules. Viewport GLB catalog / cache flow: [docs/development/viewport-assets.md](docs/development/viewport-assets.md) (ADR 0021 / 0022).
+See [docs/architecture/workspace.md](docs/architecture/workspace.md) for package boundaries and dependency rules. Document workbench: [docs/specs/0001-document-workbench.md](docs/specs/0001-document-workbench.md) (ADR 0024). Viewport GLB catalog / cache flow: [docs/development/viewport-assets.md](docs/development/viewport-assets.md) (ADR 0021 / 0022).
 
 ## License
 
