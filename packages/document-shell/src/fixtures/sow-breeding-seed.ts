@@ -28,7 +28,6 @@ export const sowBreedingSeed: DocumentRecord[] = [
     semenProduct: '精液A',
     semenLot: 'SL-202211',
     breedingOwner: '张新',
-    warehouse: '精液库',
     remark: '',
     createdBy: '张新',
     createdAt: '2022-11-18 10:20:00',
