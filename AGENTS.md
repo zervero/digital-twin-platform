@@ -13,6 +13,7 @@ Where the documentation goes, in order of preference:
 | Change type | Document it in |
 | --- | --- |
 | Any code/config change | Conventional Commits message (the commit IS the log) |
+| Non-trivial behavior / feature work | Accepted spec under `docs/specs/NNNN-<slug>.md` (see ADR 0023) |
 | New package or moved boundary | `docs/architecture/workspace.md` |
 | New architecture decision | New ADR under `docs/adr/NNNN-<slug>.md` |
 | Engine SDK public API change | `docs/architecture/engine-sdk.md` |
@@ -26,12 +27,16 @@ in six months does not have your context.
 
 ## 2. Before any edit
 
-1. Identify which docs above are affected. Update them **first** if the
+1. If the work needs a feature spec (see ADR 0023 / `docs/specs/README.md`),
+   read the **accepted** spec first. Do not implement against a `draft`
+   unless the task is to finish that draft.
+2. Identify which docs above are affected. Update them **first** if the
    change crosses a boundary (new package, new dep direction, new env var,
-   new public API).
-2. Then make the code change.
-3. Then make the commit, using a Conventional Commits message that
-   describes the **why**, not just the **what**.
+   new public API, or new accepted-spec behavior).
+3. Then make the code change.
+4. Then make the commit, using a Conventional Commits message that
+   describes the **why**, not just the **what**. Cite `SPEC NNNN` in the
+   commit body or PR when the change implements a spec.
 
 ## 3. Boundaries to respect
 
@@ -60,6 +65,8 @@ Before reporting back, run this checklist mentally:
       `docs/development/local-dev.md` are still accurate.
 - [ ] If the change is a workflow/process change: `contributing.md` is
       still accurate.
+- [ ] If the change implements a feature spec: acceptance criteria are
+      met or explicitly deferred, and the commit/PR cites `SPEC NNNN`.
 - [ ] Commit message uses a Conventional Commits type and a scoped
       subject under 72 chars.
 

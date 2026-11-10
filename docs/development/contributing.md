@@ -113,6 +113,10 @@ Before you hit merge, run through this:
       `docs/architecture/workspace.md`
 - [ ] If you made an architectural decision, you wrote an ADR under
       `docs/adr/`
+- [ ] If the change is in-scope for a feature spec (see
+      [Feature specs](#feature-specs-lightweight-sdd)), the PR cites an
+      **accepted** `SPEC NNNN` (or an ADR that embeds the behavior
+      contract) and the acceptance criteria are covered
 
 ## CI
 
@@ -234,6 +238,30 @@ git push --no-verify
 
 Use sparingly and document it in the PR description.
 
+## Feature specs (lightweight SDD)
+
+Non-trivial behavior is specified before it is implemented. Specs live
+under [`docs/specs/`](../specs/README.md); the decision and scope gates
+are in [ADR 0023](../adr/0023-lightweight-sdd.md).
+
+**Write or update a spec** for new workspace/IA behavior, auth/roles/
+tenant boundaries, asset/marketplace/plugin pipelines, public API or
+`@dt/contracts` changes, and cross-package boundary moves.
+
+**Skip a spec** for polish, bugfixes that restore already-documented
+behavior, tests, CI, and dependency bumps with no behavior change.
+
+Flow:
+
+1. Copy `docs/specs/_template.md` → `docs/specs/NNNN-<slug>.md`.
+2. Reach `accepted` status (goal, non-goals, acceptance checklist).
+3. Implement; cite `SPEC NNNN` in the PR body.
+4. Mark the spec `implemented` when acceptance criteria are green on
+   `main`.
+
+ADRs remain for architecture *why*. Optional `docs/plans/` files remain
+for multi-PR sequencing. Do not duplicate the same prose in all three.
+
 ## Documentation discipline
 
 Every change is documented. The change itself does the work; the doc keeps
@@ -244,6 +272,7 @@ after I'm done?**
 
 | Change | Update |
 | --- | --- |
+| Non-trivial behavior / feature | Accepted spec under `docs/specs/` ([ADR 0023](../adr/0023-lightweight-sdd.md)) |
 | New package or moved boundary | `docs/architecture/workspace.md` |
 | New public API in `@dt/engine-sdk` | `docs/architecture/engine-sdk.md` |
 | New architecture decision | New ADR under `docs/adr/` |
@@ -269,6 +298,9 @@ When you delegate a task to an AI agent:
 - **Author is yours**: don't let the agent `git config` change your
   identity. The `Co-authored-by:` trailer is the right place to credit
   the agent.
+- **Spec before code**: for in-scope work, point the agent at an
+  **accepted** `docs/specs/NNNN-*.md` (or ask it to draft one first).
+  Agents must not invent acceptance criteria silently in chat.
 - **Tests are non-negotiable**: if the agent writes code without tests,
   the PR is not ready.
 - **Boundary review**: changes in `packages/contracts/`,
@@ -277,6 +309,8 @@ When you delegate a task to an AI agent:
 
 ## Related guides
 
+- [Feature specs](../specs/README.md) — lightweight SDD index and template
+  ([ADR 0023](../adr/0023-lightweight-sdd.md)).
 - [Local development](./local-dev.md) — how to run `pnpm dev` on a fresh checkout.
 - [App-shell utilities](../architecture/app-shell-utilities.md) — curated `dt-*` atomic classes (token-backed, no Tailwind/UnoCSS).
 - [Viewport GLB assets](./viewport-assets.md) — Scheme C catalog, `@dt/asset-system` ensure/cache, licenses.
