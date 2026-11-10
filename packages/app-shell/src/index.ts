@@ -70,6 +70,19 @@ export { default as LoginButton } from './components/LoginButton.vue';
 export { createAppRouter, adminNavigationGuard, routes } from './router/index.js';
 
 /**
+ * Install vxe document workbench + register the sow-death demo
+ * (SPEC 0001). Call once before `createAppRouter` / mount — required
+ * for both `bootstrapAppShell` and the web entry's manual boot path.
+ */
+export async function setupDocumentWorkbench(app: App): Promise<void> {
+  const { installDocumentShell, registerSowDeathDemo } = await import(
+    '@dt/document-shell'
+  );
+  installDocumentShell(app);
+  registerSowDeathDemo();
+}
+
+/**
  * Bootstrap helper. Creates a Vue app, installs Pinia + vue-router,
  * provides the API client, hydrates the auth store from sessionStorage
  * + /api/auth/me, activates any registered plugins, and mounts
@@ -95,6 +108,7 @@ export async function bootstrapAppShell(opts: {
   const app = createApp(AppShell);
   const pinia = createPinia();
   app.use(pinia);
+  await setupDocumentWorkbench(app);
   app.use(createAppRouter());
   provideApiClient(app, opts.apiClient);
 

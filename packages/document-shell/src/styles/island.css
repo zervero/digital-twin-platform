@@ -1,0 +1,51 @@
+/**
+ * Document workbench island theme bridge (SPEC 0001 / ADR 0024).
+ * Keep vxe accents aligned with --dt-* without theming the ops shell.
+ *
+ * vxe dark theme defaults `--vxe-ui-font-color` to rgba(255,255,255,0.6),
+ * which makes table headers hard to read on --dt-bg-*. Override on the
+ * island so header + body use primary text.
+ */
+
+.dt-document-island {
+  --vxe-ui-font-family: inherit;
+  --vxe-ui-font-color: var(--dt-text-primary, #e4e6eb);
+  --vxe-ui-font-lighten-color: var(--dt-text-secondary, #9ca3af);
+  --vxe-ui-font-darken-color: var(--dt-text-muted, #6b7280);
+  --vxe-ui-font-disabled-color: var(--dt-text-muted, #6b7280);
+  --vxe-ui-base-drag-bg-color: var(--dt-bg-elevated, #16191f);
+  --vxe-ui-layout-background-color: var(--dt-bg-base, #0b0d10);
+  --vxe-ui-input-border-color: var(--dt-border-default, #2a2f3a);
+  --vxe-ui-input-placeholder-color: var(--dt-text-muted, #6b7280);
+  --vxe-ui-table-header-background-color: var(--dt-bg-elevated, #16191f);
+  --vxe-ui-table-header-font-color: var(--dt-text-primary, #e4e6eb);
+  --vxe-ui-table-header-font-weight: 600;
+  --vxe-ui-table-footer-font-color: var(--dt-text-primary, #e4e6eb);
+  --vxe-ui-table-border-color: var(--dt-border-subtle, #1f2430);
+  --vxe-ui-table-row-hover-background-color: var(--dt-bg-surface-hover, #1c212b);
+  --vxe-ui-font-primary-color: var(--dt-accent-primary, #4f8fff);
+  color: var(--dt-text-primary, #e4e6eb);
+  background: var(--dt-bg-base, #0b0d10);
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Belt-and-suspenders: some vxe builds resolve header color before
+   inherited custom props settle; pin th text explicitly. */
+.dt-document-island .vxe-header--column,
+.dt-document-island .vxe-header--column .vxe-cell {
+  color: var(--dt-text-primary, #e4e6eb);
+}
+
+.dt-document-island a.dt-doc-link {
+  color: var(--dt-accent-primary, #4f8fff);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dt-document-island a.dt-doc-link:hover {
+  text-decoration: underline;
+}

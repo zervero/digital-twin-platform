@@ -7,3 +7,5 @@ allowBuilds:
   lefthook: true
   protobufjs: true
   vue-demi: true
+minimumReleaseAgeExclude:
+  - vxe-table@4.23.17

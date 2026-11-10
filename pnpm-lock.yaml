@@ -19,7 +19,7 @@ importers:
         version: link:packages/plugin-runtime
       '@types/ws':
         specifier: ^8.18.1
-        version: 8.18.1
+        version: 8.18.2
       eslint:
         specifier: ^9.15.0
         version: 9.39.4(jiti@1.19.1)
@@ -98,7 +98,7 @@ importers:
         version: 22.20.0
       '@types/ws':
         specifier: ^8.5.12
-        version: 8.18.1
+        version: 8.18.2
       jose:
         specifier: ^5.9.6
         version: 5.9.6
@@ -156,10 +156,10 @@ importers:
         version: link:../../packages/ui-kit
       '@fontsource/inter':
         specifier: ^5.2.8
-        version: 5.2.8
+        version: 5.3.0
       '@fontsource/jetbrains-mono':
         specifier: ^5.2.8
-        version: 5.2.8
+        version: 5.3.0
       pinia:
         specifier: ^2.2.6
         version: 2.3.1(typescript@5.6.3)(vue@3.5.39(typescript@5.6.3))
@@ -220,6 +220,12 @@ importers:
       '@dt/device-domain':
         specifier: workspace:*
         version: link:../device-domain
+      '@dt/document-schema':
+        specifier: workspace:*
+        version: link:../document-schema
+      '@dt/document-shell':
+        specifier: workspace:*
+        version: link:../document-shell
       '@dt/engine-sdk':
         specifier: workspace:*
         version: link:../engine-sdk
@@ -338,6 +344,55 @@ importers:
       vitest:
         specifier: ^2.1.5
         version: 2.1.5(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)
+
+  packages/document-schema:
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.5
+        version: 2.1.5(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)
+
+  packages/document-shell:
+    dependencies:
+      '@dt/document-schema':
+        specifier: workspace:*
+        version: link:../document-schema
+      '@dt/ui-kit':
+        specifier: workspace:*
+        version: link:../ui-kit
+      vxe-pc-ui:
+        specifier: ^4.10.0
+        version: 4.20.40(vue@3.5.39(typescript@5.6.3))
+      vxe-table:
+        specifier: ^4.23.17
+        version: 4.23.17
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^5.2.1
+        version: 5.2.1(vite@5.4.11(@types/node@22.20.0))(vue@3.5.39(typescript@5.6.3))
+      '@vue/test-utils':
+        specifier: ^2.4.6
+        version: 2.4.11(@vue/compiler-dom@3.5.39)(@vue/server-renderer@3.5.39(vue@3.5.39(typescript@5.6.3)))(vue@3.5.39(typescript@5.6.3))
+      happy-dom:
+        specifier: ^15.11.7
+        version: 15.11.7
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.5
+        version: 2.1.5(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)
+      vue:
+        specifier: ^3.5.13
+        version: 3.5.39(typescript@5.6.3)
+      vue-router:
+        specifier: ^4.5.0
+        version: 4.6.4(vue@3.5.39(typescript@5.6.3))
+      vue-tsc:
+        specifier: ^2.1.10
+        version: 2.1.10(typescript@5.6.3)
 
   packages/engine-sdk:
     dependencies:
@@ -955,11 +1010,11 @@ packages:
     resolution: {integrity: sha512-43/qtrDUokr7LJqoF2c3+RInu/t4zfrpYdoSDfYyhg52rwLV6TnOvdG4fXm7IkSB3wErkcmJS9iEhjVtOSEjjA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@fontsource/inter@5.2.8':
-    resolution: {integrity: sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg==}
+  '@fontsource/inter@5.3.0':
+    resolution: {integrity: sha512-RofMylZmjlJEfELXeNHFWBRcSs75rGU/6bV2S2jfnvv/3rPXPGe0LgUJTklcHZ9lM4OZmAVFhcJPnACfb91A3g==}
 
-  '@fontsource/jetbrains-mono@5.2.8':
-    resolution: {integrity: sha512-6w8/SG4kqvIMu7xd7wt6x3idn1Qux3p9N62s6G3rfldOUYHpWcc2FKrqf+Vo44jRvqWj2oAtTHrZXEP23oSKwQ==}
+  '@fontsource/jetbrains-mono@5.3.0':
+    resolution: {integrity: sha512-fqDfB5I9f1p1TV486aUgB9t8zP84P0O1FtQR5Ol9vjwPy+S+EIGlVYm1cvj2W5shcZMTg2nZFdVMoH5wFu8a1A==}
 
   '@grpc/grpc-js@1.14.4':
     resolution: {integrity: sha512-k9Dj3DV/itK9D06Y8f190Qgop7/Ui+D0njFV3LHMPwPT75DpXLQohE9Wmz0QElrJnzsjB7KPWiKJbOl7IPDArQ==}
@@ -1872,8 +1927,8 @@ packages:
   '@types/webxr@0.5.24':
     resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
 
-  '@types/ws@8.18.1':
-    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
+  '@types/ws@8.18.2':
+    resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
 
   '@typescript-eslint/eslint-plugin@8.62.1':
     resolution: {integrity: sha512-4EQM77WgVNxj7OkL/5b/D/xZsw00G577+UriYTC7JF5opcF3T2AuoeY7ueLaZgSVjSgCS6yOAJB5bRGLPSJUzA==}
@@ -2034,6 +2089,11 @@ packages:
     peerDependenciesMeta:
       '@vue/server-renderer':
         optional: true
+
+  '@vxe-ui/core@4.5.8':
+    resolution: {integrity: sha512-vsepwHQitu9WdnXYgZWMZlsWY4Tvul4JHzJ+Ho+rD1p9lVcF3Q0JbgMwyCduJRCN+D7n9GtCrpIlkhvmjBElMw==}
+    peerDependencies:
+      vue: ^3.2.0
 
   '@webgpu/types@0.1.71':
     resolution: {integrity: sha512-mMy8/ODcKhab808co15eW+yN+HgXoQxRQHTiBV9Mrvl1r0ufnid7YOcI+gi4eUWSWl9ezD6TW2KXccrL8HCh2A==}
@@ -2291,6 +2351,9 @@ packages:
   delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
+
+  dom-zindex@1.0.8:
+    resolution: {integrity: sha512-n6UB0BU5pltbvMWNu3zZqnLO35uFvOjTBO/s2GiPbdnfhyVGYLhLxynou/B2QSQEPJR4d398/0jbUZHLNiOmfA==}
 
   dot-prop@5.3.0:
     resolution: {integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==}
@@ -3228,6 +3291,10 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
+  source-map-js@1.2.2:
+    resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
+    engines: {node: '>=0.10.0'}
+
   spdx-correct@3.2.0:
     resolution: {integrity: sha512-kN9dJbvnySHULIluDHy32WHRUu3Og7B9sbY7tsFLctQkIqnMh3hErYgdMjTYuqmcXX+lK5T1lnUt3G7zNswmZA==}
 
@@ -3509,6 +3576,12 @@ packages:
       typescript:
         optional: true
 
+  vxe-pc-ui@4.20.40:
+    resolution: {integrity: sha512-ec3s839FsdXxu693dnoXB9covV8nq2m6+z4E8fEmg7Z/78dZ7mPSoeKMKOUE9KaOtxfDDJx4QgbsDbzu9NwrnA==}
+
+  vxe-table@4.23.17:
+    resolution: {integrity: sha512-xD9plA6rk6BTh3gFH+mJyFTOlxk+YsSSSO/0T6iTHwryYlvKDYzBxQehGk533MhqQ4U4PBuGJGBWGJ7t6gvo4A==}
+
   w3c-xmlserializer@5.0.0:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
     engines: {node: '>=18'}
@@ -3576,6 +3649,9 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
+
+  xe-utils@4.2.2:
+    resolution: {integrity: sha512-wbBxx74RlgaQR+4/guHtPPhBPP6xLTVrKOls5q9LI4V35HsODUEyitvH71gr3Ysyd/G5bW7nb6jEyqhKP7fYvQ==}
 
   xml-name-validator@4.0.0:
     resolution: {integrity: sha512-ICP2e+jsHvAj2E2lIHxa5tjXRlKDJo4IdvPvCXbXQGdzSfmSpNVyIKMvoZHjDY9DP0zV17iI85o90vRFXNccRw==}
@@ -3935,9 +4011,9 @@ snapshots:
       '@eslint/core': 0.17.0
       levn: 0.4.1
 
-  '@fontsource/inter@5.2.8': {}
+  '@fontsource/inter@5.3.0': {}
 
-  '@fontsource/jetbrains-mono@5.2.8': {}
+  '@fontsource/jetbrains-mono@5.3.0': {}
 
   '@grpc/grpc-js@1.14.4':
     dependencies:
@@ -4955,7 +5031,7 @@ snapshots:
 
   '@types/webxr@0.5.24': {}
 
-  '@types/ws@8.18.1':
+  '@types/ws@8.18.2':
     dependencies:
       '@types/node': 22.20.0
 
@@ -5113,7 +5189,7 @@ snapshots:
       '@vue/shared': 3.5.39
       entities: 7.0.1
       estree-walker: 2.0.2
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   '@vue/compiler-dom@3.5.39':
     dependencies:
@@ -5191,6 +5267,12 @@ snapshots:
       vue-component-type-helpers: 3.3.6
     optionalDependencies:
       '@vue/server-renderer': 3.5.39(vue@3.5.39(typescript@5.6.3))
+
+  '@vxe-ui/core@4.5.8(vue@3.5.39(typescript@5.6.3))':
+    dependencies:
+      dom-zindex: 1.0.8
+      vue: 3.5.39(typescript@5.6.3)
+      xe-utils: 4.2.2
 
   '@webgpu/types@0.1.71': {}
 
@@ -5427,6 +5509,8 @@ snapshots:
   deep-is@0.1.4: {}
 
   delayed-stream@1.0.0: {}
+
+  dom-zindex@1.0.8: {}
 
   dot-prop@5.3.0:
     dependencies:
@@ -6414,6 +6498,8 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
+  source-map-js@1.2.2: {}
+
   spdx-correct@3.2.0:
     dependencies:
       spdx-expression-parse: 3.0.1
@@ -6677,6 +6763,14 @@ snapshots:
     optionalDependencies:
       typescript: 5.6.3
 
+  vxe-pc-ui@4.20.40(vue@3.5.39(typescript@5.6.3)):
+    dependencies:
+      '@vxe-ui/core': 4.5.8(vue@3.5.39(typescript@5.6.3))
+    transitivePeerDependencies:
+      - vue
+
+  vxe-table@4.23.17: {}
+
   w3c-xmlserializer@5.0.0:
     dependencies:
       xml-name-validator: 5.0.0
@@ -6729,6 +6823,8 @@ snapshots:
   wrappy@1.0.2: {}
 
   ws@8.21.0: {}
+
+  xe-utils@4.2.2: {}
 
   xml-name-validator@4.0.0: {}
 

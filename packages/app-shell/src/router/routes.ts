@@ -18,6 +18,7 @@ import AdminAuditPage from '../pages/admin/AdminAuditPage.vue';
 import AdminTenantPage from '../pages/admin/AdminTenantPage.vue';
 import AdminAppearanceRedirect from '../pages/admin/AdminAppearanceRedirect.vue';
 import AppearanceSettingsPage from '../pages/settings/AppearanceSettingsPage.vue';
+import { DocumentWorkbenchHost } from '@dt/document-shell';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -80,5 +81,17 @@ export const routes: RouteRecordRaw[] = [
         component: AdminAppearanceRedirect,
       },
     ],
+  },
+  {
+    path: '/documents/:typeId',
+    name: 'document-list',
+    component: DocumentWorkbenchHost,
+    meta: { requiresAdmin: true },
+  },
+  {
+    path: '/documents/:typeId/detail/:docId?',
+    name: 'document-detail',
+    component: DocumentWorkbenchHost,
+    meta: { requiresAdmin: true },
   },
 ];

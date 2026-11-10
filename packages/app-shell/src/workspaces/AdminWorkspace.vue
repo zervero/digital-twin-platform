@@ -23,11 +23,13 @@ const navItems = computed(() => [
   { id: 'users', label: t('admin.nav.users'), icon: 'Users' as const },
   { id: 'audit', label: t('admin.nav.audit'), icon: 'ScrollText' as const },
   { id: 'tenant', label: t('admin.nav.tenant'), icon: 'Building2' as const },
+  { id: 'documents', label: t('admin.nav.documents'), icon: 'FileText' as const },
   { id: 'appearance', label: t('admin.nav.appearance'), icon: 'Palette' as const },
 ]);
 
 const activeId = computed(() => {
   if (appearance.dialogOpen) return 'appearance';
+  if (route.path.startsWith('/documents')) return 'documents';
   const segment = route.path.split('/').filter(Boolean)[1];
   return segment ?? 'marketplace';
 });
@@ -35,6 +37,10 @@ const activeId = computed(() => {
 function onSelect(id: string) {
   if (id === 'appearance') {
     appearance.openDialog();
+    return;
+  }
+  if (id === 'documents') {
+    void router.push('/documents/sow-death');
     return;
   }
   void router.push(`/admin/${id}`);

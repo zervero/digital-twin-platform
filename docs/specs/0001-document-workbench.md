@@ -2,9 +2,9 @@
 
 ## Status
 
-`accepted` (2026-11-10)
+`accepted` (2026-11-10) — implementation in progress on `main-table`
 
-<!-- Implement against this contract; mark `implemented` when AC are green on main. -->
+<!-- Mark `implemented` when AC are green on main. -->
 
 ## Goal
 

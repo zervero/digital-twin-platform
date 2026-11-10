@@ -30,6 +30,7 @@ import {
   createAppRouter,
   EngineOptionsKey,
   provideApiClient,
+  setupDocumentWorkbench,
 } from '@dt/app-shell';
 import { createApiClient } from '@dt/api-client';
 import { createPinia } from 'pinia';
@@ -48,6 +49,9 @@ async function main(): Promise<void> {
   const app = createApp(AppShell);
   const pinia = createPinia();
   app.use(pinia);
+  // SPEC 0001: vxe workbench + sow-death demo registry (web does not
+  // use bootstrapAppShell, so this must be explicit).
+  await setupDocumentWorkbench(app);
   app.use(createAppRouter());
   provideApiClient(app, apiClient);
 
