@@ -45,7 +45,7 @@ dependency bumps with no behavior change.
 
 | Spec | Title | Status |
 | --- | --- | --- |
-| — | _(none yet — next is `0001`)_ | — |
+| [0001](./0001-document-workbench.md) | Configurable document workbench | `accepted` |
 
 Historical design notes that predate this folder live under
 [`docs/plans/`](../plans/) and remain valid until a new spec supersedes
