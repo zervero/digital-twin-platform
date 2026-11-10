@@ -70,16 +70,16 @@ export { default as LoginButton } from './components/LoginButton.vue';
 export { createAppRouter, adminNavigationGuard, routes } from './router/index.js';
 
 /**
- * Install vxe document workbench + register the sow-death demo
+ * Install vxe document workbench + register document demos
  * (SPEC 0001). Call once before `createAppRouter` / mount — required
  * for both `bootstrapAppShell` and the web entry's manual boot path.
  */
 export async function setupDocumentWorkbench(app: App): Promise<void> {
-  const { installDocumentShell, registerSowDeathDemo } = await import(
+  const { installDocumentShell, registerDocumentDemos } = await import(
     '@dt/document-shell'
   );
   installDocumentShell(app);
-  registerSowDeathDemo();
+  registerDocumentDemos();
 }
 
 /**

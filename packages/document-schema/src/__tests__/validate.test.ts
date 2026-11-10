@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { sowBreedingDefinition } from '../fixtures/sow-breeding.js';
 import { sowDeathDefinition } from '../fixtures/sow-death.js';
 import {
   assertDocumentDefinition,
@@ -10,6 +11,10 @@ import type { DocumentDefinition, DocumentRecord } from '../types.js';
 describe('assertDocumentDefinition', () => {
   it('accepts the sow-death fixture', () => {
     expect(() => assertDocumentDefinition(sowDeathDefinition)).not.toThrow();
+  });
+
+  it('accepts the sow-breeding fixture', () => {
+    expect(() => assertDocumentDefinition(sowBreedingDefinition)).not.toThrow();
   });
 
   it('rejects missing id', () => {

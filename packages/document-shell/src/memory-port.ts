@@ -12,9 +12,9 @@ function matchesFilters(
 ): boolean {
   for (const [key, raw] of Object.entries(filters)) {
     if (raw === undefined || raw === null || raw === '') continue;
-    if (key === 'deathDate' && Array.isArray(raw)) {
+    if (Array.isArray(raw)) {
       const [from, to] = raw as [string?, string?];
-      const value = String(row.deathDate ?? '');
+      const value = String(row[key] ?? '');
       if (from && value < from) return false;
       if (to && value > to) return false;
       continue;

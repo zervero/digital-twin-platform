@@ -8,8 +8,13 @@ export {
   type RegisteredDocument,
 } from './composables/useDocumentRegistry.js';
 export { installDocumentShell } from './install.js';
-export { registerSowDeathDemo } from './bootstrap-demo.js';
+export {
+  registerDocumentDemos,
+  registerSowBreedingDemo,
+  registerSowDeathDemo,
+} from './bootstrap-demo.js';
 export { sowDeathSeed } from './fixtures/sow-death-seed.js';
+export { sowBreedingSeed } from './fixtures/sow-breeding-seed.js';
 
 export { default as DocumentListPage } from './components/DocumentListPage.vue';
 export { default as DocumentDetailPage } from './components/DocumentDetailPage.vue';

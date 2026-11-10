@@ -23,13 +23,24 @@ const navItems = computed(() => [
   { id: 'users', label: t('admin.nav.users'), icon: 'Users' as const },
   { id: 'audit', label: t('admin.nav.audit'), icon: 'ScrollText' as const },
   { id: 'tenant', label: t('admin.nav.tenant'), icon: 'Building2' as const },
-  { id: 'documents', label: t('admin.nav.documents'), icon: 'FileText' as const },
+  {
+    id: 'sow-death',
+    label: t('admin.nav.sowDeath'),
+    icon: 'FileText' as const,
+  },
+  {
+    id: 'sow-breeding',
+    label: t('admin.nav.sowBreeding'),
+    icon: 'ClipboardList' as const,
+  },
   { id: 'appearance', label: t('admin.nav.appearance'), icon: 'Palette' as const },
 ]);
 
 const activeId = computed(() => {
   if (appearance.dialogOpen) return 'appearance';
-  if (route.path.startsWith('/documents')) return 'documents';
+  if (route.path.startsWith('/documents/sow-breeding')) return 'sow-breeding';
+  if (route.path.startsWith('/documents/sow-death')) return 'sow-death';
+  if (route.path.startsWith('/documents')) return 'sow-death';
   const segment = route.path.split('/').filter(Boolean)[1];
   return segment ?? 'marketplace';
 });
@@ -39,8 +50,12 @@ function onSelect(id: string) {
     appearance.openDialog();
     return;
   }
-  if (id === 'documents') {
+  if (id === 'sow-death') {
     void router.push('/documents/sow-death');
+    return;
+  }
+  if (id === 'sow-breeding') {
+    void router.push('/documents/sow-breeding');
     return;
   }
   void router.push(`/admin/${id}`);
