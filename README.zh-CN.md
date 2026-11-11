@@ -56,11 +56,12 @@ pnpm dev:all
 ## 常用命令
 
 ```bash
-pnpm typecheck    # 全工作区严格类型检查
-pnpm test         # vitest 单元测试
-pnpm lint         # eslint
-pnpm build        # 生产构建
-pnpm clean        # 清理构建产物和 node_modules
+pnpm typecheck           # 全工作区严格类型检查
+pnpm test                # vitest 单元测试
+pnpm verify:documents    # 单据相关包 + app-shell 的 typecheck + test（日常改单据用）
+pnpm lint                # eslint
+pnpm build               # 生产构建
+pnpm clean               # 清理构建产物和 node_modules
 ```
 
 按包粒度：

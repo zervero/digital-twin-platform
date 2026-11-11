@@ -100,7 +100,9 @@ not have a GPG key in this V1 setup.
 
 Before you hit merge, run through this:
 
-- [ ] `pnpm typecheck` is green locally
+- [ ] `pnpm typecheck` is green locally (单据-only changes may use
+      `pnpm verify:documents` during the loop; still run full
+      typecheck/test before merge)
 - [ ] `pnpm test` is green locally and you added tests for new behavior
 - [ ] No new lint warnings (run `pnpm lint:fix` to auto-fix)
 - [ ] No secrets, debug prints, or commented-out code in the diff

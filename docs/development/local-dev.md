@@ -60,12 +60,17 @@ port. The Tauri-owned Vite is the canonical one in this mode.
 ## Scripts
 
 ```bash
-pnpm build        # production build via Turbo
-pnpm test         # run all package unit tests
-pnpm typecheck    # strict TypeScript check across the workspace
-pnpm lint         # eslint
-pnpm clean        # remove build artifacts and node_modules
+pnpm build               # production build via Turbo
+pnpm test                # run all package unit tests
+pnpm typecheck           # strict TypeScript check across the workspace
+pnpm verify:documents    # document-schema/shell/modules + app-shell typecheck+test
+pnpm lint                # eslint
+pnpm clean               # remove build artifacts and node_modules
 ```
+
+Use `pnpm verify:documents` while iterating on单据 modules. Prefer it over
+full-workspace `pnpm typecheck` / `pnpm test` for that loop; CI and
+pre-push still run the full gate.
 
 ## Per-package checks
 
@@ -75,6 +80,7 @@ pnpm --filter @dt/device-domain test
 pnpm --filter @dt/scene-domain test
 pnpm --filter @dt/api-client test
 pnpm --filter @dt/engine-sdk test
+pnpm --filter @dt/document-modules test
 pnpm --filter @dt/bff dev
 pnpm --filter @dt/web dev
 pnpm --filter @dt/desktop dev

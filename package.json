@@ -30,7 +30,8 @@
     "smoke:prod": "bash scripts/smoke-prod.sh",
     "smoke:v2": "bash scripts/smoke-v2.sh",
     "test": "turbo run test",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "verify:documents": "turbo run typecheck test --filter=@dt/document-schema --filter=@dt/document-shell --filter=@dt/document-modules --filter=@dt/app-shell"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",

@@ -48,10 +48,11 @@ BFF: http://localhost:3001
 ## Tasks
 
 ```bash
-pnpm typecheck    # strict typecheck across the workspace
-pnpm test         # vitest unit tests
-pnpm lint         # eslint
-pnpm build        # production builds
+pnpm typecheck           # strict typecheck across the workspace
+pnpm test                # vitest unit tests
+pnpm verify:documents    # typecheck + test for document packages (+ app-shell)
+pnpm lint                # eslint
+pnpm build               # production builds
 ```
 
 ## Layout
