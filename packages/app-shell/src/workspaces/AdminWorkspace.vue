@@ -21,7 +21,9 @@ const route = useRoute();
 const router = useRouter();
 const appearance = useAppearanceStore();
 
-const documentNavItems = computed(() => listDocumentNavItems(locale.value));
+const documentNavItems = computed(() =>
+  listDocumentNavItems(locale.value, t),
+);
 
 const navItems = computed(() => [
   { id: 'marketplace', label: t('admin.nav.marketplace'), icon: 'Store' as const },

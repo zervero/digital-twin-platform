@@ -1,6 +1,7 @@
 import type { DocumentDefinition } from '@dt/document-schema';
 
 import { listRegisteredDocuments } from './composables/useDocumentRegistry.js';
+import type { TranslateFn } from './i18n-label.js';
 
 export interface DocumentNavItem {
   readonly id: string;
@@ -13,7 +14,12 @@ export interface DocumentNavItem {
 export function resolveDocumentTitle(
   definition: DocumentDefinition,
   locale: string,
+  t?: TranslateFn,
 ): string {
+  if (definition.titleKey && t) {
+    const translated = t(definition.titleKey);
+    if (translated !== definition.titleKey) return translated;
+  }
   const localized = definition.titleLocales?.[locale as 'en' | 'zh-CN'];
   return localized?.trim() || definition.title;
 }
@@ -21,8 +27,12 @@ export function resolveDocumentTitle(
 /**
  * Nav entries derived from the in-memory document registry.
  * Hosts (e.g. AdminWorkspace) should not hard-code per-type ids.
+ * Pass `t` so `titleKey` resolves via `@dt/i18n` (SPEC 0004).
  */
-export function listDocumentNavItems(locale: string): DocumentNavItem[] {
+export function listDocumentNavItems(
+  locale: string,
+  t?: TranslateFn,
+): DocumentNavItem[] {
   return listRegisteredDocuments()
     .slice()
     .sort((a, b) => {
@@ -33,7 +43,7 @@ export function listDocumentNavItems(locale: string): DocumentNavItem[] {
     })
     .map((entry) => ({
       id: entry.definition.id,
-      label: resolveDocumentTitle(entry.definition, locale),
+      label: resolveDocumentTitle(entry.definition, locale, t),
       path: `/documents/${entry.definition.id}`,
       icon: entry.definition.navIcon,
     }));

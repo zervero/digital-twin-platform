@@ -63,7 +63,9 @@ preset before login).
 
 | Concern | Owner | Detail |
 | --- | --- | --- |
-| Default tokens | `packages/ui-kit/src/styles/tokens.css` (exported as `@dt/ui-kit/styles`) | Dark on `:root`; light under `:root[data-theme="light"]`. Do not rely on a stale `dist/` copy for HMR. |
+| Default tokens | `packages/ui-kit/src/styles/tokens.css` (via `@dt/ui-kit/styles`) | Dark on `:root`; light under `:root[data-theme="light"]`. Do not rely on a stale `dist/` copy for HMR. |
+| Element styles | `@dt/ui-kit/element-styles` | On-demand Element component CSS, then `element-bridge.css` (must load after Element's `el-var.css`) |
+| Element bridge | `packages/ui-kit/src/styles/element-bridge.css` | Maps `--el-*` → `--dt-*` on `html:root` so light/dark + accent sync (ADR 0025 / SPEC 0003) |
 | Apply helper | `packages/app-shell/src/theme/apply-accent.ts` | Writes `--dt-accent-primary` (+ optional hover) on `document.documentElement`; rejects hex that fails WCAG AA (≥4.5:1) against white primary-button labels |
 | Preference store | `packages/app-shell/src/stores/appearance-store.ts` | Accent preset / custom hex **and** `colorMode` (`light` \| `dark` \| `system`); persists under `localStorage` key `dt.appearance.v1` |
 | Color mode apply | `packages/app-shell/src/theme/apply-theme.ts` | Writes resolved `data-theme` + `color-scheme` on `document.documentElement` (SPEC 0002) |

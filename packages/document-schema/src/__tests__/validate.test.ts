@@ -49,6 +49,9 @@ describe('validateDocumentRecord', () => {
     const issues = validateDocumentRecord(miniDefinition, record);
     expect(issues.some((i) => i.path === 'header.deathDate')).toBe(true);
     expect(issues.some((i) => i.path.startsWith('lines.0.'))).toBe(true);
+    expect(issues.find((i) => i.path === 'header.deathDate')?.code).toBe(
+      'required',
+    );
   });
 
   it('passes a complete record', () => {

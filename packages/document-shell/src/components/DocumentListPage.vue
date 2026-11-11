@@ -3,8 +3,11 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import type { DocumentDefinition, DocumentRecord } from '@dt/document-schema';
+import { useI18n } from '@dt/i18n';
 import { DtButton } from '@dt/ui-kit';
 
+import { resolveActionLabel, resolveLabel } from '../i18n-label.js';
+import { resolveDocumentTitle } from '../nav.js';
 import type { DocumentDataPort } from '../ports.js';
 import DocumentFilterBar from './DocumentFilterBar.vue';
 
@@ -16,6 +19,7 @@ const props = defineProps<{
 }>();
 
 const router = useRouter();
+const { t, locale } = useI18n();
 
 const filters = ref<Record<string, unknown>>({});
 const items = ref<DocumentRecord[]>([]);
@@ -30,10 +34,18 @@ const pageSizes = computed(
   () => props.definition.list.pageSizes ?? [10, 20, 50],
 );
 
+const pageTitle = computed(() =>
+  resolveDocumentTitle(props.definition, locale.value, t),
+);
+
+const pageCount = computed(() =>
+  Math.max(1, Math.ceil(total.value / pageSize.value)),
+);
+
 const columns = computed(() =>
   props.definition.list.columns.map((col) => ({
     field: col.key,
-    title: col.label,
+    title: resolveLabel(col, t),
     minWidth: col.minWidth ?? col.width ?? 100,
     slots: col.link ? { default: `link-${col.key}` } : undefined,
   })),
@@ -109,7 +121,7 @@ onMounted(() => {
 <template>
   <div class="dt-document-island dt-doc-list" data-testid="document-list">
     <header class="dt-doc-list__header">
-      <h1 class="dt-doc-list__title">{{ definition.title }}</h1>
+      <h1 class="dt-doc-list__title">{{ pageTitle }}</h1>
     </header>
 
     <DocumentFilterBar
@@ -143,9 +155,11 @@ onMounted(() => {
                 : undefined
         "
       >
-        {{ action.label }}
+        {{ resolveActionLabel(action, t) }}
       </DtButton>
-      <span class="dt-doc-list__selection">已选择 {{ selectedIds.length }} 项</span>
+      <span class="dt-doc-list__selection">{{
+        t('documents.chrome.selectedCount', { count: selectedIds.length })
+      }}</span>
     </div>
 
     <p v-if="error" class="dt-doc-list__error" role="alert">{{ error }}</p>
@@ -155,10 +169,10 @@ onMounted(() => {
         :data="items"
         :columns="[
           { type: 'checkbox', width: 48 },
-          { type: 'seq', title: '序号', width: 60 },
+          { type: 'seq', title: t('documents.chrome.seq'), width: 60 },
           ...columns,
           {
-            title: '操作',
+            title: t('documents.chrome.actions'),
             width: 120,
             fixed: 'right',
             slots: { default: 'rowActions' },
@@ -194,7 +208,7 @@ onMounted(() => {
                   : undefined
             "
           >
-            {{ action.label }}
+            {{ resolveActionLabel(action, t) }}
           </a>
         </template>
       </vxe-grid>
@@ -202,7 +216,7 @@ onMounted(() => {
 
     <footer class="dt-doc-list__pager">
       <label>
-        每页
+        {{ t('documents.chrome.pageSize') }}
         <select
           v-model.number="pageSize"
           @change="
@@ -216,15 +230,21 @@ onMounted(() => {
         </select>
       </label>
       <button type="button" :disabled="page <= 1" @click="page--; load()">
-        上一页
+        {{ t('documents.chrome.prevPage') }}
       </button>
-      <span>第 {{ page }} 页 / 共 {{ Math.max(1, Math.ceil(total / pageSize)) }} 页（{{ total }} 条）</span>
+      <span>{{
+        t('documents.chrome.pageStatus', {
+          page,
+          pages: pageCount,
+          total,
+        })
+      }}</span>
       <button
         type="button"
         :disabled="page * pageSize >= total"
         @click="page++; load()"
       >
-        下一页
+        {{ t('documents.chrome.nextPage') }}
       </button>
     </footer>
   </div>

@@ -10,6 +10,7 @@ describe('apply-theme', () => {
   afterEach(() => {
     delete document.documentElement.dataset.theme;
     document.documentElement.style.colorScheme = '';
+    document.documentElement.classList.remove('dark');
   });
 
   it('validates color mode values', () => {
@@ -26,13 +27,15 @@ describe('apply-theme', () => {
     expect(resolveColorMode('system', false)).toBe('light');
   });
 
-  it('writes data-theme and color-scheme on the document element', () => {
+  it('writes data-theme, color-scheme, and html.dark on the document element', () => {
     applyResolvedTheme('light');
     expect(document.documentElement.dataset.theme).toBe('light');
     expect(document.documentElement.style.colorScheme).toBe('light');
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
 
     applyResolvedTheme('dark');
     expect(document.documentElement.dataset.theme).toBe('dark');
     expect(document.documentElement.style.colorScheme).toBe('dark');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
   });
 });

@@ -93,7 +93,7 @@ packages/
   scene-domain/     # 场景业务模型
   device-domain/    # 设备业务模型
   api-client/       # 类型化 BFF 客户端
-  ui-kit/           # 展示型 Vue 组件
+  ui-kit/           # 展示型 Dt*（含 Element Plus 封装，ADR 0025）
   document-schema/  # 单据定义类型与校验（SPEC 0001）
   document-shell/   # 单据列表 + 详情/编辑运行时（vxe-table）
   document-modules/ # 每张单据一个目录（definition + seed + register）

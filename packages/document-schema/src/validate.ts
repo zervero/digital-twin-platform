@@ -36,7 +36,9 @@ function validateFields(
     if (isBlank(data[field.key])) {
       issues.push({
         path: `${pathPrefix}${field.key}`,
-        message: `${field.label}为必填项`,
+        code: 'required',
+        params: { label: field.label, labelKey: field.labelKey },
+        message: `${field.label} is required`,
       });
     }
   }
@@ -63,7 +65,9 @@ export function validateDocumentRecord(
   if (minRows > 0 && filledLines.length < minRows) {
     issues.push({
       path: 'lines',
-      message: `至少填写 ${minRows} 行明细`,
+      code: 'minLines',
+      params: { min: minRows },
+      message: `Enter at least ${minRows} line(s)`,
     });
   }
 
@@ -73,7 +77,13 @@ export function validateDocumentRecord(
       if (isBlank(line[col.key])) {
         issues.push({
           path: `lines.${index}.${col.key}`,
-          message: `第 ${index + 1} 行：${col.label}为必填项`,
+          code: 'lineRequired',
+          params: {
+            label: col.label,
+            labelKey: col.labelKey,
+            row: index + 1,
+          },
+          message: `Line ${index + 1}: ${col.label} is required`,
         });
       }
     }

@@ -2,11 +2,14 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
+import { useI18n } from '@dt/i18n';
+
 import { getRegisteredDocument } from '../composables/useDocumentRegistry.js';
 import DocumentDetailPage from './DocumentDetailPage.vue';
 import DocumentListPage from './DocumentListPage.vue';
 
 const route = useRoute();
+const { t } = useI18n();
 
 const typeId = computed(() => String(route.params.typeId ?? ''));
 const docId = computed(() => {
@@ -21,7 +24,7 @@ const basePath = computed(() => `/documents/${typeId.value}`);
 
 <template>
   <div v-if="!entry" class="dt-document-island dt-doc-missing">
-    <p>未知单据类型：{{ typeId }}</p>
+    <p>{{ t('documents.chrome.unknownType', { typeId }) }}</p>
   </div>
   <DocumentDetailPage
     v-else-if="isDetail"

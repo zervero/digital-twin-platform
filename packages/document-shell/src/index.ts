@@ -13,6 +13,13 @@ export {
   resolveDocumentTitle,
   type DocumentNavItem,
 } from './nav.js';
+export {
+  formatValidationIssue,
+  resolveActionLabel,
+  resolveLabel,
+  resolvePlaceholder,
+  type TranslateFn,
+} from './i18n-label.js';
 export { installDocumentShell } from './install.js';
 
 export { default as DocumentListPage } from './components/DocumentListPage.vue';

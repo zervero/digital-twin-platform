@@ -69,7 +69,7 @@ packages/
   scene-domain/     # Scene business model
   device-domain/    # Device business model
   api-client/       # Typed BFF client
-  ui-kit/           # Presentational Vue components
+  ui-kit/           # Presentational Dt* (+ Element Plus wrappers, ADR 0025)
   document-schema/  # Document definition types + validation (SPEC 0001)
   document-shell/   # Document list + detail/edit runtime (vxe-table)
   document-modules/ # One folder per单据 demo (definition + seed + register)

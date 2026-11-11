@@ -1,0 +1,108 @@
+{
+  "documents": {
+    "chrome": {
+      "query": "查询",
+      "reset": "重置",
+      "dateFrom": "开始日期",
+      "dateTo": "结束日期",
+      "selectedCount": "已选择 {count} 项",
+      "seq": "序号",
+      "actions": "操作",
+      "pageSize": "每页",
+      "prevPage": "上一页",
+      "nextPage": "下一页",
+      "pageStatus": "第 {page} 页 / 共 {pages} 页（{total} 条）",
+      "unknownType": "未知单据类型：{typeId}",
+      "notFound": "单据不存在",
+      "backToList": "返回列表",
+      "remark": "备注",
+      "remarkPlaceholder": "请输入备注信息",
+      "attachments": "附件管理",
+      "attachmentsEmpty": "（V1 占位：无附件）",
+      "all": "全部"
+    },
+    "actions": {
+      "create": "新增",
+      "edit": "修改",
+      "delete": "删除",
+      "save": "保存",
+      "discard": "撤销",
+      "audit": "审核",
+      "addLine": "增行",
+      "removeLine": "删行"
+    },
+    "validation": {
+      "required": "{label}为必填项",
+      "minLines": "至少填写 {min} 行明细",
+      "lineRequired": "第 {row} 行：{label}为必填项"
+    },
+    "fields": {
+      "docNo": "单据号",
+      "earTag": "耳号",
+      "sowEarTag": "母猪耳号",
+      "earTagPlaceholder": "请输入耳号",
+      "individualNo": "个体号",
+      "batch": "母猪批次",
+      "building": "当前栋舍",
+      "unit": "当前单元",
+      "pen": "当前栏位",
+      "pigStatus": "状态",
+      "eventDate": "事件日期",
+      "productionGroup": "生产组",
+      "createdBy": "创建人",
+      "createdAt": "创建时间",
+      "updatedBy": "修改人",
+      "updatedAt": "修改时间",
+      "auditedBy": "审核人",
+      "auditedAt": "审核时间",
+      "remark": "备注"
+    },
+    "modules": {
+      "sowDeath": {
+        "title": "母猪死亡",
+        "deathDate": "死亡日期",
+        "deathType": "死亡类型",
+        "deathReason": "死亡原因",
+        "weightKg": "总重量(公斤)",
+        "options": {
+          "deathType": {
+            "death": "死亡",
+            "cull": "淘汰"
+          },
+          "deathReason": {
+            "disease": "疾病",
+            "sudden": "猝死",
+            "fight": "打架",
+            "emaciation": "消瘦",
+            "paralysis": "瘫痪",
+            "poisoning": "中毒"
+          }
+        }
+      },
+      "sowBreeding": {
+        "title": "母猪配种",
+        "breedingDate": "配种日期",
+        "breedingOwner": "配种负责人",
+        "warehouse": "仓库",
+        "transferProductionGroup": "转入生产组",
+        "transferBatch": "转入批次",
+        "transferBuilding": "转入栋舍",
+        "transferUnit": "转入单元",
+        "transferPen": "转入栏位",
+        "breedingMethod": "配种方式",
+        "boarEarTag": "首配公猪",
+        "boarScore": "首配评分",
+        "semenDose": "首配精液用量",
+        "semenProduct": "首配商品",
+        "semenLot": "首配精液批号",
+        "parity": "当前胎次",
+        "options": {
+          "breedingMethod": {
+            "ai": "人工授精",
+            "natural": "本交"
+          }
+        }
+      }
+    }
+  }
+}

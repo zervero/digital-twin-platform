@@ -17,6 +17,7 @@
 
 import { createApp } from 'vue';
 import '@dt/ui-kit/styles';
+import '@dt/ui-kit/element-styles';
 // V4-prep redesign: self-hosted typography (Inter + JetBrains Mono).
 // ui-kit declares font tokens in tokens.css; the consumer opts in
 // to the actual font files so the library stays typography-agnostic.

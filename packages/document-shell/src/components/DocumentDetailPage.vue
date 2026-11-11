@@ -13,8 +13,14 @@ import {
   snapshotDocument,
   validateDocumentRecord,
 } from '@dt/document-schema';
+import { useI18n } from '@dt/i18n';
 import { DtButton } from '@dt/ui-kit';
 
+import {
+  formatValidationIssue,
+  resolveActionLabel,
+  resolveLabel,
+} from '../i18n-label.js';
 import type { DocumentDataPort } from '../ports.js';
 
 const props = defineProps<{
@@ -26,6 +32,7 @@ const props = defineProps<{
 }>();
 
 const router = useRouter();
+const { t } = useI18n();
 
 const record = ref<DocumentRecord>({ lines: [] });
 const baseline = ref('');
@@ -39,30 +46,42 @@ const isCreate = computed(() => !props.documentId);
 const dirty = computed(() => isDocumentDirty(baseline.value, record.value));
 
 const lineColumns = computed(() =>
-  props.definition.detail.lines.columns.map((col) => ({
-    field: col.key,
-    title: col.required ? `* ${col.label}` : col.label,
-    minWidth: col.minWidth ?? col.width ?? 100,
-    editRender:
-      col.editor && col.editor !== 'readonly'
-        ? {
-            name: col.editor === 'select' ? 'VxeSelect' : col.editor === 'number' ? 'VxeNumberInput' : 'VxeInput',
-            options: col.options?.map((o) => ({ label: o.label, value: o.value })),
-            props:
-              col.editor === 'date'
-                ? { type: 'date' }
-                : col.editor === 'number'
-                  ? { type: 'number' }
-                  : undefined,
-          }
-        : undefined,
-  })),
+  props.definition.detail.lines.columns.map((col) => {
+    const title = resolveLabel(col, t);
+    return {
+      field: col.key,
+      title: col.required ? `* ${title}` : title,
+      minWidth: col.minWidth ?? col.width ?? 100,
+      editRender:
+        col.editor && col.editor !== 'readonly'
+          ? {
+              name:
+                col.editor === 'select'
+                  ? 'VxeSelect'
+                  : col.editor === 'number'
+                    ? 'VxeNumberInput'
+                    : 'VxeInput',
+              options: col.options?.map((o) => ({
+                label: resolveLabel(o, t),
+                value: o.value,
+              })),
+              props:
+                col.editor === 'date'
+                  ? { type: 'date' }
+                  : col.editor === 'number'
+                    ? { type: 'number' }
+                    : undefined,
+            }
+          : undefined,
+    };
+  }),
 );
 
 function emptyLine(): DocumentLineRecord {
   const line: DocumentLineRecord = {};
   for (const col of props.definition.detail.lines.columns) {
-    (line as Record<string, unknown>)[col.key] = col.editor === 'number' ? 0 : '';
+    (line as Record<string, unknown>)[col.key] =
+      col.editor === 'number' ? 0 : '';
   }
   return line;
 }
@@ -102,7 +121,7 @@ async function load() {
     }
     const doc = await props.port.loadOne(props.documentId);
     if (!doc) {
-      error.value = '单据不存在';
+      error.value = t('documents.chrome.notFound');
       captureBaseline(emptyRecord());
       return;
     }
@@ -127,7 +146,7 @@ function setHeader(key: string, value: unknown) {
 async function onSave() {
   const issues = validateDocumentRecord(props.definition, record.value);
   if (issues.length) {
-    error.value = issues.map((i) => i.message).join('；');
+    error.value = issues.map((i) => formatValidationIssue(i, t)).join('；');
     return;
   }
   saving.value = true;
@@ -186,14 +205,33 @@ function removeLines() {
   selectedLineIndexes.value = [];
 }
 
-function onLineCheckbox({
-  records,
-}: {
-  records: DocumentLineRecord[];
-}) {
+function onLineCheckbox({ records }: { records: DocumentLineRecord[] }) {
   selectedLineIndexes.value = records
     .map((line) => record.value.lines.indexOf(line))
     .filter((i) => i >= 0);
+}
+
+function runToolbarAction(id: string) {
+  if (id === 'create') onCreateNav();
+  else if (id === 'save') void onSave();
+  else if (id === 'discard') onDiscard();
+  else if (id === 'delete') void onDelete();
+  else if (id === 'audit') void onAudit();
+  else if (id === 'addLine') addLine();
+  else if (id === 'removeLine') removeLines();
+}
+
+function toolbarDisabled(id: string): boolean {
+  if (id === 'save') return !dirty.value || saving.value || loading.value;
+  if (id === 'discard') return !dirty.value || loading.value;
+  if (id === 'delete') return isCreate.value || loading.value;
+  if (id === 'audit') {
+    return (
+      isCreate.value || loading.value || Boolean(record.value.audited)
+    );
+  }
+  if (id === 'removeLine') return selectedLineIndexes.value.length === 0;
+  return loading.value;
 }
 
 watch(
@@ -215,33 +253,33 @@ onMounted(() => {
     :data-dirty="dirty ? '1' : '0'"
   >
     <div class="dt-doc-detail__toolbar">
-      <DtButton variant="primary" @click="onCreateNav">新增</DtButton>
       <DtButton
-        data-testid="doc-save"
-        variant="primary"
-        :disabled="!dirty || saving || loading"
-        @click="onSave"
+        v-for="action in definition.detail.toolbar.filter(
+          (a) => a.id !== 'addLine' && a.id !== 'removeLine',
+        )"
+        :key="action.id"
+        :data-testid="
+          action.id === 'save'
+            ? 'doc-save'
+            : action.id === 'discard'
+              ? 'doc-discard'
+              : undefined
+        "
+        :variant="
+          action.id === 'create' || action.id === 'save'
+            ? 'primary'
+            : action.id === 'delete'
+              ? 'danger'
+              : 'default'
+        "
+        :disabled="toolbarDisabled(action.id)"
+        @click="runToolbarAction(action.id)"
       >
-        保存
+        {{ resolveActionLabel(action, t) }}
       </DtButton>
-      <DtButton
-        data-testid="doc-discard"
-        :disabled="!dirty || loading"
-        @click="onDiscard"
-      >
-        撤销
-      </DtButton>
-      <DtButton :disabled="isCreate || loading" variant="danger" @click="onDelete">
-        删除
-      </DtButton>
-      <DtButton
-        v-if="definition.status?.supportsAudit"
-        :disabled="isCreate || loading || Boolean(record.audited)"
-        @click="onAudit"
-      >
-        审核
-      </DtButton>
-      <DtButton variant="ghost" @click="router.push(basePath)">返回列表</DtButton>
+      <DtButton variant="ghost" @click="router.push(basePath)">{{
+        t('documents.chrome.backToList')
+      }}</DtButton>
     </div>
 
     <p v-if="error" class="dt-doc-detail__error" role="alert">{{ error }}</p>
@@ -254,7 +292,7 @@ onMounted(() => {
       >
         <label>
           <span v-if="field.required" class="dt-doc-detail__req">*</span>
-          {{ field.label }}
+          {{ resolveLabel(field, t) }}
         </label>
         <input
           v-if="field.editor === 'date'"
@@ -289,7 +327,7 @@ onMounted(() => {
         :data="record.lines"
         :columns="[
           { type: 'checkbox', width: 48 },
-          { type: 'seq', title: '序号', width: 60 },
+          { type: 'seq', title: t('documents.chrome.seq'), width: 60 },
           ...lineColumns,
         ]"
         :loading="loading"
@@ -304,20 +342,24 @@ onMounted(() => {
     </div>
 
     <div class="dt-doc-detail__line-actions">
-      <button type="button" class="dt-doc-link" @click="addLine">+ 增行</button>
-      <button type="button" class="dt-doc-link" @click="removeLines">- 删行</button>
+      <button type="button" class="dt-doc-link" @click="addLine">
+        + {{ t('documents.actions.addLine') }}
+      </button>
+      <button type="button" class="dt-doc-link" @click="removeLines">
+        - {{ t('documents.actions.removeLine') }}
+      </button>
     </div>
 
     <section
       v-if="definition.detail.footer?.remark"
       class="dt-doc-detail__remark"
     >
-      <label for="doc-remark">备注</label>
+      <label for="doc-remark">{{ t('documents.chrome.remark') }}</label>
       <textarea
         id="doc-remark"
         :value="String(record.remark ?? '')"
         rows="3"
-        placeholder="请输入备注信息"
+        :placeholder="t('documents.chrome.remarkPlaceholder')"
         @input="
           setHeader('remark', ($event.target as HTMLTextAreaElement).value)
         "
@@ -328,12 +370,12 @@ onMounted(() => {
       v-if="definition.detail.footer?.attachments"
       class="dt-doc-detail__attachments"
     >
-      <span>附件管理</span>
+      <span>{{ t('documents.chrome.attachments') }}</span>
       <span class="dt-doc-detail__attach-hint">
         {{
           attachmentNames.length
             ? attachmentNames.join(', ')
-            : '（V1 占位：无附件）'
+            : t('documents.chrome.attachmentsEmpty')
         }}
       </span>
     </section>

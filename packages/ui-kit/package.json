@@ -11,19 +11,25 @@
       "import": "./src/index.ts"
     },
     "./styles": {
-      "style": "./src/styles/tokens.css",
-      "default": "./src/styles/tokens.css"
+      "style": "./src/styles/index.css",
+      "default": "./src/styles/index.css"
+    },
+    "./element-styles": {
+      "import": "./src/styles/element-components.ts",
+      "default": "./src/styles/element-components.ts"
     }
   },
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "vue-tsc --noEmit",
-    "build": "mkdir -p dist && cp src/styles/tokens.css dist/tokens.css && echo 'ui-kit: Vue SFCs consumed as source + tokens.css copied to dist/' > dist/.gitkeep",
+    "build": "mkdir -p dist && cp src/styles/tokens.css src/styles/element-bridge.css src/styles/index.css dist/ && echo 'ui-kit: Vue SFCs consumed as source + styles copied to dist/' > dist/.gitkeep",
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
     "@dt/contracts": "workspace:*",
+    "dayjs": "^1.11.23",
+    "element-plus": "^2.14.8",
     "lucide-vue-next": "^1.0.0"
   },
   "devDependencies": {
@@ -35,7 +41,6 @@
     "vue": "^3.5.13",
     "vue-tsc": "^2.1.10"
   },
-
   "peerDependencies": {
     "vue": "^3.5.0"
   }

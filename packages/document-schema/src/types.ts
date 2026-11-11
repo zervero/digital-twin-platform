@@ -24,23 +24,29 @@ export type DocumentActionId =
 
 export interface SelectOption {
   readonly label: string;
+  /** Optional `@dt/i18n` key; shell prefers this over `label` (SPEC 0004). */
+  readonly labelKey?: string;
   readonly value: string;
 }
 
 export interface FieldDefinition {
   readonly key: string;
   readonly label: string;
+  /** Optional `@dt/i18n` key; shell prefers this over `label` (SPEC 0004). */
+  readonly labelKey?: string;
   readonly editor: FieldEditor;
   readonly required?: boolean;
   /** For `select` editors. */
   readonly options?: readonly SelectOption[];
   /** Placeholder / hint for inputs. */
   readonly placeholder?: string;
+  readonly placeholderKey?: string;
 }
 
 export interface ColumnDefinition {
   readonly key: string;
   readonly label: string;
+  readonly labelKey?: string;
   readonly editor?: FieldEditor;
   readonly required?: boolean;
   readonly width?: number;
@@ -53,6 +59,7 @@ export interface ColumnDefinition {
 export interface ActionDefinition {
   readonly id: DocumentActionId;
   readonly label: string;
+  readonly labelKey?: string;
   /** Hide when create mode / no selection / etc. — shell interprets. */
   readonly requiresSelection?: boolean;
   readonly requiresExisting?: boolean;
@@ -93,8 +100,14 @@ export interface DocumentDefinition {
   /** Default display title (fallback when no locale match). */
   readonly title: string;
   /**
+   * Optional `@dt/i18n` key for the document title (SPEC 0004).
+   * Prefer over `titleLocales` when both are set in shell hosts that
+   * call `t()`.
+   */
+  readonly titleKey?: string;
+  /**
    * Optional localized titles for host chrome (nav, etc.).
-   * Field labels inside list/detail stay on each FieldDefinition.label.
+   * Field labels use `label` / `labelKey` on each definition.
    */
   readonly titleLocales?: Readonly<Partial<Record<'en' | 'zh-CN', string>>>;
   /**
@@ -138,7 +151,21 @@ export interface DocumentListResult {
   readonly total: number;
 }
 
+export type ValidationIssueCode = 'required' | 'minLines' | 'lineRequired';
+
 export interface ValidationIssue {
   readonly path: string;
+  /** Machine-readable code for shell i18n (SPEC 0004). */
+  readonly code: ValidationIssueCode;
+  readonly params: {
+    readonly label?: string;
+    readonly labelKey?: string;
+    readonly min?: number;
+    readonly row?: number;
+  };
+  /**
+   * Locale-neutral English fallback for tests / logs when no `t()` is
+   * available. Prefer formatting via `code` + `params` in UI.
+   */
   readonly message: string;
 }

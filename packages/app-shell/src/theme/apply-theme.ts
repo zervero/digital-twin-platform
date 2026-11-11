@@ -31,10 +31,13 @@ export function readPrefersDark(
 }
 
 /**
- * Sets `data-theme` and `color-scheme` on the document element.
+ * Sets `data-theme` / `color-scheme` on the document element.
+ * Also toggles Element Plus's `html.dark` class so any EP rules that
+ * key off `.dark` stay aligned (vars themselves come from our bridge).
  */
 export function applyResolvedTheme(resolved: ResolvedColorMode): void {
   const root = document.documentElement;
   root.dataset.theme = resolved;
   root.style.colorScheme = resolved;
+  root.classList.toggle('dark', resolved === 'dark');
 }

@@ -1,0 +1,37 @@
+---
+description: Enforce SPEC 0004 document workbench i18n (no hardcoded UI copy)
+globs: packages/document-*/**/*.{ts,vue},packages/i18n/src/locales/**/documents.json,packages/app-shell/**/*Document*
+alwaysApply: true
+---
+
+# Document i18n (SPEC 0004) — hard rule
+
+User-facing单据 copy must go through `@dt/i18n`. Do **not** add new
+hardcoded Chinese/English chrome, field labels, actions, or validation
+messages in document packages.
+
+## Must follow
+
+1. **Dictionaries** live only in
+   `packages/i18n/src/locales/{en,zh-CN}/documents.json` (both locales,
+   same keys). Run `pnpm --filter @dt/i18n test` after key changes.
+2. **Shell chrome** (`document-shell` Vue): use `useI18n().t('documents.chrome.*' | 'documents.actions.*' | 'documents.validation.*')`.
+3. **Definitions** (`document-modules`): set `titleKey` / `labelKey` /
+   `placeholderKey`; keep `label` as fallback only. Modules must **not**
+   import `@dt/i18n`.
+4. **Schema** (`document-schema`): no locale JSON / no Vue. Validation
+   returns `code` + `params` (+ English `message` fallback). Shell
+   formats via `formatValidationIssue`.
+5. **Resolve helpers**: `resolveLabel` / `resolveActionLabel` /
+   `resolveDocumentTitle(..., t)` — prefer key → `t()`, else literal.
+6. **Do not localize** seed/demo *stored values* (names, Chinese option
+   `value`s) unless migrating values to stable codes intentionally.
+
+## Key map
+
+`documents.chrome.*` · `documents.actions.*` · `documents.validation.*` ·
+`documents.fields.*` · `documents.modules.<typeId>.*`
+
+New module → add `documents.modules.<typeId>.*` in **both** locale files
+**before** shipping UI strings. See `docs/specs/0004-document-i18n.md`
+and `docs/development/i18n.md`.

@@ -49,6 +49,11 @@ reason to block a PR.
 - Domain packages may not import `vue` or `three`.
 - `engine-sdk` may not import `vue`, `pinia`, or `api-client`.
 - BFF may not import anything from `apps/` or any UI-side package.
+- **Document i18n (SPEC 0004):** no new hardcoded UI copy in
+  `document-shell` / `document-modules`. Keys go in
+  `@dt/i18n` `documents.*` (en + zh-CN). Schema stays locale-free
+  (`code` + `params` for validation). See
+  `docs/development/i18n.md` and `.cursor/rules/document-i18n.mdc`.
 
 See `docs/architecture/workspace.md` for the full graph and the rationale.
 
@@ -67,6 +72,9 @@ Before reporting back, run this checklist mentally:
       still accurate.
 - [ ] If the change implements a feature spec: acceptance criteria are
       met or explicitly deferred, and the commit/PR cites `SPEC NNNN`.
+- [ ] If the change adds document UI copy: keys exist in both
+      `documents.json` locales; shell uses `t()` / `labelKey`; no new
+      hardcoded Chinese/English chrome (SPEC 0004).
 - [ ] Commit message uses a Conventional Commits type and a scoped
       subject under 72 chars.
 

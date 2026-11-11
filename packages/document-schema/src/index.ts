@@ -15,6 +15,7 @@ export type {
   FieldEditor,
   SelectOption,
   ValidationIssue,
+  ValidationIssueCode,
 } from './types.js';
 
 export { assertDocumentDefinition, validateDocumentRecord } from './validate.js';

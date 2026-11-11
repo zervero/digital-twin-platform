@@ -1,0 +1,79 @@
+/**
+ * Element Plus → `--dt-*` theme bridge (ADR 0025 / SPEC 0003).
+ *
+ * MUST load after Element component styles (`el-var.css` etc.). Element
+ * writes hardcoded light `--el-*` on `:root`; we re-map with higher
+ * specificity (`html:root`) so light/dark `--dt-*` changes flow through.
+ */
+
+html:root {
+  --el-color-primary: var(--dt-accent-primary);
+  --el-color-primary-light-3: var(--dt-accent-primary-hover);
+  --el-color-primary-light-5: var(--dt-accent-primary-hover);
+  --el-color-primary-light-7: var(--dt-bg-surface-hover);
+  --el-color-primary-light-8: var(--dt-bg-surface);
+  --el-color-primary-light-9: var(--dt-bg-elevated);
+  --el-color-primary-dark-2: var(--dt-accent-primary);
+
+  --el-color-success: var(--dt-status-online);
+  --el-color-warning: var(--dt-status-warning);
+  --el-color-danger: var(--dt-accent-danger);
+  --el-color-error: var(--dt-accent-danger);
+  --el-color-info: var(--dt-text-secondary);
+
+  --el-bg-color: var(--dt-bg-elevated);
+  --el-bg-color-page: var(--dt-bg-base);
+  --el-bg-color-overlay: var(--dt-bg-elevated);
+
+  --el-text-color-primary: var(--dt-text-primary);
+  --el-text-color-regular: var(--dt-text-primary);
+  --el-text-color-secondary: var(--dt-text-secondary);
+  --el-text-color-placeholder: var(--dt-text-muted);
+  --el-text-color-disabled: var(--dt-text-muted);
+
+  --el-border-color: var(--dt-border-default);
+  --el-border-color-light: var(--dt-border-subtle);
+  --el-border-color-lighter: var(--dt-border-subtle);
+  --el-border-color-extra-light: var(--dt-border-subtle);
+  --el-border-color-dark: var(--dt-border-strong);
+  --el-border-color-darker: var(--dt-border-strong);
+  --el-border-color-hover: var(--dt-border-strong);
+
+  --el-fill-color: var(--dt-bg-surface);
+  --el-fill-color-light: var(--dt-bg-surface);
+  --el-fill-color-lighter: var(--dt-bg-elevated);
+  --el-fill-color-extra-light: var(--dt-bg-base);
+  --el-fill-color-blank: var(--dt-bg-elevated);
+  --el-fill-color-dark: var(--dt-bg-surface-hover);
+  --el-fill-color-darker: var(--dt-bg-surface-hover);
+
+  --el-disabled-bg-color: var(--dt-bg-surface);
+  --el-disabled-text-color: var(--dt-text-muted);
+  --el-disabled-border-color: var(--dt-border-subtle);
+
+  --el-mask-color: var(--dt-bg-overlay);
+  --el-mask-color-extra-light: var(--dt-bg-overlay);
+
+  --el-box-shadow: var(--dt-shadow-md);
+  --el-box-shadow-light: var(--dt-shadow-sm);
+  --el-box-shadow-lighter: var(--dt-shadow-sm);
+  --el-box-shadow-dark: var(--dt-shadow-lg);
+
+  --el-font-family: var(--dt-font-ui);
+  --el-font-size-base: var(--dt-text-sm);
+  --el-border-radius-base: var(--dt-radius-sm);
+  --el-border-radius-small: var(--dt-radius-sm);
+  --el-border-radius-round: var(--dt-radius-pill);
+
+  /* Date picker / popper surfaces (teleported to body; still inherit :root). */
+  --el-datepicker-text-color: var(--dt-text-primary);
+  --el-datepicker-off-text-color: var(--dt-text-muted);
+  --el-datepicker-header-text-color: var(--dt-text-secondary);
+  --el-datepicker-icon-color: var(--dt-text-secondary);
+  --el-datepicker-border-color: var(--dt-border-subtle);
+  --el-datepicker-inner-border-color: var(--dt-border-subtle);
+  --el-datepicker-inrange-bg-color: var(--dt-bg-surface);
+  --el-datepicker-inrange-hover-bg-color: var(--dt-bg-surface-hover);
+  --el-datepicker-active-color: var(--dt-accent-primary);
+  --el-datepicker-hover-text-color: var(--dt-accent-primary);
+}

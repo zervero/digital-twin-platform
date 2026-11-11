@@ -1,0 +1,108 @@
+{
+  "documents": {
+    "chrome": {
+      "query": "Search",
+      "reset": "Reset",
+      "dateFrom": "Start date",
+      "dateTo": "End date",
+      "selectedCount": "Selected {count} items",
+      "seq": "No.",
+      "actions": "Actions",
+      "pageSize": "Per page",
+      "prevPage": "Previous",
+      "nextPage": "Next",
+      "pageStatus": "Page {page} of {pages} ({total} rows)",
+      "unknownType": "Unknown document type: {typeId}",
+      "notFound": "Document not found",
+      "backToList": "Back to list",
+      "remark": "Remark",
+      "remarkPlaceholder": "Enter remark",
+      "attachments": "Attachments",
+      "attachmentsEmpty": "(V1 placeholder: no attachments)",
+      "all": "All"
+    },
+    "actions": {
+      "create": "New",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "discard": "Discard",
+      "audit": "Audit",
+      "addLine": "Add line",
+      "removeLine": "Remove line"
+    },
+    "validation": {
+      "required": "{label} is required",
+      "minLines": "Enter at least {min} line(s)",
+      "lineRequired": "Line {row}: {label} is required"
+    },
+    "fields": {
+      "docNo": "Document no.",
+      "earTag": "Ear tag",
+      "sowEarTag": "Sow ear tag",
+      "earTagPlaceholder": "Enter ear tag",
+      "individualNo": "Individual no.",
+      "batch": "Sow batch",
+      "building": "Building",
+      "unit": "Unit",
+      "pen": "Pen",
+      "pigStatus": "Status",
+      "eventDate": "Event date",
+      "productionGroup": "Production group",
+      "createdBy": "Created by",
+      "createdAt": "Created at",
+      "updatedBy": "Updated by",
+      "updatedAt": "Updated at",
+      "auditedBy": "Audited by",
+      "auditedAt": "Audited at",
+      "remark": "Remark"
+    },
+    "modules": {
+      "sowDeath": {
+        "title": "Sow death",
+        "deathDate": "Death date",
+        "deathType": "Death type",
+        "deathReason": "Death reason",
+        "weightKg": "Total weight (kg)",
+        "options": {
+          "deathType": {
+            "death": "Death",
+            "cull": "Cull"
+          },
+          "deathReason": {
+            "disease": "Disease",
+            "sudden": "Sudden death",
+            "fight": "Fighting",
+            "emaciation": "Emaciation",
+            "paralysis": "Paralysis",
+            "poisoning": "Poisoning"
+          }
+        }
+      },
+      "sowBreeding": {
+        "title": "Sow breeding",
+        "breedingDate": "Breeding date",
+        "breedingOwner": "Breeding owner",
+        "warehouse": "Warehouse",
+        "transferProductionGroup": "Transfer production group",
+        "transferBatch": "Transfer batch",
+        "transferBuilding": "Transfer building",
+        "transferUnit": "Transfer unit",
+        "transferPen": "Transfer pen",
+        "breedingMethod": "Breeding method",
+        "boarEarTag": "First-service boar",
+        "boarScore": "First-service score",
+        "semenDose": "First-service semen dose",
+        "semenProduct": "First-service product",
+        "semenLot": "First-service semen lot",
+        "parity": "Current parity",
+        "options": {
+          "breedingMethod": {
+            "ai": "Artificial insemination",
+            "natural": "Natural mating"
+          }
+        }
+      }
+    }
+  }
+}

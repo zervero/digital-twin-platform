@@ -280,7 +280,7 @@ after I'm done?**
 | New architecture decision | New ADR under `docs/adr/` |
 | New env var, new script, new dev step | `README.md` + `docs/development/local-dev.md` |
 | Marketplace / plugin persistence change (route, store, signing) | `docs/development/marketplace.md` (+ `contributing.md` if the dev loop changed) |
-| New i18n key (UI copy in `@dt/app-shell`) | `packages/i18n/src/locales/<locale>/<ns>.json` (+ the same key in the other locale) and `docs/development/i18n.md` if the key is non-obvious |
+| New i18n key (UI copy in `@dt/app-shell` or documents) | `packages/i18n/src/locales/<locale>/<ns>.json` (+ the same key in the other locale); document UI follows SPEC 0004 / `docs/development/i18n.md` (`documents.*`, `labelKey`, no hardcoded chrome) |
 | Process / workflow change | this file (`contributing.md`) |
 | New prod deployment concern (Dockerfile, env, health, shutdown) | `docs/development/deployment.md` |
 | Helm chart / values / template change | `docs/development/production-platform.md` (and run `pnpm chart:lint:strict` before pushing) |

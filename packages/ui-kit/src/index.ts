@@ -10,6 +10,10 @@
  * component renders:
  *
  *     import '@dt/ui-kit/styles';
+ *     import '@dt/ui-kit/element-styles'; // Element component CSS (SPEC 0003)
+ *
+ * Element Plus–backed controls (ADR 0025 / SPEC 0003) are exported as
+ * `Dt*` wrappers; prefer those over raw `el-*` in app code.
  */
 
 export { default as DtButton } from './components/DtButton.vue';
@@ -26,3 +30,11 @@ export { default as DtTree } from './components/DtTree.vue';
 export { default as DtAppCard } from './components/DtAppCard.vue';
 export { default as DtToolStrip } from './components/DtToolStrip.vue';
 export { default as DtDialog } from './components/DtDialog.vue';
+export { default as DtDatePicker } from './components/DtDatePicker.vue';
+export { default as DtConfigProvider } from './components/DtConfigProvider.vue';
+export {
+  applyDayjsLocale,
+  elementLocaleOf,
+  type DtUiLocale,
+} from './i18n/element-locale.js';
+export type { DatePickerInstance } from 'element-plus';

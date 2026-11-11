@@ -6,5 +6,7 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     include: ['src/**/*.{test,spec}.ts'],
+    // Element Plus date-picker mount is heavier than bare Dt* smoke tests.
+    testTimeout: 20_000,
   },
 });

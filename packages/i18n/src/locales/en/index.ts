@@ -11,6 +11,7 @@ import marketplace from './marketplace.json';
 import scene from './scene.json';
 import shell from './shell.json';
 import plugin from './plugin.json';
+import documents from './documents.json';
 
 export const en = {
   ...common,
@@ -20,6 +21,7 @@ export const en = {
   ...scene,
   ...shell,
   ...plugin,
+  ...documents,
 } as const;
 
 export type EnDictionary = typeof en;

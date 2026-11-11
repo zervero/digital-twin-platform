@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
+import { createPinia } from 'pinia';
 import { createRouter, createMemoryHistory } from 'vue-router';
 import { defineComponent, h } from 'vue';
 
@@ -31,6 +32,7 @@ describe('DocumentListPage', () => {
       },
       global: {
         plugins: [
+          createPinia(),
           router,
           {
             install(app) {

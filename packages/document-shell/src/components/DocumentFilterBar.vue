@@ -2,7 +2,10 @@
 import { reactive, watch } from 'vue';
 
 import type { FieldDefinition } from '@dt/document-schema';
-import { DtButton } from '@dt/ui-kit';
+import { useI18n } from '@dt/i18n';
+import { DtButton, DtDatePicker } from '@dt/ui-kit';
+
+import { resolveLabel, resolvePlaceholder } from '../i18n-label.js';
 
 const props = defineProps<{
   filters: readonly FieldDefinition[];
@@ -15,6 +18,7 @@ const emit = defineEmits<{
   reset: [];
 }>();
 
+const { t } = useI18n();
 const local = reactive<Record<string, unknown>>({});
 
 watch(
@@ -38,10 +42,15 @@ function rangeValue(key: string): [string, string] {
   return ['', ''];
 }
 
-function setRange(key: string, index: 0 | 1, value: string) {
+function setRange(key: string, index: 0 | 1, value: string | null) {
   const next = rangeValue(key);
-  next[index] = value;
+  next[index] = value ?? '';
   local[key] = next;
+  sync();
+}
+
+function setDate(key: string, value: string | null) {
+  local[key] = value ?? '';
   sync();
 }
 
@@ -58,6 +67,10 @@ function onReset() {
   sync();
   emit('reset');
 }
+
+function optionLabel(opt: { label: string; labelKey?: string }): string {
+  return resolveLabel(opt, t);
+}
 </script>
 
 <template>
@@ -68,39 +81,32 @@ function onReset() {
       class="dt-doc-filters__item"
     >
       <label class="dt-doc-filters__label" :for="`filter-${field.key}`">
-        {{ field.label }}
+        {{ resolveLabel(field, t) }}
       </label>
       <template v-if="field.editor === 'dateRange'">
         <div class="dt-doc-filters__range">
-          <input
+          <DtDatePicker
             :id="`filter-${field.key}-from`"
-            :value="rangeValue(field.key)[0]"
-            type="date"
-            class="dt-doc-filters__input"
-            @change="
-              setRange(
-                field.key,
-                0,
-                ($event.target as HTMLInputElement).value,
-              )
-            "
+            :model-value="rangeValue(field.key)[0] || null"
+            :placeholder="t('documents.chrome.dateFrom')"
+            @update:model-value="(v) => setRange(field.key, 0, v)"
           />
           <span>~</span>
-          <input
+          <DtDatePicker
             :id="`filter-${field.key}-to`"
-            :value="rangeValue(field.key)[1]"
-            type="date"
-            class="dt-doc-filters__input"
-            @change="
-              setRange(
-                field.key,
-                1,
-                ($event.target as HTMLInputElement).value,
-              )
-            "
+            :model-value="rangeValue(field.key)[1] || null"
+            :placeholder="t('documents.chrome.dateTo')"
+            @update:model-value="(v) => setRange(field.key, 1, v)"
           />
         </div>
       </template>
+      <DtDatePicker
+        v-else-if="field.editor === 'date'"
+        :id="`filter-${field.key}`"
+        :model-value="local[field.key] ? String(local[field.key]) : null"
+        :placeholder="resolvePlaceholder(field, t)"
+        @update:model-value="(v) => setDate(field.key, v)"
+      />
       <select
         v-else-if="field.editor === 'select'"
         :id="`filter-${field.key}`"
@@ -113,7 +119,7 @@ function onReset() {
           :key="String(opt.value)"
           :value="opt.value"
         >
-          {{ opt.label }}
+          {{ optionLabel(opt) }}
         </option>
       </select>
       <input
@@ -122,13 +128,17 @@ function onReset() {
         v-model="local[field.key]"
         type="text"
         class="dt-doc-filters__input"
-        :placeholder="field.placeholder"
+        :placeholder="resolvePlaceholder(field, t)"
         @change="sync"
       />
     </div>
     <div class="dt-doc-filters__actions">
-      <DtButton type="submit" variant="primary">查询</DtButton>
-      <DtButton type="button" variant="ghost" @click="onReset">重置</DtButton>
+      <DtButton type="submit" variant="primary">{{
+        t('documents.chrome.query')
+      }}</DtButton>
+      <DtButton type="button" variant="ghost" @click="onReset">{{
+        t('documents.chrome.reset')
+      }}</DtButton>
     </div>
   </form>
 </template>
@@ -145,24 +155,27 @@ function onReset() {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 160px;
+  min-width: 180px;
 }
 .dt-doc-filters__label {
   font-size: 12px;
-  color: var(--dt-text-secondary, #667085);
+  color: var(--dt-text-secondary);
 }
 .dt-doc-filters__input {
-  border: 1px solid var(--dt-border-default, #d0d5dd);
-  border-radius: var(--dt-radius-sm, 4px);
+  border: 1px solid var(--dt-border-default);
+  border-radius: var(--dt-radius-sm);
   padding: 6px 8px;
   font: inherit;
-  background: var(--dt-bg-surface, #fff);
+  background: var(--dt-bg-surface);
   color: inherit;
 }
 .dt-doc-filters__range {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.dt-doc-filters__range :deep(.dt-date-picker) {
+  width: 148px;
 }
 .dt-doc-filters__actions {
   display: flex;

@@ -55,10 +55,14 @@ asset-system   -> (none local; host byte catalog / cache — ADR 0022)
 api-client     -> contracts
 device-domain  -> contracts
 scene-domain   -> contracts
-ui-kit         -> contracts
+ui-kit         -> contracts, element-plus
+#   Presentational Dt* + Element-backed wrappers (ADR 0025 / SPEC 0003).
+#   Theme bridge maps Element vars to --dt-*. Locale via DtConfigProvider
+#   + Day.js (not global app.use). Still no vxe / engine-sdk.
 document-schema -> (none local; pure TS document definition types + helpers — ADR 0024)
-document-shell  -> document-schema, ui-kit, vxe-table, vxe-pc-ui
+document-shell  -> document-schema, ui-kit, i18n, vxe-table, vxe-pc-ui
 #   Framework only: registry, ports, list/detail runtime. No product单据.
+#   Grids = vxe; form controls may use Dt* (Element) from ui-kit.
 realtime       -> contracts
 plugin-runtime -> contracts
 @dt/plugin-registry -> contracts, plugin-runtime
@@ -72,6 +76,7 @@ Forbidden edges:
 
 - `contracts` must not depend on any local package.
 - `ui-kit` must not depend on `api-client`, `engine-sdk`, `document-shell`, or `vxe-table`.
+  It **may** depend on `element-plus` (ADR 0025); prefer `Dt*` wrappers over raw `el-*`.
 - `document-schema` must not depend on Vue, vxe-table, or `api-client`.
 - `document-shell` must not depend on `engine-sdk` or Three.js.
 - Domain packages must not depend on Vue or Three.js.
@@ -102,9 +107,9 @@ Forbidden edges:
 | `@dt/scene-domain` | Platform | contracts | Scene normalization & queries. |
 | `@dt/engine-sdk` | Engine | contracts, three | Three.js renderer behind SDK API; optional host-resolved GLB load (ADR 0021). |
 | `@dt/asset-system` | Platform | — | Host byte catalog: manifest, versioned cache, download, ensureLocalUrl (ADR 0022). No Three/Vue. |
-| `@dt/ui-kit` | UI | contracts | Presentational Vue components. |
+| `@dt/ui-kit` | UI | contracts, element-plus | Presentational `Dt*` + Element-backed controls (theme bridge → `--dt-*`). No vxe. |
 | `@dt/document-schema` | Platform | — | Schema-driven单据 types + validation/dirty helpers (SPEC 0001). No Vue/vxe; no product modules. |
-| `@dt/document-shell` | UI | document-schema, ui-kit, vxe-table | List + unified detail/edit runtime + registry/nav helpers. No product modules. |
+| `@dt/document-shell` | UI | document-schema, ui-kit, i18n, vxe-table | List + unified detail/edit runtime + registry/nav helpers. No product modules. |
 | `@dt/document-modules` | Product demos | document-schema, document-shell | One folder per单据 (`definition` + `seed` + `register`); `catalog.ts` is the only shared append point. |
 | `@dt/app-shell` | UI | ui-kit, engine-sdk, api-client, domain, contracts, document-shell, document-modules | Layout, stores, vue-router workspaces (`/ops`, `/admin/*`, `/documents/*`), panel/viewport wiring. |
 | `@dt/realtime` | V2 | contracts | Stream interfaces + in-memory mock. |

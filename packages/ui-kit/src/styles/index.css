@@ -1,0 +1,6 @@
+/**
+ * `@dt/ui-kit/styles` entry — design tokens only.
+ * Element component CSS + theme bridge load via `@dt/ui-kit/element-styles`
+ * (bridge must come *after* Element's own `:root` vars — ADR 0025).
+ */
+@import './tokens.css';
