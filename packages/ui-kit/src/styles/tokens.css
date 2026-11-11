@@ -10,9 +10,9 @@
  *     import '@dt/ui-kit/styles';
  *
  * The token names are namespaced with `--dt-*` to avoid collisions with
- * app-level CSS variables. Values are the dark theme; a future light
- * theme can be added as a `[data-theme="light"]` block that re-defines
- * the same variable names.
+ * app-level CSS variables. `:root` is the dark theme (default). Light
+ * overrides live under `[data-theme="light"]` (SPEC 0002). Hosts set
+ * `document.documentElement.dataset.theme` to the resolved mode.
  *
  * Font tokens reference Inter (UI) and JetBrains Mono (data). Those
  * fonts are NOT bundled by ui-kit; consumers that want the new type
@@ -21,7 +21,14 @@
  * ui-kit stays embeddable in any typography).
  */
 
+/*
+ * Color tokens: dark is the default on :root. When `data-theme` is set
+ * (SPEC 0002), dark/light blocks below must win over bare :root — use
+ * higher specificity (`:root[data-theme=…]`) so order alone is not enough.
+ */
 :root {
+  color-scheme: dark;
+
   /* --- Surfaces (warm-neutral, not pure black) ---------------------- */
   --dt-bg-base:           #0F1115;     /* page / panel base */
   --dt-bg-elevated:       #16191F;     /* toolbar, slight elevation */
@@ -116,4 +123,52 @@
   --dt-ease-default: cubic-bezier(0.4, 0, 0.2, 1);
   --dt-duration-fast: 120ms;
   --dt-duration-base: 180ms;
+}
+
+/**
+ * Light theme — same token names, brighter surfaces (SPEC 0002).
+ * Spacing / type / radii / accent defaults stay shared with dark.
+ */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --dt-bg-base:           #F4F6F9;
+  --dt-bg-elevated:       #FFFFFF;
+  --dt-bg-surface:        #EEF1F6;
+  --dt-bg-surface-hover:  #E4E9F1;
+  --dt-bg-overlay:        rgba(15, 23, 42, 0.45);
+
+  --dt-border-subtle:     #E2E8F0;
+  --dt-border-default:    #CBD5E1;
+  --dt-border-strong:     #94A3B8;
+
+  --dt-text-primary:      #0F172A;
+  --dt-text-secondary:    #475569;
+  --dt-text-muted:        #64748B;
+  --dt-text-inverse:      #FFFFFF;
+
+  --dt-accent-primary:        #2563EB;
+  --dt-accent-primary-hover:  #1D4ED8;
+  --dt-accent-secondary:      #0D9488;
+  --dt-accent-secondary-hover:#0F766E;
+  --dt-accent-danger:         #DC2626;
+  --dt-accent-danger-hover:   #B91C1C;
+
+  --dt-status-online:  #059669;
+  --dt-status-offline: #64748B;
+  --dt-status-warning: #D97706;
+  --dt-status-alarm:   #DC2626;
+
+  --dt-status-online-bg:     rgba(5, 150, 105, 0.10);
+  --dt-status-online-border: rgba(5, 150, 105, 0.28);
+  --dt-status-offline-bg:    rgba(100, 116, 139, 0.08);
+  --dt-status-offline-border:rgba(100, 116, 139, 0.28);
+  --dt-status-warning-bg:    rgba(217, 119, 6, 0.10);
+  --dt-status-warning-border:rgba(217, 119, 6, 0.28);
+  --dt-status-alarm-bg:      rgba(220, 38, 38, 0.10);
+  --dt-status-alarm-border:  rgba(220, 38, 38, 0.30);
+
+  --dt-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --dt-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.10);
+  --dt-shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.14);
 }

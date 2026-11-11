@@ -93,7 +93,7 @@ docs/
   development/   # Local dev + viewport assets guides
 ```
 
-See [docs/architecture/workspace.md](docs/architecture/workspace.md) for package boundaries and dependency rules. Document workbench: [docs/specs/0001-document-workbench.md](docs/specs/0001-document-workbench.md) (ADR 0024). Viewport GLB catalog / cache flow: [docs/development/viewport-assets.md](docs/development/viewport-assets.md) (ADR 0021 / 0022).
+See [docs/architecture/workspace.md](docs/architecture/workspace.md) for package boundaries and dependency rules. Document workbench: [docs/specs/0001-document-workbench.md](docs/specs/0001-document-workbench.md) (ADR 0024). Color mode: [docs/specs/0002-color-mode.md](docs/specs/0002-color-mode.md). Viewport GLB catalog / cache flow: [docs/development/viewport-assets.md](docs/development/viewport-assets.md) (ADR 0021 / 0022).
 
 ## License
 

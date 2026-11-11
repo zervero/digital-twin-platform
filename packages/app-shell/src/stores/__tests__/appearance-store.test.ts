@@ -1,5 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { useAppearanceStore, APPEARANCE_STORAGE_KEY } from '../appearance-store.js';
 import { ACCENT_PRESETS } from '../../theme/accent-presets.js';
@@ -7,6 +7,13 @@ import { ACCENT_PRESETS } from '../../theme/accent-presets.js';
 beforeEach(() => {
   setActivePinia(createPinia());
   localStorage.clear();
+  delete document.documentElement.dataset.theme;
+  document.documentElement.style.colorScheme = '';
+});
+
+afterEach(() => {
+  delete document.documentElement.dataset.theme;
+  document.documentElement.style.colorScheme = '';
 });
 
 describe('useAppearanceStore', () => {
@@ -19,6 +26,7 @@ describe('useAppearanceStore', () => {
     store.hydrate();
     expect(store.accentId).toBe('teal');
     expect(store.customHex).toBeNull();
+    expect(store.colorMode).toBe('dark');
   });
 
   it('hydrates customHex from localStorage', () => {
@@ -32,8 +40,32 @@ describe('useAppearanceStore', () => {
     expect(store.accentId).toBeNull();
   });
 
-  it('setPreset updates accentId, clears customHex, and persists', () => {
+  it('hydrates colorMode and applies data-theme', () => {
+    localStorage.setItem(
+      APPEARANCE_STORAGE_KEY,
+      JSON.stringify({ accentId: 'blue', colorMode: 'light' }),
+    );
     const store = useAppearanceStore();
+    store.hydrate();
+    expect(store.colorMode).toBe('light');
+    expect(store.resolvedColorMode).toBe('light');
+    expect(document.documentElement.dataset.theme).toBe('light');
+  });
+
+  it('setColorMode persists without wiping accent', () => {
+    const store = useAppearanceStore();
+    store.setPreset('indigo');
+    store.setColorMode('light');
+    expect(store.colorMode).toBe('light');
+    expect(document.documentElement.dataset.theme).toBe('light');
+
+    const saved = JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!);
+    expect(saved).toEqual({ accentId: 'indigo', colorMode: 'light' });
+  });
+
+  it('setPreset updates accentId, clears customHex, and keeps colorMode', () => {
+    const store = useAppearanceStore();
+    store.setColorMode('system');
     const preset = ACCENT_PRESETS.find((p) => p.id === 'indigo');
     expect(preset).toBeDefined();
 
@@ -43,7 +75,7 @@ describe('useAppearanceStore', () => {
     expect(store.primary).toBe(preset!.primary);
 
     const saved = JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!);
-    expect(saved).toEqual({ accentId: 'indigo' });
+    expect(saved).toEqual({ accentId: 'indigo', colorMode: 'system' });
   });
 
   it('setCustom rejects unusable colors without mutating state', () => {
@@ -64,6 +96,7 @@ describe('useAppearanceStore', () => {
 
   it('setCustom accepts usable colors, clears accentId, and persists', () => {
     const store = useAppearanceStore();
+    store.setColorMode('dark');
     const ok = store.setCustom('#1D4ED8');
     expect(ok).toBe(true);
     expect(store.customHex).toBe('#1D4ED8');
@@ -71,6 +104,6 @@ describe('useAppearanceStore', () => {
     expect(store.primary).toBe('#1D4ED8');
 
     const saved = JSON.parse(localStorage.getItem(APPEARANCE_STORAGE_KEY)!);
-    expect(saved).toEqual({ customHex: '#1D4ED8' });
+    expect(saved).toEqual({ customHex: '#1D4ED8', colorMode: 'dark' });
   });
 });

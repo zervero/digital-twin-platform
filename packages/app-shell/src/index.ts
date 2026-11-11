@@ -30,6 +30,13 @@ export { provideApiClient, ApiClientKey } from './stores/api-store.js';
 export { EngineOptionsKey } from './injection/engine-options.js';
 export { applyAccent, contrastRatio, isAccentUsable } from './theme/apply-accent.js';
 export {
+  applyResolvedTheme,
+  DEFAULT_COLOR_MODE,
+  isColorMode,
+  resolveColorMode,
+} from './theme/apply-theme.js';
+export type { ColorMode, ResolvedColorMode } from './theme/apply-theme.js';
+export {
   ACCENT_PRESETS,
   DEFAULT_ACCENT_ID,
   findAccentPreset,

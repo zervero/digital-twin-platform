@@ -11,8 +11,8 @@
       "import": "./src/index.ts"
     },
     "./styles": {
-      "style": "./dist/tokens.css",
-      "default": "./dist/tokens.css"
+      "style": "./src/styles/tokens.css",
+      "default": "./src/styles/tokens.css"
     }
   },
   "scripts": {

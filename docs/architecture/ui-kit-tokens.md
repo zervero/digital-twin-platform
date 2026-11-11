@@ -63,11 +63,12 @@ preset before login).
 
 | Concern | Owner | Detail |
 | --- | --- | --- |
-| Default tokens | `packages/ui-kit/src/styles/tokens.css` | `--dt-accent-primary`, `--dt-accent-primary-hover`, secondary / danger accents |
+| Default tokens | `packages/ui-kit/src/styles/tokens.css` (exported as `@dt/ui-kit/styles`) | Dark on `:root`; light under `:root[data-theme="light"]`. Do not rely on a stale `dist/` copy for HMR. |
 | Apply helper | `packages/app-shell/src/theme/apply-accent.ts` | Writes `--dt-accent-primary` (+ optional hover) on `document.documentElement`; rejects hex that fails WCAG AA (≥4.5:1) against white primary-button labels |
-| Preference store | `packages/app-shell/src/stores/appearance-store.ts` | Preset id or custom hex; persists under `localStorage` key `dt.appearance.v1` |
-| Settings UI | Appearance dialog (`AppearanceSettingsDialog`) | Opened from admin left nav **and** toolbar appearance button (**including anonymous**); deep links `/settings/appearance` (→ dialog + `/ops`) and `/admin/appearance` (admin → dialog + marketplace) |
-| Must not rewrite | `--dt-status-*`, danger / semantic accents used for alarms | Status chips and alarm semantics stay fixed when brand accent changes |
+| Preference store | `packages/app-shell/src/stores/appearance-store.ts` | Accent preset / custom hex **and** `colorMode` (`light` \| `dark` \| `system`); persists under `localStorage` key `dt.appearance.v1` |
+| Color mode apply | `packages/app-shell/src/theme/apply-theme.ts` | Writes resolved `data-theme` + `color-scheme` on `document.documentElement` (SPEC 0002) |
+| Settings UI | Appearance dialog (`AppearanceSettingsDialog`) | Color mode segmented control + accent; opened from admin left nav **and** toolbar appearance button (**including anonymous**); deep links `/settings/appearance` (→ dialog + `/ops`) and `/admin/appearance` (admin → dialog + marketplace) |
+| Must not rewrite | `--dt-status-*` via accent picker | Status chips stay semantic when brand accent changes; light mode may retune status hex in tokens.css only |
 
 Rules for new presentational components:
 
@@ -95,9 +96,12 @@ Rules for new presentational components:
 | Motion | `--dt-ease-default`, `--dt-duration-{fast,base}` | shared timing tokens |
 
 All names are namespaced with `--dt-` to avoid collisions with
-app-level CSS variables. The current values are a single dark theme;
-a future light theme is one extra `[data-theme="light"] { ... }`
-block re-defining the same names.
+app-level CSS variables. `:root` / `[data-theme="dark"]` is the default
+dark theme; `[data-theme="light"]` redefines surface / text / border /
+shadow (and light-tuned accents/status). Hosts set
+`document.documentElement.dataset.theme` to the **resolved** mode
+(`light` or `dark`); preference `system` follows
+`prefers-color-scheme` (SPEC 0002). Default for new users is **dark**.
 
 ### V4-prep token refresh (2026-07-09)
 

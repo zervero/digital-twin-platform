@@ -1,15 +1,16 @@
 <script setup lang="ts">
 /**
- * Appearance form body (presets + custom accent). Used inside the
+ * Appearance form body (color mode + accent). Used inside the
  * shared appearance dialog — not a routed page.
  */
 import { computed, ref, watch } from 'vue';
 
-import { DtButton } from '@dt/ui-kit';
+import { DtButton, DtSegmentedControl } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
 
 import { ACCENT_PRESETS } from '../theme/accent-presets.js';
 import { applyAccent, isAccentUsable } from '../theme/apply-accent.js';
+import type { ColorMode } from '../theme/apply-theme.js';
 import { useAppearanceStore } from '../stores/appearance-store.js';
 
 const { t } = useI18n();
@@ -20,8 +21,18 @@ const contrastError = ref<string | null>(null);
 
 const selectedPresetId = computed(() => appearance.accentId);
 
+const colorModeOptions = computed(() => [
+  { value: 'light', label: t('settings.appearance.colorModeLight') },
+  { value: 'dark', label: t('settings.appearance.colorModeDark') },
+  { value: 'system', label: t('settings.appearance.colorModeSystem') },
+]);
+
 function applyCurrentAccent(): void {
   applyAccent(appearance.primary, { hover: appearance.hover });
+}
+
+function onColorMode(value: string): void {
+  appearance.setColorMode(value as ColorMode);
 }
 
 function onSelectPreset(id: string): void {
@@ -55,6 +66,24 @@ watch(
     <p class="dt-m-0 dt-text-secondary dt-text-sm">
       {{ t('settings.appearance.subtitle') }}
     </p>
+
+    <section
+      class="dt-flex dt-flex-col dt-gap-md"
+      :aria-label="t('settings.appearance.colorModeLabel')"
+    >
+      <h3 class="dt-m-0 dt-text-md dt-font-semi dt-text-primary">
+        {{ t('settings.appearance.colorModeLabel') }}
+      </h3>
+      <p class="dt-m-0 dt-text-xs dt-text-secondary">
+        {{ t('settings.appearance.colorModeHint') }}
+      </p>
+      <DtSegmentedControl
+        :model-value="appearance.colorMode"
+        :options="colorModeOptions"
+        data-testid="appearance-color-mode"
+        @update:model-value="onColorMode"
+      />
+    </section>
 
     <section
       class="dt-flex dt-flex-col dt-gap-md"

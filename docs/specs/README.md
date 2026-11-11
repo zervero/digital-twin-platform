@@ -46,6 +46,7 @@ dependency bumps with no behavior change.
 | Spec | Title | Status |
 | --- | --- | --- |
 | [0001](./0001-document-workbench.md) | Configurable document workbench | `accepted` |
+| [0002](./0002-color-mode.md) | Light / dark color mode | `accepted` |
 
 Historical design notes that predate this folder live under
 [`docs/plans/`](../plans/) and remain valid until a new spec supersedes

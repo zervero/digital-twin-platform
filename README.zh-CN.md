@@ -117,7 +117,7 @@ docs/
   development/   # 本地开发与视口资源指南
 ```
 
-包边界与依赖规则见 [docs/architecture/workspace.md](docs/architecture/workspace.md)。单据工作台：[docs/specs/0001-document-workbench.md](docs/specs/0001-document-workbench.md)（ADR 0024）。视口 GLB 目录 / 缓存流程：[docs/development/viewport-assets.md](docs/development/viewport-assets.md)（ADR 0021 / 0022）。
+包边界与依赖规则见 [docs/architecture/workspace.md](docs/architecture/workspace.md)。单据工作台：[docs/specs/0001-document-workbench.md](docs/specs/0001-document-workbench.md)（ADR 0024）。颜色模式：[docs/specs/0002-color-mode.md](docs/specs/0002-color-mode.md)。视口 GLB 目录 / 缓存流程：[docs/development/viewport-assets.md](docs/development/viewport-assets.md)（ADR 0021 / 0022）。
 
 ## 环境变量
 

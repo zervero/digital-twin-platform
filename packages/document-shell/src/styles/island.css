@@ -9,23 +9,23 @@
 
 .dt-document-island {
   --vxe-ui-font-family: inherit;
-  --vxe-ui-font-color: var(--dt-text-primary, #e4e6eb);
-  --vxe-ui-font-lighten-color: var(--dt-text-secondary, #9ca3af);
-  --vxe-ui-font-darken-color: var(--dt-text-muted, #6b7280);
-  --vxe-ui-font-disabled-color: var(--dt-text-muted, #6b7280);
-  --vxe-ui-base-drag-bg-color: var(--dt-bg-elevated, #16191f);
-  --vxe-ui-layout-background-color: var(--dt-bg-base, #0b0d10);
-  --vxe-ui-input-border-color: var(--dt-border-default, #2a2f3a);
-  --vxe-ui-input-placeholder-color: var(--dt-text-muted, #6b7280);
-  --vxe-ui-table-header-background-color: var(--dt-bg-elevated, #16191f);
-  --vxe-ui-table-header-font-color: var(--dt-text-primary, #e4e6eb);
+  --vxe-ui-font-color: var(--dt-text-primary);
+  --vxe-ui-font-lighten-color: var(--dt-text-secondary);
+  --vxe-ui-font-darken-color: var(--dt-text-muted);
+  --vxe-ui-font-disabled-color: var(--dt-text-muted);
+  --vxe-ui-base-drag-bg-color: var(--dt-bg-elevated);
+  --vxe-ui-layout-background-color: var(--dt-bg-base);
+  --vxe-ui-input-border-color: var(--dt-border-default);
+  --vxe-ui-input-placeholder-color: var(--dt-text-muted);
+  --vxe-ui-table-header-background-color: var(--dt-bg-elevated);
+  --vxe-ui-table-header-font-color: var(--dt-text-primary);
   --vxe-ui-table-header-font-weight: 600;
-  --vxe-ui-table-footer-font-color: var(--dt-text-primary, #e4e6eb);
-  --vxe-ui-table-border-color: var(--dt-border-subtle, #1f2430);
-  --vxe-ui-table-row-hover-background-color: var(--dt-bg-surface-hover, #1c212b);
-  --vxe-ui-font-primary-color: var(--dt-accent-primary, #4f8fff);
-  color: var(--dt-text-primary, #e4e6eb);
-  background: var(--dt-bg-base, #0b0d10);
+  --vxe-ui-table-footer-font-color: var(--dt-text-primary);
+  --vxe-ui-table-border-color: var(--dt-border-subtle);
+  --vxe-ui-table-row-hover-background-color: var(--dt-bg-surface-hover);
+  --vxe-ui-font-primary-color: var(--dt-accent-primary);
+  color: var(--dt-text-primary);
+  background: var(--dt-bg-base);
   min-height: 0;
   min-width: 0;
   display: flex;
@@ -37,11 +37,11 @@
    inherited custom props settle; pin th text explicitly. */
 .dt-document-island .vxe-header--column,
 .dt-document-island .vxe-header--column .vxe-cell {
-  color: var(--dt-text-primary, #e4e6eb);
+  color: var(--dt-text-primary);
 }
 
 .dt-document-island a.dt-doc-link {
-  color: var(--dt-accent-primary, #4f8fff);
+  color: var(--dt-accent-primary);
   text-decoration: none;
   cursor: pointer;
 }

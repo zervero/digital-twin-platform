@@ -38,6 +38,26 @@ describe('AppearanceSettingsForm', () => {
     );
   });
 
+  it('switches color mode via the segmented control', async () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+
+    const wrapper = mount(AppearanceSettingsForm, {
+      global: { plugins: [pinia] },
+    });
+
+    const light = wrapper
+      .findAll('button')
+      .find((b) => /Light|浅色/.test(b.text()));
+    expect(light).toBeDefined();
+    await light!.trigger('click');
+    await flushPromises();
+
+    const store = useAppearanceStore();
+    expect(store.colorMode).toBe('light');
+    expect(document.documentElement.dataset.theme).toBe('light');
+  });
+
   it('rejects a low-contrast custom color with an inline error', async () => {
     const pinia = createPinia();
     setActivePinia(pinia);

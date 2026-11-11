@@ -65,8 +65,8 @@ async function main(): Promise<void> {
     console.warn('[web] viewport catalog unavailable; A-light only', err);
   }
 
-  // V4: hydrate user accent preference and write CSS variables
-  // before mount so the first paint uses the saved brand color.
+  // V4 + SPEC 0002: hydrate accent + color mode before mount so the
+  // first paint uses the saved brand color and resolved theme.
   const { useAppearanceStore, applyAccent } = await import('@dt/app-shell');
   const appearanceStore = useAppearanceStore(pinia);
   appearanceStore.hydrate();
