@@ -69,8 +69,9 @@ packages/
   device-domain/    # Device business model
   api-client/       # Typed BFF client
   ui-kit/           # Presentational Vue components
-  document-schema/  # Schema-driven document definitions + validation (SPEC 0001)
+  document-schema/  # Document definition types + validation (SPEC 0001)
   document-shell/   # Document list + detail/edit runtime (vxe-table)
+  document-modules/ # One folder per单据 demo (definition + seed + register)
   app-shell/        # Shared composition: layout, stores, panels, /documents/*
   i18n/             # Localization dictionaries (en + zh-CN)
   realtime/         # Stream interfaces

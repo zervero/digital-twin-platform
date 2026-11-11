@@ -23,5 +23,3 @@ export {
   isDocumentDirty,
   snapshotDocument,
 } from './dirty.js';
-export { sowDeathDefinition } from './fixtures/sow-death.js';
-export { sowBreedingDefinition } from './fixtures/sow-breeding.js';

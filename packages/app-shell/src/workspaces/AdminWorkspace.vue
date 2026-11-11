@@ -2,19 +2,26 @@
 /**
  * Admin workspace shell: DtSideNav + nested RouterView + overview rail.
  * Appearance opens the shared dialog (does not navigate away).
+ * Document nav entries come from the document registry (no per-type hardcoding).
  */
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { DtSideNav, DtStatCard } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
+import {
+  listDocumentNavItems,
+  matchDocumentNavId,
+} from '@dt/document-shell';
 
 import { useAppearanceStore } from '../stores/appearance-store.js';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const appearance = useAppearanceStore();
+
+const documentNavItems = computed(() => listDocumentNavItems(locale.value));
 
 const navItems = computed(() => [
   { id: 'marketplace', label: t('admin.nav.marketplace'), icon: 'Store' as const },
@@ -23,24 +30,19 @@ const navItems = computed(() => [
   { id: 'users', label: t('admin.nav.users'), icon: 'Users' as const },
   { id: 'audit', label: t('admin.nav.audit'), icon: 'ScrollText' as const },
   { id: 'tenant', label: t('admin.nav.tenant'), icon: 'Building2' as const },
-  {
-    id: 'sow-death',
-    label: t('admin.nav.sowDeath'),
-    icon: 'FileText' as const,
-  },
-  {
-    id: 'sow-breeding',
-    label: t('admin.nav.sowBreeding'),
-    icon: 'ClipboardList' as const,
-  },
+  ...documentNavItems.value.map((item) => ({
+    id: item.id,
+    label: item.label,
+    // Schema stores lucide icon names as strings; SideNav expects its icon union.
+    icon: (item.icon ?? 'FileText') as 'FileText' | 'ClipboardList',
+  })),
   { id: 'appearance', label: t('admin.nav.appearance'), icon: 'Palette' as const },
 ]);
 
 const activeId = computed(() => {
   if (appearance.dialogOpen) return 'appearance';
-  if (route.path.startsWith('/documents/sow-breeding')) return 'sow-breeding';
-  if (route.path.startsWith('/documents/sow-death')) return 'sow-death';
-  if (route.path.startsWith('/documents')) return 'sow-death';
+  const docId = matchDocumentNavId(route.path);
+  if (docId) return docId;
   const segment = route.path.split('/').filter(Boolean)[1];
   return segment ?? 'marketplace';
 });
@@ -50,12 +52,9 @@ function onSelect(id: string) {
     appearance.openDialog();
     return;
   }
-  if (id === 'sow-death') {
-    void router.push('/documents/sow-death');
-    return;
-  }
-  if (id === 'sow-breeding') {
-    void router.push('/documents/sow-breeding');
+  const doc = documentNavItems.value.find((item) => item.id === id);
+  if (doc) {
+    void router.push(doc.path);
     return;
   }
   void router.push(`/admin/${id}`);

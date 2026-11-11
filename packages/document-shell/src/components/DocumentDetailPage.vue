@@ -260,7 +260,7 @@ onMounted(() => {
           v-if="field.editor === 'date'"
           :value="String(record[field.key] ?? '')"
           type="date"
-          data-testid="header-deathDate"
+          :data-testid="`header-${field.key}`"
           @input="
             setHeader(
               field.key,
@@ -273,6 +273,7 @@ onMounted(() => {
           :value="String(record[field.key] ?? '')"
           type="text"
           :readonly="field.editor === 'readonly'"
+          :data-testid="`header-${field.key}`"
           @input="
             setHeader(
               field.key,

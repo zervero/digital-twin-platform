@@ -3,12 +3,10 @@ import { mount, flushPromises } from '@vue/test-utils';
 import { createRouter, createMemoryHistory } from 'vue-router';
 import { defineComponent, h } from 'vue';
 
-import { sowDeathDefinition } from '@dt/document-schema';
-
 import DocumentListPage from '../components/DocumentListPage.vue';
 import { createMemoryDocumentPort } from '../memory-port.js';
 import { installDocumentShell } from '../install.js';
-import { sowDeathSeed } from '../fixtures/sow-death-seed.js';
+import { sampleDefinition, sampleSeed } from './helpers/sample.js';
 
 describe('DocumentListPage', () => {
   it('renders fixture title and rows', async () => {
@@ -17,7 +15,7 @@ describe('DocumentListPage', () => {
       routes: [
         { path: '/', component: defineComponent({ render: () => h('div') }) },
         {
-          path: '/documents/sow-death/detail/:docId?',
+          path: '/documents/sample-doc/detail/:docId?',
           component: defineComponent({ render: () => h('div') }),
         },
       ],
@@ -27,9 +25,9 @@ describe('DocumentListPage', () => {
 
     const wrapper = mount(DocumentListPage, {
       props: {
-        definition: sowDeathDefinition,
-        port: createMemoryDocumentPort(sowDeathSeed),
-        basePath: '/documents/sow-death',
+        definition: sampleDefinition,
+        port: createMemoryDocumentPort(sampleSeed),
+        basePath: '/documents/sample-doc',
       },
       global: {
         plugins: [
@@ -44,7 +42,7 @@ describe('DocumentListPage', () => {
     });
 
     await flushPromises();
-    expect(wrapper.get('[data-testid="document-list"]').text()).toContain('母猪死亡');
-    expect(wrapper.text()).toContain('202211200003');
+    expect(wrapper.get('[data-testid="document-list"]').text()).toContain('Sample');
+    expect(wrapper.text()).toContain('S-001');
   });
 });

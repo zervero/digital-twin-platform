@@ -23,6 +23,7 @@
     "@dt/api-client": "workspace:*",
     "@dt/contracts": "workspace:*",
     "@dt/device-domain": "workspace:*",
+    "@dt/document-modules": "workspace:*",
     "@dt/document-schema": "workspace:*",
     "@dt/document-shell": "workspace:*",
     "@dt/engine-sdk": "workspace:*",

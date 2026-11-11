@@ -19,10 +19,13 @@ apps/web       -> app-shell, api-client, contracts, config, asset-system
 #   inject a disk ByteCache + CDN URLs (do not ship large GLBs in the installer).
 apps/desktop   -> apps/web (built), contracts
 apps/bff       -> contracts
-app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scene-domain, realtime, plugin-runtime, document-shell, document-schema
+app-shell      -> ui-kit, engine-sdk, api-client, contracts, device-domain, scene-domain, realtime, plugin-runtime, document-shell, document-schema, document-modules
 #   Document workbench (SPEC 0001 / ADR 0024): `/documents/:typeId` island
-#   (requiresAdmin). app-shell bootstraps installDocumentShell + sow-death
-#   demo registry; vxe-table stays inside document-shell only.
+#   (requiresAdmin). Boot: installDocumentShell + registerAllDocumentModules.
+#   Admin nav for单据 is registry-driven (no per-type hardcoding).
+#   vxe-table stays inside document-shell only.
+document-modules -> document-schema, document-shell
+#   One folder per单据 (definition + seed + register). Catalog append-only.
 # Notes:
 #   - realtime: V2.0 useDeviceStream added the consumer edge
 #     (commit e00bf0f). The runtime depends on contracts only;
@@ -53,8 +56,9 @@ api-client     -> contracts
 device-domain  -> contracts
 scene-domain   -> contracts
 ui-kit         -> contracts
-document-schema -> (none local; pure TS document definitions — ADR 0024)
+document-schema -> (none local; pure TS document definition types + helpers — ADR 0024)
 document-shell  -> document-schema, ui-kit, vxe-table, vxe-pc-ui
+#   Framework only: registry, ports, list/detail runtime. No product单据.
 realtime       -> contracts
 plugin-runtime -> contracts
 @dt/plugin-registry -> contracts, plugin-runtime
@@ -99,9 +103,10 @@ Forbidden edges:
 | `@dt/engine-sdk` | Engine | contracts, three | Three.js renderer behind SDK API; optional host-resolved GLB load (ADR 0021). |
 | `@dt/asset-system` | Platform | — | Host byte catalog: manifest, versioned cache, download, ensureLocalUrl (ADR 0022). No Three/Vue. |
 | `@dt/ui-kit` | UI | contracts | Presentational Vue components. |
-| `@dt/document-schema` | Platform | — | Schema-driven单据 definitions + validation/dirty helpers (SPEC 0001). No Vue/vxe. |
-| `@dt/document-shell` | UI | document-schema, ui-kit, vxe-table | List + unified detail/edit runtime; document route island. |
-| `@dt/app-shell` | UI | ui-kit, engine-sdk, api-client, domain, contracts, document-shell | Layout, stores, vue-router workspaces (`/ops`, `/admin/*`, `/documents/*`), panel/viewport wiring. |
+| `@dt/document-schema` | Platform | — | Schema-driven单据 types + validation/dirty helpers (SPEC 0001). No Vue/vxe; no product modules. |
+| `@dt/document-shell` | UI | document-schema, ui-kit, vxe-table | List + unified detail/edit runtime + registry/nav helpers. No product modules. |
+| `@dt/document-modules` | Product demos | document-schema, document-shell | One folder per单据 (`definition` + `seed` + `register`); `catalog.ts` is the only shared append point. |
+| `@dt/app-shell` | UI | ui-kit, engine-sdk, api-client, domain, contracts, document-shell, document-modules | Layout, stores, vue-router workspaces (`/ops`, `/admin/*`, `/documents/*`), panel/viewport wiring. |
 | `@dt/realtime` | V2 | contracts | Stream interfaces + in-memory mock. |
 | `@dt/plugin-runtime` | V2 | contracts | Plugin manifest, registration, registry. |
 | `@dt/ai-agent` | V3 | contracts | Intent types. |

@@ -90,7 +90,20 @@ export interface DocumentStatusDefinition {
 
 export interface DocumentDefinition {
   readonly id: string;
+  /** Default display title (fallback when no locale match). */
   readonly title: string;
+  /**
+   * Optional localized titles for host chrome (nav, etc.).
+   * Field labels inside list/detail stay on each FieldDefinition.label.
+   */
+  readonly titleLocales?: Readonly<Partial<Record<'en' | 'zh-CN', string>>>;
+  /**
+   * Optional lucide icon name for host side-nav
+   * (e.g. `FileText`). Host casts to its icon union.
+   */
+  readonly navIcon?: string;
+  /** Lower sorts first in registry-driven nav (default 100). */
+  readonly navOrder?: number;
   /** Primary key field on list/detail records (default `id`). */
   readonly idField?: string;
   /** Human document number field (may be empty on create). */

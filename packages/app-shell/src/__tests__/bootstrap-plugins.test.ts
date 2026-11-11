@@ -55,40 +55,60 @@ describe('bootstrapAppShell with plugins', () => {
     document.body.innerHTML = '';
   });
 
-  it('activates a plugin and surfaces its panel through usePluginPanels', async () => {
-    document.body.innerHTML = '<div id="host"></div>';
-    const apiClient = createApiClient({ baseUrl: 'http://x', fetchImpl: fakeFetch as typeof fetch });
-    const realtime: RealtimeStream = createInMemoryStream();
+  it(
+    'activates a plugin and surfaces its panel through usePluginPanels',
+    async () => {
+      document.body.innerHTML = '<div id="host"></div>';
+      const apiClient = createApiClient({
+        baseUrl: 'http://x',
+        fetchImpl: fakeFetch as typeof fetch,
+      });
+      const realtime: RealtimeStream = createInMemoryStream();
 
-    const reg: PluginRegistration = {
-      manifest: { id: 'sample', name: 'Sample', version: '1.0.0', vendor: 'X', permissions: [] },
-      activate: async () => [
-        { kind: 'ui-panel', panel: { id: 'sample-panel', title: 'S', component: { render: () => null } } },
-      ],
-    };
+      const reg: PluginRegistration = {
+        manifest: {
+          id: 'sample',
+          name: 'Sample',
+          version: '1.0.0',
+          vendor: 'X',
+          permissions: [],
+        },
+        activate: async () => [
+          {
+            kind: 'ui-panel',
+            panel: {
+              id: 'sample-panel',
+              title: 'S',
+              component: { render: () => null },
+            },
+          },
+        ],
+      };
 
-    const app = await bootstrapAppShell({
-      apiClient,
-      host: document.getElementById('host')!,
-      plugins: [reg],
-      realtime,
-    });
+      const app = await bootstrapAppShell({
+        apiClient,
+        host: document.getElementById('host')!,
+        plugins: [reg],
+        realtime,
+      });
 
-    // The plugin store, queried in the same app context, should
-    // see the panel. The composable requires a Vue context, so
-    // we re-enter the app's runWithContext.
-    const panels = await new Promise<unknown[]>((resolve) => {
-      effectScope(true).run(() => {
-        app.runWithContext(() => {
-          const store = usePluginStore();
-          resolve([...store.panels]);
+      // The plugin store, queried in the same app context, should
+      // see the panel. The composable requires a Vue context, so
+      // we re-enter the app's runWithContext.
+      const panels = await new Promise<unknown[]>((resolve) => {
+        effectScope(true).run(() => {
+          app.runWithContext(() => {
+            const store = usePluginStore();
+            resolve([...store.panels]);
+          });
         });
       });
-    });
-    expect(panels[0]).toMatchObject({ id: 'sample-panel' });
+      expect(panels[0]).toMatchObject({ id: 'sample-panel' });
 
-    app.unmount();
-  });
+      app.unmount();
+    },
+    15_000,
+  );
 
   it('manifest validation: sample manifest is acceptable', () => {
     const r = validatePluginManifest({

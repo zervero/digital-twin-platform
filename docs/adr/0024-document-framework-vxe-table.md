@@ -39,14 +39,17 @@ so additional document types are data/schema, not forked pages.
 3. Package split:
    - **`@dt/document-schema`** — pure TypeScript: document type id,
      list filters/columns, header fields, line fields, validators,
-     toolbar actions, audit/status rules. No Vue, no vxe-table.
+     toolbar actions, audit/status rules. No Vue, no vxe-table,
+     no product单据 modules.
    - **`@dt/document-shell`** — Vue runtime: list page + unified
-     detail/edit page; renders via vxe-table + `@dt/ui-kit` for
-     non-grid chrome (buttons, dialogs, layout). Depends on
-     `document-schema`, `ui-kit`, `vxe-table` (and companion UI bits
-     only as needed).
-   - Concrete documents (e.g. sow-death) ship as **schema + API
-     adapters**, not new page trees.
+     detail/edit page; registry + nav helpers; renders via vxe-table
+     + `@dt/ui-kit`. Depends on `document-schema`, `ui-kit`,
+     `vxe-table`. No product单据 modules.
+   - **`@dt/document-modules`** — one folder per单据
+     (`definition` + `seed`/`port` + `register`); append-only
+     `catalog.ts` is the sole shared hotspot. Host nav is
+     registry-driven so AdminWorkspace does not hard-code type ids.
+   - Concrete documents ship as **modules**, not new page trees.
 4. **`@dt/ui-kit` must not depend on vxe-table.** Twin Ops/Admin chrome
    stays free of the grid stack. Document routes mount under a
    dedicated island (e.g. admin or `/documents/*`) so vxe CSS/theme

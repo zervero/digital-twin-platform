@@ -6,5 +6,7 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     include: ['src/**/*.{test,spec}.ts'],
+    // vxe-table install + first grid mount is slow under happy-dom.
+    testTimeout: 20_000,
   },
 });

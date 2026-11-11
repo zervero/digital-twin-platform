@@ -220,6 +220,9 @@ importers:
       '@dt/device-domain':
         specifier: workspace:*
         version: link:../device-domain
+      '@dt/document-modules':
+        specifier: workspace:*
+        version: link:../document-modules
       '@dt/document-schema':
         specifier: workspace:*
         version: link:../document-schema
@@ -337,6 +340,22 @@ importers:
       '@dt/contracts':
         specifier: workspace:*
         version: link:../contracts
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.1.5
+        version: 2.1.5(@types/node@22.20.0)(happy-dom@15.11.7)(jsdom@25.0.1)
+
+  packages/document-modules:
+    dependencies:
+      '@dt/document-schema':
+        specifier: workspace:*
+        version: link:../document-schema
+      '@dt/document-shell':
+        specifier: workspace:*
+        version: link:../document-shell
     devDependencies:
       typescript:
         specifier: ^5.6.3
@@ -1055,8 +1074,8 @@ packages:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
 
-  '@jridgewell/sourcemap-codec@1.5.5':
-    resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
+  '@jridgewell/sourcemap-codec@1.6.0':
+    resolution: {integrity: sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw==}
 
   '@js-sdsl/ordered-map@4.4.2':
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
@@ -4056,7 +4075,7 @@ snapshots:
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
-  '@jridgewell/sourcemap-codec@1.5.5': {}
+  '@jridgewell/sourcemap-codec@1.6.0': {}
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
@@ -6167,7 +6186,7 @@ snapshots:
 
   magic-string@0.30.21:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.5
+      '@jridgewell/sourcemap-codec': 1.6.0
 
   map-obj@4.3.0: {}
 
@@ -6362,7 +6381,7 @@ snapshots:
     dependencies:
       nanoid: 3.3.15
       picocolors: 1.1.1
-      source-map-js: 1.2.1
+      source-map-js: 1.2.2
 
   postgres-array@2.0.0: {}
 

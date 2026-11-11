@@ -1,21 +1,23 @@
-import type { DocumentDefinition } from '../types.js';
-import { assertDocumentDefinition } from '../validate.js';
+import type { DocumentDefinition } from '@dt/document-schema';
+import { assertDocumentDefinition } from '@dt/document-schema';
 
 /**
- * Sow-death–shaped fixture proving the schema path (SPEC 0001).
- * Field set mirrors the 企联网 reference; not a full product port.
+ * Sow-breeding (母猪配种) demo module for SPEC 0001 multi-document path.
  */
-export const sowDeathDefinition: DocumentDefinition = {
-  id: 'sow-death',
-  title: '母猪死亡',
+export const sowBreedingDefinition: DocumentDefinition = {
+  id: 'sow-breeding',
+  title: '母猪配种',
+  titleLocales: { en: 'Sow breeding', 'zh-CN': '母猪配种' },
+  navIcon: 'ClipboardList',
+  navOrder: 20,
   idField: 'id',
   docNoField: 'docNo',
   status: { supportsAudit: true },
   list: {
     filters: [
       {
-        key: 'deathDate',
-        label: '死亡日期',
+        key: 'breedingDate',
+        label: '配种日期',
         editor: 'dateRange',
       },
       {
@@ -25,8 +27,8 @@ export const sowDeathDefinition: DocumentDefinition = {
         placeholder: '请输入耳号',
       },
       {
-        key: 'createdBy',
-        label: '创建人',
+        key: 'breedingOwner',
+        label: '配种负责人',
         editor: 'select',
         options: [
           { label: '全部', value: '' },
@@ -37,19 +39,30 @@ export const sowDeathDefinition: DocumentDefinition = {
     ],
     columns: [
       { key: 'docNo', label: '单据号', minWidth: 120 },
-      { key: 'deathDate', label: '死亡日期', minWidth: 110 },
+      { key: 'breedingDate', label: '配种日期', minWidth: 110 },
       { key: 'batch', label: '母猪批次', minWidth: 100 },
       { key: 'earTag', label: '耳号', minWidth: 100, link: true },
       { key: 'individualNo', label: '个体号', minWidth: 140 },
+      { key: 'productionGroup', label: '生产组', minWidth: 100 },
+      { key: 'transferProductionGroup', label: '转入生产组', minWidth: 110 },
+      { key: 'warehouse', label: '仓库', minWidth: 100 },
       { key: 'building', label: '当前栋舍', minWidth: 100 },
       { key: 'unit', label: '当前单元', minWidth: 120 },
       { key: 'pen', label: '当前栏位', minWidth: 100 },
       { key: 'pigStatus', label: '状态', minWidth: 80 },
       { key: 'eventDate', label: '事件日期', minWidth: 110 },
-      { key: 'deathType', label: '死亡类型', minWidth: 90 },
-      { key: 'deathReason', label: '死亡原因', minWidth: 90 },
-      { key: 'weightKg', label: '总重量(公斤)', minWidth: 110 },
-      { key: 'productionGroup', label: '生产组', minWidth: 100 },
+      { key: 'transferBatch', label: '转入批次', minWidth: 100 },
+      { key: 'transferBuilding', label: '转入栋舍', minWidth: 100 },
+      { key: 'transferUnit', label: '转入单元', minWidth: 110 },
+      { key: 'transferPen', label: '转入栏位', minWidth: 100 },
+      { key: 'breedingMethod', label: '配种方式', minWidth: 100 },
+      { key: 'boarEarTag', label: '首配公猪', minWidth: 100 },
+      { key: 'boarScore', label: '首配评分', minWidth: 90 },
+      { key: 'semenDose', label: '首配精液用量', minWidth: 120 },
+      { key: 'semenProduct', label: '首配商品', minWidth: 100 },
+      { key: 'semenLot', label: '首配精液批号', minWidth: 120 },
+      { key: 'breedingOwner', label: '配种负责人', minWidth: 100 },
+      { key: 'remark', label: '备注', minWidth: 120 },
       { key: 'createdBy', label: '创建人', minWidth: 80 },
       { key: 'createdAt', label: '创建时间', minWidth: 150 },
       { key: 'updatedBy', label: '修改人', minWidth: 80 },
@@ -71,7 +84,19 @@ export const sowDeathDefinition: DocumentDefinition = {
   },
   detail: {
     header: [
-      { key: 'deathDate', label: '死亡日期', editor: 'date', required: true },
+      {
+        key: 'breedingDate',
+        label: '配种日期',
+        editor: 'date',
+        required: true,
+      },
+      {
+        key: 'breedingOwner',
+        label: '配种负责人',
+        editor: 'text',
+        required: true,
+      },
+      { key: 'warehouse', label: '仓库', editor: 'text' },
       { key: 'docNo', label: '单据号', editor: 'readonly' },
     ],
     lines: {
@@ -92,43 +117,62 @@ export const sowDeathDefinition: DocumentDefinition = {
           minWidth: 100,
         },
         { key: 'individualNo', label: '个体号', editor: 'text', minWidth: 140 },
+        { key: 'parity', label: '当前胎次', editor: 'number', minWidth: 90 },
         { key: 'building', label: '当前栋舍', editor: 'text', minWidth: 100 },
         { key: 'unit', label: '当前单元', editor: 'text', minWidth: 120 },
         { key: 'pigStatus', label: '状态', editor: 'text', minWidth: 80 },
         { key: 'eventDate', label: '事件日期', editor: 'date', minWidth: 110 },
         {
-          key: 'deathType',
-          label: '死亡类型',
-          editor: 'select',
+          key: 'transferBatch',
+          label: '转入批次',
+          editor: 'text',
           required: true,
           minWidth: 100,
-          options: [
-            { label: '死亡', value: '死亡' },
-            { label: '淘汰', value: '淘汰' },
-          ],
         },
         {
-          key: 'deathReason',
-          label: '死亡原因',
+          key: 'breedingMethod',
+          label: '配种方式',
           editor: 'select',
           required: true,
           minWidth: 100,
           options: [
-            { label: '疾病', value: '疾病' },
-            { label: '猝死', value: '猝死' },
-            { label: '打架', value: '打架' },
-            { label: '消瘦', value: '消瘦' },
-            { label: '瘫痪', value: '瘫痪' },
-            { label: '中毒', value: '中毒' },
+            { label: '人工授精', value: '人工授精' },
+            { label: '本交', value: '本交' },
           ],
         },
-        { key: 'weightKg', label: '总重量(公斤)', editor: 'number', minWidth: 110 },
+        { key: 'boarEarTag', label: '首配公猪', editor: 'text', minWidth: 100 },
+        {
+          key: 'semenProduct',
+          label: '首配商品',
+          editor: 'text',
+          minWidth: 100,
+        },
+        {
+          key: 'semenLot',
+          label: '首配精液批号',
+          editor: 'text',
+          minWidth: 120,
+        },
+        { key: 'boarScore', label: '首配评分', editor: 'number', minWidth: 90 },
+        {
+          key: 'semenDose',
+          label: '首配精液用量',
+          editor: 'number',
+          minWidth: 120,
+        },
         {
           key: 'productionGroup',
           label: '生产组',
           editor: 'text',
           minWidth: 100,
         },
+        {
+          key: 'transferProductionGroup',
+          label: '转入生产组',
+          editor: 'text',
+          minWidth: 110,
+        },
+        { key: 'lineRemark', label: '备注', editor: 'text', minWidth: 120 },
       ],
     },
     footer: { remark: true, attachments: true },
@@ -144,4 +188,4 @@ export const sowDeathDefinition: DocumentDefinition = {
   },
 };
 
-assertDocumentDefinition(sowDeathDefinition);
+assertDocumentDefinition(sowBreedingDefinition);

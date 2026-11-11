@@ -72,6 +72,7 @@ pnpm --filter @dt/scene-domain test
 pnpm --filter @dt/api-client test
 pnpm --filter @dt/engine-sdk test
 pnpm --filter @dt/asset-system test
+pnpm --filter @dt/document-modules test
 pnpm --filter @dt/bff dev
 pnpm --filter @dt/web dev
 pnpm --filter @dt/desktop dev
@@ -92,8 +93,9 @@ packages/
   device-domain/    # 设备业务模型
   api-client/       # 类型化 BFF 客户端
   ui-kit/           # 展示型 Vue 组件
-  document-schema/  # Schema 驱动的单据定义与校验（SPEC 0001）
+  document-schema/  # 单据定义类型与校验（SPEC 0001）
   document-shell/   # 单据列表 + 详情/编辑运行时（vxe-table）
+  document-modules/ # 每张单据一个目录（definition + seed + register）
   app-shell/        # 共享组合层：布局、stores、面板、/documents/*
   i18n/             # 本地化词典（en + zh-CN）
   realtime/         # 流接口

@@ -1,45 +1,39 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { createRouter, createMemoryHistory } from 'vue-router';
 import { defineComponent, h } from 'vue';
 
-import { sowDeathDefinition } from '@dt/document-schema';
-
 import DocumentDetailPage from '../components/DocumentDetailPage.vue';
 import { createMemoryDocumentPort } from '../memory-port.js';
 import { installDocumentShell } from '../install.js';
-import { sowDeathSeed } from '../fixtures/sow-death-seed.js';
+import { sampleDefinition, sampleSeed } from './helpers/sample.js';
 
 describe('DocumentDetailPage', () => {
-  beforeEach(() => {
-    // ensure plugins can install per mount
-  });
-
   it('enables save after dirty edit in create mode', async () => {
     const router = createRouter({
       history: createMemoryHistory(),
       routes: [
         { path: '/', component: defineComponent({ render: () => h('div') }) },
         {
-          path: '/documents/sow-death/detail/:docId?',
+          path: '/documents/sample-doc/detail/:docId?',
           name: 'document-detail',
           component: defineComponent({ render: () => h('div') }),
         },
         {
-          path: '/documents/sow-death',
+          path: '/documents/sample-doc',
           component: defineComponent({ render: () => h('div') }),
         },
       ],
     });
-    await router.push('/documents/sow-death/detail');
+    await router.push('/documents/sample-doc/detail');
     await router.isReady();
 
-    const port = createMemoryDocumentPort(sowDeathSeed);
+    const port = createMemoryDocumentPort(sampleSeed);
     const wrapper = mount(DocumentDetailPage, {
       props: {
-        definition: sowDeathDefinition,
+        definition: sampleDefinition,
         port,
-        basePath: '/documents/sow-death',
+        basePath: '/documents/sample-doc',
       },
       global: {
         plugins: [
@@ -55,7 +49,6 @@ describe('DocumentDetailPage', () => {
 
     await flushPromises();
     await wrapper.vm.$nextTick();
-    // Wait until create baseline is captured (data-dirty=0).
     expect(wrapper.get('[data-testid="document-detail"]').attributes('data-dirty')).toBe(
       '0',
     );
@@ -63,8 +56,8 @@ describe('DocumentDetailPage', () => {
       (wrapper.get('[data-testid="doc-save"]').element as HTMLButtonElement).disabled,
     ).toBe(true);
 
-    const dateInput = wrapper.get('[data-testid="header-deathDate"]');
-    await dateInput.setValue('2026-01-01');
+    const nameInput = wrapper.get('[data-testid="header-name"]');
+    await nameInput.setValue('Beta');
     await flushPromises();
     await wrapper.vm.$nextTick();
 
