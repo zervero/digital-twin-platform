@@ -40,6 +40,16 @@
   color: var(--dt-text-primary);
 }
 
+/* Column drag (column-config.drag + column-drag-config.trigger=cell): data headers only. */
+.dt-document-island .vxe-header--column.is--drag-active:not(.is--drag-disabled) .vxe-cell {
+  cursor: grab;
+  user-select: none;
+}
+
+.dt-document-island .vxe-header--column.is--drag-disabled .vxe-cell {
+  cursor: default;
+}
+
 .dt-document-island a.dt-doc-link {
   color: var(--dt-accent-primary);
   text-decoration: none;

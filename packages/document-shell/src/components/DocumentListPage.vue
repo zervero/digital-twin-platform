@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+
 import { useRouter } from 'vue-router';
 
 import type { DocumentDefinition, DocumentRecord } from '@dt/document-schema';
@@ -46,14 +47,101 @@ const pageSizeOptions = computed(() =>
   pageSizes.value.map((size) => ({ label: String(size), value: String(size) })),
 );
 
-const columns = computed(() =>
-  props.definition.list.columns.map((col) => ({
+const ROW_ACTIONS_FIELD = 'dt:row-actions';
+
+function listColumnDragDisabled(params: {
+  column: {
+    type?: string | null;
+    fixed?: string | boolean | null;
+    field?: string;
+  };
+}): boolean {
+  const { column } = params;
+  return Boolean(
+    column.type === 'checkbox' ||
+      column.type === 'seq' ||
+      column.fixed ||
+      column.field === ROW_ACTIONS_FIELD,
+  );
+}
+
+const columnConfig = {
+  drag: true,
+  useKey: true,
+} as const;
+
+const columnDragConfig = {
+  trigger: 'cell' as const,
+  showIcon: false,
+  showDragTip: true,
+  disabledMethod: listColumnDragDisabled,
+};
+
+const gridRef = ref<{
+  getFullColumns: () => Array<{ field?: string }>;
+} | null>(null);
+
+const columnOrder = ref(
+  props.definition.list.columns.map((col) => col.key),
+);
+
+watch(
+  () => props.definition.list.columns.map((col) => col.key).join('\0'),
+  () => {
+    columnOrder.value = props.definition.list.columns.map((col) => col.key);
+  },
+);
+
+function buildDataColumn(col: (typeof props.definition.list.columns)[number]) {
+  return {
     field: col.key,
     title: resolveLabel(col, t),
     minWidth: col.minWidth ?? col.width ?? 100,
     slots: col.link ? { default: `link-${col.key}` } : undefined,
-  })),
-);
+  };
+}
+
+const dataColumns = computed(() => {
+  const byKey = new Map(
+    props.definition.list.columns.map((col) => [col.key, col]),
+  );
+  return columnOrder.value
+    .filter((key) => byKey.has(key))
+    .map((key) => buildDataColumn(byKey.get(key)!));
+});
+
+const gridColumns = computed(() => [
+  { type: 'checkbox' as const, width: 48, fixed: 'left' as const },
+  {
+    type: 'seq' as const,
+    title: t('documents.chrome.seq'),
+    width: 60,
+    fixed: 'left' as const,
+  },
+  ...dataColumns.value,
+  {
+    field: ROW_ACTIONS_FIELD,
+    title: t('documents.chrome.actions'),
+    width: 120,
+    fixed: 'right' as const,
+    slots: { default: 'rowActions' as const },
+  },
+]);
+
+function syncColumnOrderFromGrid() {
+  const $grid = gridRef.value;
+  if (!$grid) return;
+  const keys = $grid
+    .getFullColumns()
+    .map((col) => col.field)
+    .filter(
+      (field): field is string =>
+        Boolean(field) && field !== ROW_ACTIONS_FIELD,
+    );
+  if (keys.length) {
+    columnOrder.value = keys;
+  }
+}
 
 function initFilters() {
   const next: Record<string, unknown> = {};
@@ -170,18 +258,11 @@ onMounted(() => {
 
     <div class="dt-doc-list__grid">
       <vxe-grid
+        ref="gridRef"
         :data="items"
-        :columns="[
-          { type: 'checkbox', width: 48, fixed: 'left' },
-          { type: 'seq', title: t('documents.chrome.seq'), width: 60, fixed: 'left' },
-          ...columns,
-          {
-            title: t('documents.chrome.actions'),
-            width: 120,
-            fixed: 'right',
-            slots: { default: 'rowActions' },
-          },
-        ]"
+        :columns="gridColumns"
+        :column-config="columnConfig"
+        :column-drag-config="columnDragConfig"
         :loading="loading"
         border
         size="small"
@@ -189,6 +270,7 @@ onMounted(() => {
         :row-config="{ keyField: 'id', isHover: true }"
         @checkbox-all="onCheckboxChange"
         @checkbox-change="onCheckboxChange"
+        @column-dragend="syncColumnOrderFromGrid"
       >
         <template
           v-for="col in definition.list.columns.filter((c) => c.link)"
