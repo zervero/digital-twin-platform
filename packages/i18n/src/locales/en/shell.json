@@ -120,7 +120,7 @@
       "colorModeSystem": "System",
       "presetsLabel": "Accent presets",
       "customLabel": "Custom color",
-      "customHint": "Must keep at least 4.5:1 contrast against white primary-button labels.",
+      "customHint": "Avoid very light accents; aim for ~2.5:1 contrast against white primary-button labels.",
       "colorPicker": "Pick accent color",
       "hexInput": "Accent hex value",
       "applyCustom": "Apply custom",

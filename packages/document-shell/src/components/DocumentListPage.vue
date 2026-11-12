@@ -186,7 +186,7 @@ onMounted(() => {
         border
         size="small"
         height="100%"
-        :row-config="{ keyField: 'id' }"
+        :row-config="{ keyField: 'id', isHover: true }"
         @checkbox-all="onCheckboxChange"
         @checkbox-change="onCheckboxChange"
       >

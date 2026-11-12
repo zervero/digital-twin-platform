@@ -49,3 +49,8 @@
 .dt-document-island a.dt-doc-link:hover {
   text-decoration: underline;
 }
+
+/* row-config.isHover + --vxe-ui-table-row-hover-background-color above */
+.dt-document-island .vxe-body--row.row--hover > .vxe-body--column {
+  transition: background-color var(--dt-duration-fast, 150ms) var(--dt-ease-default);
+}

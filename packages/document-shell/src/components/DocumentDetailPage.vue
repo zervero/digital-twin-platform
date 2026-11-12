@@ -324,6 +324,7 @@ onMounted(() => {
         border
         size="small"
         height="320"
+        :row-config="{ isHover: true }"
         :edit-config="{ trigger: 'click', mode: 'cell' }"
         @checkbox-all="onLineCheckbox"
         @checkbox-change="onLineCheckbox"

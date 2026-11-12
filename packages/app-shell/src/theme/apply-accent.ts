@@ -1,12 +1,20 @@
 /**
- * Apply a brand accent to `:root` and validate contrast for white labels.
+ * Apply a brand accent to `:root` and validate contrast for primary labels.
  *
  * Semantic status colors stay fixed in tokens.css; only
  * `--dt-accent-primary` / `--dt-accent-primary-hover` are rewritten here.
+ * Primary buttons keep white labels (Element-style), not auto dark text.
  */
 
 const WHITE = '#FFFFFF';
-const AA_NORMAL_TEXT = 4.5;
+/**
+ * Pragmatic floor for white on primary fills (~#409EFF passes at ~2.8:1).
+ * Stricter than old 4.5:1 body-text rule; lighter than WCAG 3:1 UI for bright blues.
+ */
+const MIN_WHITE_LABEL_ON_PRIMARY = 2.5;
+/** Reject near-white / near-black fills that are not usable brand accents. */
+const MIN_ACCENT_LUMINANCE = 0.06;
+const MAX_ACCENT_LUMINANCE = 0.72;
 
 function parseHex(hex: string): [number, number, number] {
   const raw = hex.trim().replace(/^#/, '');
@@ -60,12 +68,12 @@ export function contrastRatio(a: string, b: string): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-/**
- * V1: accent must provide ≥4.5:1 contrast against white primary-button labels.
- */
+/** Custom accent: luminance band + enough contrast for white primary labels. */
 export function isAccentUsable(hex: string): boolean {
   try {
-    return contrastRatio(hex, WHITE) >= AA_NORMAL_TEXT;
+    const lum = relativeLuminance(hex);
+    if (lum < MIN_ACCENT_LUMINANCE || lum > MAX_ACCENT_LUMINANCE) return false;
+    return contrastRatio(hex, WHITE) >= MIN_WHITE_LABEL_ON_PRIMARY;
   } catch {
     return false;
   }
@@ -95,4 +103,5 @@ export function applyAccent(primary: string, options: ApplyAccentOptions = {}): 
   const root = document.documentElement;
   root.style.setProperty('--dt-accent-primary', primary);
   root.style.setProperty('--dt-accent-primary-hover', hover);
+  root.style.removeProperty('--dt-text-on-accent-primary');
 }

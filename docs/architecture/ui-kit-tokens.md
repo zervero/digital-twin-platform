@@ -70,7 +70,7 @@ preset before login).
 | Default tokens | `packages/ui-kit/src/styles/tokens.css` (via `@dt/ui-kit/styles`) | Dark on `:root`; light under `:root[data-theme="light"]`. Do not rely on a stale `dist/` copy for HMR. |
 | Element styles | `@dt/ui-kit/element-styles` | On-demand Element component CSS, then `element-bridge.css` (must load after Element's `el-var.css`) |
 | Element bridge | `packages/ui-kit/src/styles/element-bridge.css` | Maps `--el-*` → `--dt-*` on `html:root` so light/dark + accent sync (ADR 0025 / SPEC 0003) |
-| Apply helper | `packages/app-shell/src/theme/apply-accent.ts` | Writes `--dt-accent-primary` (+ optional hover) on `document.documentElement`; rejects hex that fails WCAG AA (≥4.5:1) against white primary-button labels |
+| Apply helper | `packages/app-shell/src/theme/apply-accent.ts` | Writes `--dt-accent-primary` (+ hover) on `document.documentElement`; custom hex must be in a usable luminance band and reach ~2.5:1 against white primary-button labels (not 4.5:1 body text) |
 | Preference store | `packages/app-shell/src/stores/appearance-store.ts` | Accent preset / custom hex **and** `colorMode` (`light` \| `dark` \| `system`); persists under `localStorage` key `dt.appearance.v1` |
 | Color mode apply | `packages/app-shell/src/theme/apply-theme.ts` | Writes resolved `data-theme` + `color-scheme` on `document.documentElement` (SPEC 0002) |
 | Settings UI | Appearance dialog (`AppearanceSettingsDialog`) | Color mode segmented control + accent; opened from admin left nav **and** toolbar appearance button (**including anonymous**); deep links `/settings/appearance` (→ dialog + `/ops`) and `/admin/appearance` (admin → dialog + marketplace) |

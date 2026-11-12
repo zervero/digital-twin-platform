@@ -2,7 +2,7 @@
  * useAppearanceStore — accent + color mode preferences (SPEC 0002).
  *
  * Persists to localStorage under `dt.appearance.v1`. Custom accent colors
- * are rejected when they fail WCAG AA contrast against white button labels.
+ * are rejected when they are too light for white primary-button labels.
  * Semantic status tokens are never rewritten from this store.
  */
 
