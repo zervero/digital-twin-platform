@@ -19,7 +19,9 @@
       "remarkPlaceholder": "Enter remark",
       "attachments": "Attachments",
       "attachmentsEmpty": "(V1 placeholder: no attachments)",
-      "all": "All"
+      "all": "All",
+      "sortAsc": "Sort ascending",
+      "sortDesc": "Sort descending"
     },
     "actions": {
       "create": "New",

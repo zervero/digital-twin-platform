@@ -10,6 +10,10 @@ import { DtButton, DtSelect } from '@dt/ui-kit';
 import { resolveActionLabel, resolveLabel } from '../i18n-label.js';
 import { resolveDocumentTitle } from '../nav.js';
 import type { DocumentDataPort } from '../ports.js';
+import {
+  compareListCellValues,
+  resolveListColumnSortKind,
+} from '../list-sort.js';
 import DocumentFilterBar from './DocumentFilterBar.vue';
 
 const props = defineProps<{
@@ -77,6 +81,49 @@ const columnDragConfig = {
   disabledMethod: listColumnDragDisabled,
 };
 
+const sortCollatorLocale = computed(() =>
+  locale.value.startsWith('zh') ? 'zh-CN' : 'en',
+);
+
+const sortConfig = computed(() => ({
+  multiple: false,
+  trigger: 'cell' as const,
+  showIcon: true,
+  allowBtn: true,
+  iconLayout: 'vertical' as const,
+  ascTitle: t('documents.chrome.sortAsc'),
+  descTitle: t('documents.chrome.sortDesc'),
+  sortMethod: ({
+    data,
+    sortList,
+  }: {
+    data: DocumentRecord[];
+    sortList: Array<{
+      field?: string;
+      property?: string;
+      order: string | null;
+    }>;
+  }) => {
+    if (!sortList.length) return data;
+    const sort = sortList[0]!;
+    const field = String(sort.field ?? sort.property ?? '');
+    const order = sort.order;
+    if (!field || field === ROW_ACTIONS_FIELD || !order) return data;
+    const kind = resolveListColumnSortKind(field, props.definition);
+    const dir = order === 'desc' ? -1 : 1;
+    return [...data].sort(
+      (left, right) =>
+        dir *
+        compareListCellValues(
+          left[field],
+          right[field],
+          kind,
+          sortCollatorLocale.value,
+        ),
+    );
+  },
+}));
+
 const gridRef = ref<{
   getFullColumns: () => Array<{ field?: string }>;
 } | null>(null);
@@ -97,6 +144,7 @@ function buildDataColumn(col: (typeof props.definition.list.columns)[number]) {
     field: col.key,
     title: resolveLabel(col, t),
     minWidth: col.minWidth ?? col.width ?? 100,
+    sortable: true,
     slots: col.link ? { default: `link-${col.key}` } : undefined,
   };
 }
@@ -263,6 +311,7 @@ onMounted(() => {
         :columns="gridColumns"
         :column-config="columnConfig"
         :column-drag-config="columnDragConfig"
+        :sort-config="sortConfig"
         :loading="loading"
         border
         size="small"

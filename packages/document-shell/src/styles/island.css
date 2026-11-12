@@ -50,6 +50,11 @@
   cursor: default;
 }
 
+.dt-document-island .vxe-cell--sort-vertical-layout .vxe-sort--asc-btn.sort--active,
+.dt-document-island .vxe-cell--sort-vertical-layout .vxe-sort--desc-btn.sort--active {
+  color: var(--dt-accent-primary);
+}
+
 .dt-document-island a.dt-doc-link {
   color: var(--dt-accent-primary);
   text-decoration: none;

@@ -19,7 +19,9 @@
       "remarkPlaceholder": "请输入备注信息",
       "attachments": "附件管理",
       "attachmentsEmpty": "（V1 占位：无附件）",
-      "all": "全部"
+      "all": "全部",
+      "sortAsc": "升序",
+      "sortDesc": "降序"
     },
     "actions": {
       "create": "新增",
