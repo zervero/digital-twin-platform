@@ -49,6 +49,7 @@ dependency bumps with no behavior change.
 | [0002](./0002-color-mode.md) | Light / dark color mode | `accepted` |
 | [0003](./0003-element-plus-controls.md) | Element Plus controls via ui-kit | `accepted` |
 | [0004](./0004-document-i18n.md) | Document workbench i18n | `accepted` |
+| [0005](./0005-visual-system.md) | Visual system refresh | `accepted` |
 
 Historical design notes that predate this folder live under
 [`docs/plans/`](../plans/) and remain valid until a new spec supersedes

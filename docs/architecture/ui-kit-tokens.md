@@ -4,7 +4,11 @@
 
 Accepted. First introduced after the V1 closure as the minimal way to
 keep the presentational layer theme-able without pulling in Tailwind or
-any other CSS framework.
+any other CSS framework. SPEC 0005 (2026-11-12) retunes the shared
+rhythm: 8px spacing, 14px body, 36px controls, and a focus ring.
+Form fields (`DtTextField`, `DtSelect`, `DtDatePicker`, `DtButton`)
+take that focus and height from Element Plus (ADR 0025). Components
+must keep using `var(--dt-*)` rather than local hex or one-off radii.
 
 ## Context
 

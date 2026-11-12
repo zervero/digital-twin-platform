@@ -5,5 +5,8 @@
  * Import the `--dt-*` bridge *after* those styles so DtDatePicker (and
  * future El wrappers) track product light/dark.
  */
+import 'element-plus/es/components/button/style/css';
+import 'element-plus/es/components/input/style/css';
+import 'element-plus/es/components/select/style/css';
 import 'element-plus/es/components/date-picker/style/css';
 import './element-bridge.css';

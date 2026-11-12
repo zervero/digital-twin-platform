@@ -30,6 +30,8 @@ export { default as DtTree } from './components/DtTree.vue';
 export { default as DtAppCard } from './components/DtAppCard.vue';
 export { default as DtToolStrip } from './components/DtToolStrip.vue';
 export { default as DtDialog } from './components/DtDialog.vue';
+export { default as DtTextField } from './components/DtTextField.vue';
+export { default as DtSelect } from './components/DtSelect.vue';
 export { default as DtDatePicker } from './components/DtDatePicker.vue';
 export { default as DtConfigProvider } from './components/DtConfigProvider.vue';
 export {

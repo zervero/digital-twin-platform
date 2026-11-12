@@ -17,7 +17,7 @@ import {
 } from '../composables/useMarketplaceInstall.js';
 import { BffBaseUrlKey } from '../composables/useOIDCStart.js';
 import { usePermission } from '../composables/usePermission.js';
-import { DtIcon } from '@dt/ui-kit';
+import { DtButton, DtIcon, DtTextField } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
 
 const { t } = useI18n();
@@ -102,31 +102,21 @@ function canUninstall(versionCount: number): boolean {
     >
       <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.pluginId') }}</span>
-        <input
-          v-model="newPluginId"
-          class="marketplace-panel__input dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
-          type="text"
-          placeholder="hello-plugin"
-        />
+        <DtTextField v-model="newPluginId" placeholder="hello-plugin" />
       </label>
       <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.version') }}</span>
-        <input
-          v-model="newVersion"
-          class="marketplace-panel__input dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
-          type="text"
-          placeholder="1.0.0"
-        />
+        <DtTextField v-model="newVersion" placeholder="1.0.0" />
       </label>
-      <button
+      <DtButton
         type="button"
-        class="marketplace-panel__button marketplace-panel__button--primary dt-appearance-none dt-inline-flex dt-items-center dt-justify-center dt-gap-sm dt-border dt-bg-surface dt-py-sm dt-px-lg dt-rounded-sm dt-font-inherit dt-text-sm dt-font-medium dt-pointer"
+        variant="primary"
         :disabled="!newPluginId || !newVersion"
         @click="submitInstall"
       >
         <DtIcon name="Download" size="sm" />
         {{ t('marketplace.install') }}
-      </button>
+      </DtButton>
     </div>
     <p
       v-else
@@ -218,35 +208,6 @@ function canUninstall(versionCount: number): boolean {
 </template>
 
 <style scoped>
-.marketplace-panel__input {
-  transition: border-color var(--dt-duration-fast) var(--dt-ease-default);
-}
-.marketplace-panel__input:focus {
-  outline: none;
-  border-color: var(--dt-accent-primary);
-}
-.marketplace-panel__button {
-  transition:
-    background var(--dt-duration-fast) var(--dt-ease-default),
-    border-color var(--dt-duration-fast) var(--dt-ease-default);
-}
-.marketplace-panel__button:hover:not(:disabled) {
-  border-color: var(--dt-border-strong);
-  background: var(--dt-bg-surface-hover);
-}
-.marketplace-panel__button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.marketplace-panel__button--primary {
-  background: var(--dt-accent-primary);
-  border-color: var(--dt-accent-primary);
-  color: var(--dt-text-inverse);
-}
-.marketplace-panel__button--primary:hover:not(:disabled) {
-  background: var(--dt-accent-primary-hover);
-  border-color: var(--dt-accent-primary-hover);
-}
 .marketplace-panel__version[data-active='true'] {
   background: var(--dt-bg-surface);
   border: 1px solid var(--dt-border-default);

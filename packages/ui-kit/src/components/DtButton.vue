@@ -1,76 +1,52 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+/**
+ * Element Plus `ElButton` wrapper.
+ * Keeps `variant` + native `type` for existing callers, and forwards
+ * other ElButton attributes (plain, loading, icon, …).
+ */
+import { computed, useAttrs } from 'vue';
+import { ElButton } from 'element-plus';
 
-type Variant = 'default' | 'primary' | 'danger' | 'ghost';
+defineOptions({
+  name: 'DtButton',
+  inheritAttrs: false,
+});
 
 const props = withDefaults(
   defineProps<{
-    variant?: Variant;
+    variant?: 'default' | 'primary' | 'danger' | 'ghost';
     disabled?: boolean;
+    /** Native button type. Visual type comes from `variant`. */
     type?: 'button' | 'submit' | 'reset';
   }>(),
   { variant: 'default', disabled: false, type: 'button' },
 );
 
-defineEmits<{ (e: 'click', event: MouseEvent): void }>();
+const attrs = useAttrs();
 
-const classes = computed(() => ['dt-button', `dt-button--${props.variant}`]);
+const epType = computed(() => {
+  if (props.variant === 'primary') return 'primary';
+  if (props.variant === 'danger') return 'danger';
+  return 'default';
+});
 </script>
 
 <template>
-  <button
-    :class="classes"
-    :type="type"
+  <ElButton
+    v-bind="attrs"
+    :class="['dt-button', attrs.class]"
+    :type="epType"
+    :text="variant === 'ghost'"
+    :native-type="type"
     :disabled="disabled"
-    @click="(e) => $emit('click', e)"
   >
     <slot />
-  </button>
+  </ElButton>
 </template>
 
 <style scoped>
 .dt-button {
-  appearance: none;
-  border: 1px solid var(--dt-border-default);
-  background: var(--dt-bg-surface);
-  color: var(--dt-text-primary);
-  padding: var(--dt-space-sm) var(--dt-space-xl);
-  border-radius: var(--dt-radius-sm);
-  font: inherit;
-  cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease;
-}
-.dt-button:hover:not(:disabled) {
-  background: var(--dt-bg-surface-hover);
-  border-color: var(--dt-border-strong);
-}
-.dt-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.dt-button--primary {
-  background: var(--dt-accent-primary);
-  border-color: var(--dt-accent-primary);
-  color: var(--dt-text-inverse);
-}
-.dt-button--primary:hover:not(:disabled) {
-  background: var(--dt-accent-primary-hover);
-  border-color: var(--dt-accent-primary-hover);
-}
-.dt-button--danger {
-  background: var(--dt-accent-danger);
-  border-color: var(--dt-accent-danger);
-  color: var(--dt-text-inverse);
-}
-.dt-button--danger:hover:not(:disabled) {
-  background: var(--dt-accent-danger-hover);
-  border-color: var(--dt-accent-danger-hover);
-}
-.dt-button--ghost {
-  background: transparent;
-  border-color: transparent;
-}
-.dt-button--ghost:hover:not(:disabled) {
-  background: var(--dt-bg-surface);
+  height: var(--dt-control-height);
+  margin-left: 0;
 }
 </style>

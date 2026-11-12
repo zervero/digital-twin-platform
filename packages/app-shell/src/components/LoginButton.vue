@@ -11,7 +11,7 @@ import { storeToRefs } from 'pinia';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { DtButton, DtDialog, DtIcon } from '@dt/ui-kit';
+import { DtButton, DtDialog, DtIcon, DtTextField } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
 
 import { useAuthStore } from '../stores/auth-store.js';
@@ -238,20 +238,17 @@ onBeforeUnmount(() => {
           <span class="dt-text-xs dt-font-medium dt-text-secondary">{{
             t('auth.emailLabel')
           }}</span>
-          <span
-            class="auth-dialog__input-wrap dt-inline-flex dt-items-center dt-gap-sm dt-p-sm dt-px-md dt-bg-base dt-border dt-rounded-sm dt-text-secondary"
+          <DtTextField
+            v-model="email"
+            type="email"
+            autocomplete="username"
+            :placeholder="t('auth.emailPlaceholder')"
+            data-testid="login-email"
           >
-            <DtIcon name="Mail" size="sm" />
-            <input
-              v-model="email"
-              type="email"
-              required
-              autocomplete="username"
-              :placeholder="t('auth.emailPlaceholder')"
-              class="auth-dialog__input dt-flex-1 dt-min-w-0 dt-bg-transparent dt-border-0 dt-text-primary dt-text-sm"
-              data-testid="login-email"
-            />
-          </span>
+            <template #prefix>
+              <DtIcon name="Mail" size="sm" />
+            </template>
+          </DtTextField>
         </label>
         <p v-if="error" class="dt-m-0 dt-text-danger dt-text-xs" role="alert">
           {{ error }}
@@ -338,15 +335,6 @@ onBeforeUnmount(() => {
 
 .auth-dialog__lead {
   margin-bottom: var(--dt-space-lg);
-}
-
-.auth-dialog__input-wrap:focus-within {
-  border-color: var(--dt-accent-primary);
-}
-
-.auth-dialog__input {
-  font: inherit;
-  outline: none;
 }
 
 .auth-dialog__oidc-link {

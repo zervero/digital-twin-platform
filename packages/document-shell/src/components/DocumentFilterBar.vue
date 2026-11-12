@@ -3,7 +3,7 @@ import { reactive, watch } from 'vue';
 
 import type { FieldDefinition } from '@dt/document-schema';
 import { useI18n } from '@dt/i18n';
-import { DtButton, DtDatePicker } from '@dt/ui-kit';
+import { DtButton, DtDatePicker, DtSelect, DtTextField } from '@dt/ui-kit';
 
 import { resolveLabel, resolvePlaceholder } from '../i18n-label.js';
 
@@ -107,29 +107,34 @@ function optionLabel(opt: { label: string; labelKey?: string }): string {
         :placeholder="resolvePlaceholder(field, t)"
         @update:model-value="(v) => setDate(field.key, v)"
       />
-      <select
+      <DtSelect
         v-else-if="field.editor === 'select'"
         :id="`filter-${field.key}`"
-        v-model="local[field.key]"
-        class="dt-doc-filters__input"
-        @change="sync"
-      >
-        <option
-          v-for="opt in field.options ?? []"
-          :key="String(opt.value)"
-          :value="opt.value"
-        >
-          {{ optionLabel(opt) }}
-        </option>
-      </select>
-      <input
+        :model-value="String(local[field.key] ?? '')"
+        :options="
+          (field.options ?? []).map((opt) => ({
+            label: optionLabel(opt),
+            value: opt.value,
+          }))
+        "
+        @update:model-value="
+          (value) => {
+            local[field.key] = value;
+            sync();
+          }
+        "
+      />
+      <DtTextField
         v-else
         :id="`filter-${field.key}`"
-        v-model="local[field.key]"
-        type="text"
-        class="dt-doc-filters__input"
+        :model-value="String(local[field.key] ?? '')"
         :placeholder="resolvePlaceholder(field, t)"
-        @change="sync"
+        @update:model-value="
+          (value) => {
+            local[field.key] = value;
+            sync();
+          }
+        "
       />
     </div>
     <div class="dt-doc-filters__actions">
@@ -160,14 +165,6 @@ function optionLabel(opt: { label: string; labelKey?: string }): string {
 .dt-doc-filters__label {
   font-size: 12px;
   color: var(--dt-text-secondary);
-}
-.dt-doc-filters__input {
-  border: 1px solid var(--dt-border-default);
-  border-radius: var(--dt-radius-sm);
-  padding: 6px 8px;
-  font: inherit;
-  background: var(--dt-bg-surface);
-  color: inherit;
 }
 .dt-doc-filters__range {
   display: flex;

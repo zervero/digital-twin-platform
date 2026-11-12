@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 
 import type { DocumentDefinition, DocumentRecord } from '@dt/document-schema';
 import { useI18n } from '@dt/i18n';
-import { DtButton } from '@dt/ui-kit';
+import { DtButton, DtSelect } from '@dt/ui-kit';
 
 import { resolveActionLabel, resolveLabel } from '../i18n-label.js';
 import { resolveDocumentTitle } from '../nav.js';
@@ -40,6 +40,10 @@ const pageTitle = computed(() =>
 
 const pageCount = computed(() =>
   Math.max(1, Math.ceil(total.value / pageSize.value)),
+);
+
+const pageSizeOptions = computed(() =>
+  pageSizes.value.map((size) => ({ label: String(size), value: String(size) })),
 );
 
 const columns = computed(() =>
@@ -168,8 +172,8 @@ onMounted(() => {
       <vxe-grid
         :data="items"
         :columns="[
-          { type: 'checkbox', width: 48 },
-          { type: 'seq', title: t('documents.chrome.seq'), width: 60 },
+          { type: 'checkbox', width: 48, fixed: 'left' },
+          { type: 'seq', title: t('documents.chrome.seq'), width: 60, fixed: 'left' },
           ...columns,
           {
             title: t('documents.chrome.actions'),
@@ -215,37 +219,40 @@ onMounted(() => {
     </div>
 
     <footer class="dt-doc-list__pager">
-      <label>
+      <label class="dt-doc-list__page-size" for="doc-page-size">
         {{ t('documents.chrome.pageSize') }}
-        <select
-          v-model.number="pageSize"
-          @change="
-            page = 1;
-            load();
+        <DtSelect
+          id="doc-page-size"
+          :model-value="String(pageSize)"
+          :options="pageSizeOptions"
+          @update:model-value="
+            (value) => {
+              pageSize = Number(value);
+              page = 1;
+              load();
+            }
           "
-        >
-          <option v-for="size in pageSizes" :key="size" :value="size">
-            {{ size }}
-          </option>
-        </select>
+        />
       </label>
-      <button type="button" :disabled="page <= 1" @click="page--; load()">
-        {{ t('documents.chrome.prevPage') }}
-      </button>
-      <span>{{
-        t('documents.chrome.pageStatus', {
-          page,
-          pages: pageCount,
-          total,
-        })
-      }}</span>
-      <button
-        type="button"
-        :disabled="page * pageSize >= total"
-        @click="page++; load()"
-      >
-        {{ t('documents.chrome.nextPage') }}
-      </button>
+      <div class="dt-doc-list__pager-nav">
+        <DtButton variant="ghost" :disabled="page <= 1" @click="page--; load()">
+          {{ t('documents.chrome.prevPage') }}
+        </DtButton>
+        <span class="dt-doc-list__page-status">{{
+          t('documents.chrome.pageStatus', {
+            page,
+            pages: pageCount,
+            total,
+          })
+        }}</span>
+        <DtButton
+          variant="ghost"
+          :disabled="page * pageSize >= total"
+          @click="page++; load()"
+        >
+          {{ t('documents.chrome.nextPage') }}
+        </DtButton>
+      </div>
     </footer>
   </div>
 </template>
@@ -258,7 +265,9 @@ onMounted(() => {
 }
 .dt-doc-list__title {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--dt-text-xl);
+  font-weight: var(--dt-weight-semi);
+  letter-spacing: -0.02em;
 }
 .dt-doc-list__toolbar {
   display: flex;
@@ -282,8 +291,31 @@ onMounted(() => {
 }
 .dt-doc-list__pager {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--dt-space-md);
   align-items: center;
-  font-size: 13px;
+  padding-top: var(--dt-space-md);
+  border-top: 1px solid var(--dt-border-subtle);
+  font-size: var(--dt-text-sm);
+  color: var(--dt-text-secondary);
+}
+.dt-doc-list__page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-sm);
+}
+.dt-doc-list__page-size :deep(.dt-select) {
+  width: 88px;
+}
+.dt-doc-list__pager-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dt-space-sm);
+}
+.dt-doc-list__page-status {
+  min-width: 12em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 </style>

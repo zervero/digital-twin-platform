@@ -5,7 +5,7 @@
  */
 import { computed, ref, watch } from 'vue';
 
-import { DtButton, DtSegmentedControl } from '@dt/ui-kit';
+import { DtButton, DtSegmentedControl, DtTextField } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
 
 import { ACCENT_PRESETS } from '../theme/accent-presets.js';
@@ -128,10 +128,10 @@ watch(
           type="color"
           :aria-label="t('settings.appearance.colorPicker')"
         />
-        <input
+        <DtTextField
           v-model="customDraft"
-          class="appearance-settings__hex dt-min-w-0 dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-mono dt-text-sm"
-          type="text"
+          class="appearance-settings__hex"
+          :class="{ 'appearance-settings__hex--invalid': Boolean(contrastError) }"
           spellcheck="false"
           :aria-label="t('settings.appearance.hexInput')"
           :aria-invalid="contrastError ? 'true' : 'false'"
@@ -171,12 +171,10 @@ watch(
 }
 .appearance-settings__hex {
   flex: 1 1 140px;
+  min-width: 140px;
+  font-family: var(--dt-font-mono);
 }
-.appearance-settings__hex:focus {
-  outline: none;
-  border-color: var(--dt-accent-primary);
-}
-.appearance-settings__hex[aria-invalid='true'] {
-  border-color: var(--dt-accent-danger);
+.appearance-settings__hex--invalid :deep(.el-input__wrapper) {
+  box-shadow: 0 0 0 1px var(--dt-accent-danger) inset;
 }
 </style>

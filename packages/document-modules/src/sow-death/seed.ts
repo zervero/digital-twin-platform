@@ -1,7 +1,6 @@
 import type { DocumentRecord } from '@dt/document-schema';
 
-/** Flattened list/detail seed inspired by the 企联网 sow-death sample. */
-export const sowDeathSeed: DocumentRecord[] = [
+const baseSowDeathSeed: DocumentRecord[] = [
   {
     id: '2308311419470000153',
     docNo: '202211200003',
@@ -135,4 +134,80 @@ export const sowDeathSeed: DocumentRecord[] = [
       },
     ],
   },
+];
+
+const demoBatches = ['p8001', 'DP0011', 'P001', 'DP0020', 'p8002'] as const;
+const demoStatuses = ['妊娠', '断奶'] as const;
+const demoReasons = ['疾病', '中毒'] as const;
+const demoCreators = ['张新', '付礼娟'] as const;
+
+function pad2(n: number): string {
+  return String(n).padStart(2, '0');
+}
+
+/** Extra list rows for paging / filter demos (stored field values stay literal). */
+function buildSowDeathDemoExtras(count: number): DocumentRecord[] {
+  return Array.from({ length: count }, (_, i) => {
+    const seq = i + 1;
+    const month = (seq % 12) + 1;
+    const day = (seq % 27) + 1;
+    const deathDate = `2022-${pad2(month)}-${pad2(day)}`;
+    const batch = demoBatches[seq % demoBatches.length];
+    const earTag = `L20${200 + seq}`;
+    const individualNo = `LLZZ00220${earTag}`;
+    const pigStatus = demoStatuses[seq % demoStatuses.length];
+    const deathReason = demoReasons[seq % demoReasons.length];
+    const createdBy = demoCreators[seq % demoCreators.length];
+    const weightKg = deathReason === '中毒' ? 50 + (seq % 30) : 0;
+    const docNo = `20221120${String(1000 + seq).slice(-4)}`;
+    const id = `demo-sow-death-${String(seq).padStart(4, '0')}`;
+    const createdAt = `2023-09-${pad2((seq % 28) + 1)} 10:${pad2(seq % 60)}:00`;
+
+    return {
+      id,
+      docNo,
+      deathDate,
+      batch,
+      earTag,
+      individualNo,
+      building: '配怀一舍',
+      unit: seq % 3 === 0 ? '配怀一舍1单元' : '',
+      pen: '',
+      pigStatus,
+      eventDate: `2022-${pad2(((month + 5) % 12) + 1)}-${pad2(day)}`,
+      deathType: '死亡',
+      deathReason,
+      weightKg,
+      productionGroup: '配怀一组',
+      createdBy,
+      createdAt,
+      updatedBy: createdBy,
+      updatedAt: createdAt,
+      auditedBy: '',
+      auditedAt: '',
+      audited: false,
+      remark: '',
+      lines: [
+        {
+          batch,
+          earTag,
+          individualNo,
+          building: '配怀一舍',
+          unit: seq % 3 === 0 ? '配怀一舍1单元' : '',
+          pigStatus,
+          eventDate: `2022-${pad2(((month + 5) % 12) + 1)}-${pad2(day)}`,
+          deathType: '死亡',
+          deathReason,
+          weightKg,
+          productionGroup: '配怀一组',
+        },
+      ],
+    };
+  });
+}
+
+/** Flattened list/detail seed inspired by the 企联网 sow-death sample. */
+export const sowDeathSeed: DocumentRecord[] = [
+  ...baseSowDeathSeed,
+  ...buildSowDeathDemoExtras(20),
 ];

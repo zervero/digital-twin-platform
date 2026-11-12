@@ -583,6 +583,9 @@ importers:
       '@dt/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@vueuse/shared':
+        specifier: 15.0.0
+        version: 15.0.0(vue@3.5.39(typescript@5.6.3))
       dayjs:
         specifier: ^1.11.23
         version: 1.11.23

@@ -5,6 +5,8 @@
  */
 import { nextTick, onBeforeUnmount, watch } from 'vue';
 
+import DtIcon from './DtIcon.vue';
+
 const props = withDefaults(
   defineProps<{
     open: boolean;
@@ -93,7 +95,7 @@ onBeforeUnmount(() => {
             :aria-label="closeLabel"
             @click="close"
           >
-            ×
+            <DtIcon name="X" size="md" />
           </button>
         </header>
         <div class="dt-dialog__body">
@@ -152,19 +154,26 @@ onBeforeUnmount(() => {
 .dt-dialog__close {
   appearance: none;
   flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
+  width: var(--dt-control-height);
+  height: var(--dt-control-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid transparent;
   border-radius: var(--dt-radius-sm);
   background: transparent;
   color: var(--dt-text-secondary);
-  font-size: 1.25rem;
-  line-height: 1;
   cursor: pointer;
 }
 .dt-dialog__close:hover {
   background: var(--dt-bg-surface-hover);
   color: var(--dt-text-primary);
+}
+.dt-dialog__close:focus {
+  outline: none;
+}
+.dt-dialog__close:focus-visible {
+  box-shadow: var(--dt-focus-ring);
 }
 .dt-dialog__body {
   padding: var(--dt-space-xl);

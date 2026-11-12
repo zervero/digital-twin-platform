@@ -48,5 +48,13 @@ defineExpose({
 <style scoped>
 .dt-date-picker {
   width: 100%;
+  vertical-align: middle;
+  font-size: var(--dt-text-md);
+}
+/* Beat `.el-date-editor.el-input { height: var(--el-input-height) }` (32px). */
+.dt-date-picker.el-date-editor.el-input {
+  height: var(--dt-control-height);
+  --el-input-height: var(--dt-control-height);
+  --el-input-inner-height: calc(var(--dt-control-height) - 2px);
 }
 </style>

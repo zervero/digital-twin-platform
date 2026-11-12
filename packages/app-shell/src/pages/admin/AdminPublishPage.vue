@@ -4,7 +4,7 @@
  */
 import { computed, ref } from 'vue';
 
-import { DtButton, DtIcon } from '@dt/ui-kit';
+import { DtButton, DtIcon, DtTextField } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
 
 import { useAdminMarketplace } from '../../composables/useAdminMarketplace.js';
@@ -92,56 +92,27 @@ async function onSubmit(): Promise<void> {
     >
       <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.pluginId') }}</span>
-        <input
-          v-model="pluginId"
-          class="admin-publish-page__field dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
-          type="text"
-          required
-        />
+        <DtTextField v-model="pluginId" />
       </label>
       <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.publish.name') }}</span>
-        <input
-          v-model="name"
-          class="admin-publish-page__field dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
-          type="text"
-          required
-        />
+        <DtTextField v-model="name" />
       </label>
       <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.publish.vendor') }}</span>
-        <input
-          v-model="vendor"
-          class="admin-publish-page__field dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
-          type="text"
-          required
-        />
+        <DtTextField v-model="vendor" />
       </label>
       <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.version') }}</span>
-        <input
-          v-model="version"
-          class="admin-publish-page__field dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
-          type="text"
-          required
-        />
+        <DtTextField v-model="version" />
       </label>
       <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.publish.description') }}</span>
-        <input
-          v-model="description"
-          class="admin-publish-page__field dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit dt-text-sm"
-          type="text"
-        />
+        <DtTextField v-model="description" />
       </label>
       <label class="dt-flex dt-flex-col dt-gap-xs dt-text-xs dt-text-secondary">
         <span>{{ t('marketplace.publish.artifact') }}</span>
-        <textarea
-          v-model="artifact"
-          class="admin-publish-page__field admin-publish-page__textarea dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-mono dt-text-sm"
-          rows="4"
-          required
-        />
+        <DtTextField v-model="artifact" type="textarea" :rows="4" class="dt-font-mono" />
       </label>
 
       <p
@@ -172,13 +143,6 @@ async function onSubmit(): Promise<void> {
 <style scoped>
 .admin-publish-page {
   max-width: 560px;
-}
-.admin-publish-page__field:focus {
-  outline: none;
-  border-color: var(--dt-accent-primary);
-}
-.admin-publish-page__textarea {
-  resize: vertical;
 }
 .admin-publish-page__success {
   color: var(--dt-status-online);

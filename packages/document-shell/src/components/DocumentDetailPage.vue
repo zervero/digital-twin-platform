@@ -14,7 +14,7 @@ import {
   validateDocumentRecord,
 } from '@dt/document-schema';
 import { useI18n } from '@dt/i18n';
-import { DtButton } from '@dt/ui-kit';
+import { DtButton, DtDatePicker, DtTextField } from '@dt/ui-kit';
 
 import {
   formatValidationIssue,
@@ -294,30 +294,20 @@ onMounted(() => {
           <span v-if="field.required" class="dt-doc-detail__req">*</span>
           {{ resolveLabel(field, t) }}
         </label>
-        <input
+        <DtDatePicker
           v-if="field.editor === 'date'"
-          :value="String(record[field.key] ?? '')"
-          type="date"
+          :id="`header-${field.key}`"
           :data-testid="`header-${field.key}`"
-          @input="
-            setHeader(
-              field.key,
-              ($event.target as HTMLInputElement).value,
-            )
-          "
+          :model-value="record[field.key] ? String(record[field.key]) : null"
+          @update:model-value="(value) => setHeader(field.key, value ?? '')"
         />
-        <input
+        <DtTextField
           v-else
-          :value="String(record[field.key] ?? '')"
-          type="text"
-          :readonly="field.editor === 'readonly'"
+          :id="`header-${field.key}`"
           :data-testid="`header-${field.key}`"
-          @input="
-            setHeader(
-              field.key,
-              ($event.target as HTMLInputElement).value,
-            )
-          "
+          :readonly="field.editor === 'readonly'"
+          :model-value="String(record[field.key] ?? '')"
+          @update:model-value="(value) => setHeader(field.key, value)"
         />
       </div>
     </section>
@@ -355,14 +345,13 @@ onMounted(() => {
       class="dt-doc-detail__remark"
     >
       <label for="doc-remark">{{ t('documents.chrome.remark') }}</label>
-      <textarea
+      <DtTextField
         id="doc-remark"
-        :value="String(record.remark ?? '')"
-        rows="3"
+        type="textarea"
+        :rows="3"
+        :model-value="String(record.remark ?? '')"
         :placeholder="t('documents.chrome.remarkPlaceholder')"
-        @input="
-          setHeader('remark', ($event.target as HTMLTextAreaElement).value)
-        "
+        @update:model-value="(value) => setHeader('remark', value)"
       />
     </section>
 
@@ -403,11 +392,9 @@ onMounted(() => {
   gap: 4px;
   min-width: 180px;
 }
-.dt-doc-detail__field input {
-  border: 1px solid var(--dt-border-default, #d0d5dd);
-  border-radius: 4px;
-  padding: 6px 8px;
-  font: inherit;
+.dt-doc-detail__field :deep(.dt-text-field),
+.dt-doc-detail__field :deep(.dt-date-picker) {
+  min-width: 200px;
 }
 .dt-doc-detail__req {
   color: var(--dt-accent-danger, #d92d20);
@@ -428,12 +415,8 @@ onMounted(() => {
   flex-direction: column;
   gap: 6px;
 }
-.dt-doc-detail__remark textarea {
-  border: 1px solid var(--dt-border-default, #d0d5dd);
-  border-radius: 4px;
-  padding: 8px;
-  font: inherit;
-  resize: vertical;
+.dt-doc-detail__remark :deep(.dt-text-field) {
+  width: 100%;
 }
 .dt-doc-detail__attachments {
   display: flex;

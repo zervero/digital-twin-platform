@@ -60,7 +60,9 @@ html:root {
   --el-box-shadow-dark: var(--dt-shadow-lg);
 
   --el-font-family: var(--dt-font-ui);
-  --el-font-size-base: var(--dt-text-sm);
+  --el-font-size-base: var(--dt-text-md);
+  /* Match DtTextField / DtButton (SPEC 0005). Default EP size is 32px. */
+  --el-component-size: var(--dt-control-height);
   --el-border-radius-base: var(--dt-radius-sm);
   --el-border-radius-small: var(--dt-radius-sm);
   --el-border-radius-round: var(--dt-radius-pill);

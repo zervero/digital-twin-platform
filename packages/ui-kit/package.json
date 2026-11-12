@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@dt/contracts": "workspace:*",
+    "@vueuse/shared": "15.0.0",
     "dayjs": "^1.11.23",
     "element-plus": "^2.14.8",
     "lucide-vue-next": "^1.0.0"

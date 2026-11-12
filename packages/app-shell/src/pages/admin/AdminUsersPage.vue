@@ -5,7 +5,7 @@
 import { computed, reactive, watch } from 'vue';
 
 import type { Role } from '@dt/contracts';
-import { DtButton, DtEmptyState, DtIcon } from '@dt/ui-kit';
+import { DtButton, DtEmptyState, DtIcon, DtSelect } from '@dt/ui-kit';
 import { useI18n } from '@dt/i18n';
 
 import { ADMIN_ROLES, useAdminUsers } from '../../composables/useAdminUsers.js';
@@ -92,15 +92,17 @@ function roleLabel(role: Role): string {
             <td>{{ user.displayName }}</td>
             <td>{{ user.email }}</td>
             <td>
-              <select
+              <DtSelect
                 v-model="draftRoles[user.id]"
-                class="admin-users-page__select dt-appearance-none dt-bg-base dt-border dt-text-primary dt-py-sm dt-px-md dt-rounded-sm dt-font-inherit"
+                class="admin-users-page__select"
                 :aria-label="t('admin.users.columns.role')"
-              >
-                <option v-for="role in ADMIN_ROLES" :key="role" :value="role">
-                  {{ roleLabel(role) }}
-                </option>
-              </select>
+                :options="
+                  ADMIN_ROLES.map((role) => ({
+                    label: roleLabel(role),
+                    value: role,
+                  }))
+                "
+              />
             </td>
             <td>
               <DtButton
@@ -147,10 +149,6 @@ function roleLabel(role: Role): string {
   border-bottom: none;
 }
 .admin-users-page__select {
-  min-width: 120px;
-}
-.admin-users-page__select:focus {
-  outline: none;
-  border-color: var(--dt-accent-primary);
+  min-width: 140px;
 }
 </style>

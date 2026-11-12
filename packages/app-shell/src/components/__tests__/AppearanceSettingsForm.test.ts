@@ -69,7 +69,7 @@ describe('AppearanceSettingsForm', () => {
     const store = useAppearanceStore();
     store.setPreset('blue');
 
-    const hexInput = wrapper.find('input.appearance-settings__hex');
+    const hexInput = wrapper.find('.appearance-settings__hex input');
     await hexInput.setValue('#EEEEEE');
     await wrapper.findAll('button').find((b) => /Apply custom|应用自定义/.test(b.text()))!.trigger('click');
     await flushPromises();

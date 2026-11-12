@@ -16,9 +16,9 @@ form / overlay controls, exposed primarily as **`Dt*` wrappers** from
 - Replacing vxe-table grids with Element Table (ADR 0024 / 0025).
 - Full `app.use(ElementPlus)` global registration in V1 of this spec.
 - Pixel-perfect Element default theme; `--dt-*` wins.
-- Migrating every existing native `<input type="date">` in one PR
-  (filter bar date fields are the intended first consumer; detail
-  page may follow).
+- Replacing navigation chrome (side nav, tabs, trees, segmented
+  controls) or `<input type="color">` swatches with Element.
+- Replacing document grids (still vxe-table).
 - DevExtreme.
 
 ## Acceptance criteria
@@ -47,7 +47,7 @@ form / overlay controls, exposed primarily as **`Dt*` wrappers** from
 
 | Area | Change |
 | --- | --- |
-| `@dt/ui-kit` | `element-plus` dep, bridge CSS, `DtDatePicker` |
+| `@dt/ui-kit` | `element-plus` dep, `@vueuse/shared` (Select types), bridge CSS, `Dt*` form controls |
 | `@dt/document-shell` | Filter bar uses `DtDatePicker` |
 | `apps/web` | Styles import picks up bridge |
 | `docs/architecture/workspace.md` | Edge update |
@@ -66,8 +66,9 @@ form / overlay controls, exposed primarily as **`Dt*` wrappers** from
 
 ## Notes
 
-- Agents: add new Element-backed controls as `Dt*` exports; import
-  Element components on-demand; do not register the full library
-  globally without a new ADR. Preserve the Element component’s
-  props, events, slots, and expose API (defaults may be set, not
-  locked).
+- Agents: form controls (input, textarea, select, date, button)
+  are Element Plus via `Dt*` wrappers so focus, hover, and height
+  match. Do not add new native `<input>` / `<select>` / `<textarea>`
+  for data entry. Navigation chrome (side nav, tabs, trees) stays
+  custom. Preserve the Element component’s props, events, slots, and
+  expose API (defaults may be set, not locked).
