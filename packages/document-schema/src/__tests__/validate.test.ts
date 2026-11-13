@@ -39,6 +39,23 @@ describe('assertDocumentDefinition', () => {
     const bad = { ...miniDefinition, id: '' } as DocumentDefinition;
     expect(() => assertDocumentDefinition(bad)).toThrow(/id/);
   });
+
+  it('rejects select listFilter without options', () => {
+    const bad: DocumentDefinition = {
+      ...miniDefinition,
+      list: {
+        ...miniDefinition.list,
+        columns: [
+          {
+            key: 'createdBy',
+            label: 'By',
+            listFilter: { editor: 'select' },
+          },
+        ],
+      },
+    };
+    expect(() => assertDocumentDefinition(bad)).toThrow(/listFilter select/);
+  });
 });
 
 describe('validateDocumentRecord', () => {

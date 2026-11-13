@@ -33,6 +33,8 @@ export { default as DtDialog } from './components/DtDialog.vue';
 export { default as DtTextField } from './components/DtTextField.vue';
 export { default as DtSelect } from './components/DtSelect.vue';
 export { default as DtDatePicker } from './components/DtDatePicker.vue';
+export { default as DtDateRangePicker } from './components/DtDateRangePicker.vue';
+export type { DtDateRangeKind } from './components/DtDateRangePicker.vue';
 export { default as DtConfigProvider } from './components/DtConfigProvider.vue';
 export {
   applyDayjsLocale,

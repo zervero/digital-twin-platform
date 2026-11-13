@@ -27,6 +27,7 @@
     "@dt/document-schema": "workspace:*",
     "@dt/i18n": "workspace:*",
     "@dt/ui-kit": "workspace:*",
+    "element-plus": "^2.14.8",
     "vxe-pc-ui": "^4.10.0",
     "vxe-table": "^4.23.17"
   },

@@ -72,3 +72,5 @@ form / overlay controls, exposed primarily as **`Dt*` wrappers** from
   for data entry. Navigation chrome (side nav, tabs, trees) stays
   custom. Preserve the Element component’s props, events, slots, and
   expose API (defaults may be set, not locked).
+- `DtDateRangePicker` wraps `ElDatePicker` `daterange` /
+  `datetimerange` (grid column filters, future top-bar range fields).

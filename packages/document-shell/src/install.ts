@@ -5,6 +5,7 @@ import VxeUITable from 'vxe-table';
 import 'vxe-pc-ui/lib/style.css';
 import 'vxe-table/lib/style.css';
 import './styles/island.css';
+import { registerListFilterRenderers } from './register-list-filter-renderers.js';
 
 let installed = false;
 
@@ -16,5 +17,6 @@ export function installDocumentShell(app: App): void {
   if (installed) return;
   app.use(VxeUI);
   app.use(VxeUITable);
+  registerListFilterRenderers();
   installed = true;
 }

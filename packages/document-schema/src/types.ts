@@ -43,6 +43,22 @@ export interface FieldDefinition {
   readonly placeholderKey?: string;
 }
 
+/** List grid floating-filter control for a column (declared in document-modules). */
+export type ListColumnFilterEditor =
+  | 'text'
+  | 'number'
+  | 'select'
+  | 'date'
+  | 'dateRange'
+  | 'dateTimeRange';
+
+export interface ListColumnFilterDefinition {
+  readonly editor: ListColumnFilterEditor;
+  /** Static select options (create-by, enums, …). */
+  readonly options?: readonly SelectOption[];
+  readonly placeholderKey?: string;
+}
+
 export interface ColumnDefinition {
   readonly key: string;
   readonly label: string;
@@ -52,6 +68,8 @@ export interface ColumnDefinition {
   readonly width?: number;
   readonly minWidth?: number;
   readonly options?: readonly SelectOption[];
+  /** Per-column floating filter on the list grid (document-shell). */
+  readonly listFilter?: ListColumnFilterDefinition;
   /** When true, show as a link-style row affordance key (e.g. ear tag). */
   readonly link?: boolean;
 }

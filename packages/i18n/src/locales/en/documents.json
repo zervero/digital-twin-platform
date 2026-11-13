@@ -21,7 +21,32 @@
       "attachmentsEmpty": "(V1 placeholder: no attachments)",
       "all": "All",
       "sortAsc": "Sort ascending",
-      "sortDesc": "Sort descending"
+      "sortDesc": "Sort descending",
+      "gridTools": "List table tools",
+      "refresh": "Refresh",
+      "settings": "Column settings",
+      "toggleFilters": "Show or hide column filters in the table",
+      "moreActions": "More actions",
+      "exportExcel": "Export to Excel",
+      "importData": "Import data",
+      "importPending": "Import is not wired yet in V1; file received.",
+      "gridFilterFrom": "From",
+      "gridFilterTo": "To"
+    },
+    "filterOps": {
+      "menuTitle": "Column filter",
+      "contains": "Contains",
+      "notContains": "Does not contain",
+      "startsWith": "Starts with",
+      "endsWith": "Ends with",
+      "eq": "Equals",
+      "ne": "Does not equal",
+      "lt": "Less than",
+      "gt": "Greater than",
+      "lte": "Less than or equal",
+      "gte": "Greater than or equal",
+      "between": "Between",
+      "clearColumn": "Clear this column"
     },
     "actions": {
       "create": "New",

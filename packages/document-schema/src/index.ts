@@ -1,6 +1,8 @@
 export type {
   ActionDefinition,
   ColumnDefinition,
+  ListColumnFilterDefinition,
+  ListColumnFilterEditor,
   DocumentActionId,
   DocumentDefinition,
   DocumentDetailDefinition,

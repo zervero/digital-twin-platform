@@ -21,7 +21,32 @@
       "attachmentsEmpty": "（V1 占位：无附件）",
       "all": "全部",
       "sortAsc": "升序",
-      "sortDesc": "降序"
+      "sortDesc": "降序",
+      "gridTools": "列表表格工具",
+      "refresh": "刷新",
+      "settings": "设置",
+      "toggleFilters": "显示或隐藏表头列筛选行",
+      "moreActions": "更多操作",
+      "exportExcel": "导出 Excel",
+      "importData": "导入数据",
+      "importPending": "V1 暂未接入导入管线，已读取所选文件。",
+      "gridFilterFrom": "起",
+      "gridFilterTo": "止"
+    },
+    "filterOps": {
+      "menuTitle": "列筛选条件",
+      "contains": "包含",
+      "notContains": "不包含",
+      "startsWith": "以…开始",
+      "endsWith": "结束于",
+      "eq": "等于",
+      "ne": "不等于",
+      "lt": "小于",
+      "gt": "大于",
+      "lte": "小于或等于",
+      "gte": "大于或等于",
+      "between": "之间",
+      "clearColumn": "清空本列"
     },
     "actions": {
       "create": "新增",

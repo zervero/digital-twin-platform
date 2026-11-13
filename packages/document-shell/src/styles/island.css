@@ -50,6 +50,279 @@
   cursor: default;
 }
 
+/* Floating filter row: constrain Element controls to column width. */
+.dt-document-island .vxe-header--row.is--floating-filters.dt-doc-grid-floating-filters .vxe-cell {
+  padding: 3px 5px;
+  vertical-align: top;
+  overflow: hidden;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.dt-document-island
+  .vxe-header--row.is--floating-filters.dt-doc-grid-floating-filters
+  .vxe-header-cell--wrapper {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.dt-document-island .vxe-header--row.is--floating-filters .dt-text-field,
+.dt-document-island .vxe-header--row.is--floating-filters .dt-select,
+.dt-document-island .vxe-header--row.is--floating-filters .dt-date-picker {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.dt-document-island .dt-doc-grid-filter-range {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.dt-document-island
+  .vxe-header--row.is--floating-filters
+  .dt-date-picker.el-input {
+  --el-input-height: 26px;
+  height: 26px;
+}
+
+.dt-document-island
+  .vxe-header--row.is--floating-filters
+  .dt-date-picker
+  .el-input__wrapper {
+  padding: 0 6px;
+}
+
+.dt-document-island
+  .vxe-header--row.is--floating-filters
+  .dt-text-field
+  .el-input__wrapper {
+  min-height: 26px;
+  padding: 0 6px;
+}
+
+.dt-document-island
+  .vxe-header--row.is--floating-filters
+  .dt-select
+  .el-select__wrapper {
+  min-height: 26px;
+  padding: 0 6px;
+  font-size: var(--dt-text-sm, 12px);
+}
+
+.dt-document-island
+  .vxe-header--row.is--floating-filters
+  .dt-date-picker
+  .el-input__inner,
+.dt-document-island
+  .vxe-header--row.is--floating-filters
+  .dt-text-field
+  .el-input__inner {
+  font-size: var(--dt-text-sm, 12px);
+}
+
+.dt-document-island
+  .vxe-header--row.is--floating-filters
+  .dt-date-picker.el-date-editor--datetime
+  .el-input__prefix {
+  display: none;
+}
+
+.dt-document-island .dt-grid-column-filter {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Text / number: Element Plus group input (prepend = filter operator). */
+.dt-document-island .dt-grid-column-filter__composite {
+  width: 100%;
+  min-width: 0;
+}
+
+/* DtTextField root = .el-input-group when prepend slot is used (no nested group). */
+.dt-document-island
+  .dt-grid-column-filter__composite.el-input-group {
+  display: inline-flex;
+  width: 100%;
+  max-width: 100%;
+  align-items: stretch;
+  vertical-align: top;
+}
+
+.dt-document-island
+  .dt-grid-column-filter__composite.el-input-group
+  > .el-input-group__prepend {
+  flex: 0 0 22px;
+  width: 22px;
+  min-width: 22px;
+  max-width: 22px;
+  padding: 0;
+  background: var(--dt-bg-surface);
+  border-color: var(--dt-border-default);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.dt-document-island
+  .dt-grid-column-filter__composite.el-input-group
+  .el-input-group__prepend
+  .el-dropdown,
+.dt-document-island
+  .dt-grid-column-filter__composite.el-input-group
+  .el-input-group__prepend
+  .dt-grid-column-filter__op-dropdown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  min-width: 22px;
+  max-width: 22px;
+  height: 100%;
+  line-height: 0;
+}
+
+.dt-document-island
+  .dt-grid-column-filter__composite.el-input-group
+  > .el-input {
+  flex: 1 1 0%;
+  min-width: 0;
+  width: auto;
+}
+
+.dt-document-island .dt-grid-column-filter__prepend-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  min-width: 22px;
+  height: 100%;
+  min-height: 26px;
+  color: var(--dt-text-secondary);
+  cursor: pointer;
+  user-select: none;
+  line-height: 0;
+}
+
+.dt-document-island .dt-grid-column-filter__prepend-trigger svg {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.dt-document-island
+  .dt-grid-column-filter__prepend-trigger:hover,
+.dt-document-island
+  .dt-grid-column-filter__prepend-trigger--open {
+  color: var(--dt-accent-primary);
+  background: var(--dt-bg-surface-hover);
+}
+
+.dt-document-island .dt-grid-column-filter__range {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Teleported to body — must not be scoped under .dt-document-island. */
+.dt-grid-column-filter__menu-popper.el-dropdown__popper {
+  z-index: var(--dt-z-dropdown, 3000);
+}
+
+.dt-grid-column-filter__menu-popper .dt-grid-column-filter__menu.el-dropdown-menu {
+  min-width: 10.5rem;
+  padding: 4px 0;
+}
+
+.dt-grid-column-filter__menu-popper
+  .el-dropdown-menu__item.dt-grid-column-filter__menu-item--active {
+  color: var(--dt-accent-primary);
+  background: var(--dt-bg-surface-hover);
+}
+
+.dt-grid-column-filter__menu-popper .el-dropdown-menu__item {
+  color: var(--dt-text-primary);
+  font-size: var(--dt-text-sm, 12px);
+  line-height: 1.5;
+}
+
+.dt-grid-column-filter__menu-popper .el-dropdown-menu__item:not(.is-disabled):hover,
+.dt-grid-column-filter__menu-popper .el-dropdown-menu__item:not(.is-disabled):focus {
+  color: var(--dt-accent-primary);
+  background: var(--dt-bg-surface-hover);
+}
+
+.dt-grid-column-filter__menu-op {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.dt-grid-column-filter__menu-op-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dt-list-filter-op-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 14px;
+  width: 14px;
+  min-width: 14px;
+  color: var(--dt-text-secondary);
+}
+
+.dt-list-filter-op-icon--sm {
+  height: 14px;
+}
+
+.dt-list-filter-op-icon--abc.dt-list-filter-op-icon--sm {
+  width: 18px;
+  min-width: 18px;
+  flex-basis: 18px;
+}
+
+.dt-list-filter-abc-icon {
+  display: block;
+  width: 18px;
+  height: 12px;
+}
+
+.dt-list-filter-op-icon__glyph {
+  display: block;
+  width: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  font-family: var(--dt-font-mono, ui-monospace, monospace);
+}
+
+.dt-grid-column-filter__menu-popper
+  .el-dropdown-menu__item:hover
+  .dt-list-filter-op-icon,
+.dt-grid-column-filter__menu-popper
+  .el-dropdown-menu__item.dt-grid-column-filter__menu-item--active
+  .dt-list-filter-op-icon {
+  color: inherit;
+}
+
+.dt-grid-column-filter__prepend-trigger .dt-list-filter-op-icon {
+  color: currentColor;
+}
+
 .dt-document-island .vxe-cell--sort-vertical-layout .vxe-sort--asc-btn.sort--active,
 .dt-document-island .vxe-cell--sort-vertical-layout .vxe-sort--desc-btn.sort--active {
   color: var(--dt-accent-primary);

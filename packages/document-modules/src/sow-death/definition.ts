@@ -64,7 +64,8 @@ export const sowDeathDefinition: DocumentDefinition = {
         key: 'deathDate',
         label: '死亡日期',
         labelKey: 'documents.modules.sowDeath.deathDate',
-        minWidth: 110,
+        listFilter: { editor: 'dateRange' },
+        minWidth: 124,
       },
       { key: 'batch', label: '母猪批次', labelKey: 'documents.fields.batch', minWidth: 100 },
       {
@@ -98,7 +99,8 @@ export const sowDeathDefinition: DocumentDefinition = {
         key: 'eventDate',
         label: '事件日期',
         labelKey: 'documents.fields.eventDate',
-        minWidth: 110,
+        listFilter: { editor: 'dateRange' },
+        minWidth: 124,
       },
       {
         key: 'deathType',
@@ -116,6 +118,8 @@ export const sowDeathDefinition: DocumentDefinition = {
         key: 'weightKg',
         label: '总重量(公斤)',
         labelKey: 'documents.modules.sowDeath.weightKg',
+        editor: 'number',
+        listFilter: { editor: 'number' },
         minWidth: 110,
       },
       {
@@ -129,12 +133,20 @@ export const sowDeathDefinition: DocumentDefinition = {
         label: '创建人',
         labelKey: 'documents.fields.createdBy',
         minWidth: 80,
+        listFilter: {
+          editor: 'select',
+          options: [
+            { label: '张新', value: '张新' },
+            { label: '付礼娟', value: '付礼娟' },
+          ],
+        },
       },
       {
         key: 'createdAt',
         label: '创建时间',
         labelKey: 'documents.fields.createdAt',
-        minWidth: 150,
+        listFilter: { editor: 'dateTimeRange' },
+        minWidth: 176,
       },
       {
         key: 'updatedBy',
@@ -146,7 +158,8 @@ export const sowDeathDefinition: DocumentDefinition = {
         key: 'updatedAt',
         label: '修改时间',
         labelKey: 'documents.fields.updatedAt',
-        minWidth: 150,
+        listFilter: { editor: 'dateTimeRange' },
+        minWidth: 176,
       },
       {
         key: 'auditedBy',
@@ -158,7 +171,8 @@ export const sowDeathDefinition: DocumentDefinition = {
         key: 'auditedAt',
         label: '审核时间',
         labelKey: 'documents.fields.auditedAt',
-        minWidth: 150,
+        listFilter: { editor: 'dateTimeRange' },
+        minWidth: 176,
       },
     ],
     rowActions: [

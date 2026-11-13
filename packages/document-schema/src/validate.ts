@@ -1,9 +1,40 @@
 import type {
+  ColumnDefinition,
   DocumentDefinition,
   DocumentRecord,
   FieldDefinition,
+  ListColumnFilterEditor,
   ValidationIssue,
 } from './types.js';
+
+const LIST_COLUMN_FILTER_EDITORS: readonly ListColumnFilterEditor[] = [
+  'text',
+  'number',
+  'select',
+  'date',
+  'dateRange',
+  'dateTimeRange',
+];
+
+function validateListColumns(columns: readonly ColumnDefinition[], docId: string): void {
+  for (const col of columns) {
+    const lf = col.listFilter;
+    if (!lf) continue;
+    if (!LIST_COLUMN_FILTER_EDITORS.includes(lf.editor)) {
+      throw new Error(
+        `DocumentDefinition(${docId}): list column ${col.key} listFilter.editor invalid`,
+      );
+    }
+    if (
+      lf.editor === 'select' &&
+      !lf.options?.some((opt) => opt.value !== '')
+    ) {
+      throw new Error(
+        `DocumentDefinition(${docId}): column ${col.key} listFilter select needs options`,
+      );
+    }
+  }
+}
 
 function isBlank(value: unknown): boolean {
   if (value === null || value === undefined) return true;
@@ -23,6 +54,7 @@ export function assertDocumentDefinition(def: DocumentDefinition): void {
   if (!def.detail?.lines?.columns?.length) {
     throw new Error(`DocumentDefinition(${def.id}): detail.lines.columns required`);
   }
+  validateListColumns(def.list.columns, def.id);
 }
 
 function validateFields(

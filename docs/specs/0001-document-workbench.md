@@ -119,6 +119,23 @@ See [ADR 0024](../adr/0024-document-framework-vxe-table.md).
 
 ## Notes
 
+### List column floating filters
+
+List grids may expose a header **floating filter row** (toolbar funnel
+toggle). That toggle **only shows or hides** the floating row; it must not
+clear per-column filter values or remove client-side filter logic while hidden.
+Per-column control is declared on `ColumnDefinition.listFilter`
+in `document-modules` (`editor`: `text` | `select` | `date` |
+`dateRange` | `dateTimeRange`, plus `options` for select). `document-shell`
+maps editors to vxe floating filters and applies **current-page** client
+matching only (independent of top `list.filters` query bar). Floating-filter
+UI is **not** vxe form controls: shell registers `DtList*` vxe renderers that
+mount `@dt/ui-kit` via `DtListColumnFilter`. **Text** and **number** columns use
+the operator menu (text default **contains**; number: = ≠ &lt; &gt; ≤ ≥).
+Date, datetime range, and select columns show only the value control; clear
+via control `clearable`. **Clear this column** in the menu applies to
+text/number only.
+
 ### Suggested schema sketch (non-normative)
 
 ```ts

@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
 import { useRouter } from 'vue-router';
 
 import type { DocumentDefinition, DocumentRecord } from '@dt/document-schema';
 import { useI18n } from '@dt/i18n';
-import { DtButton, DtSelect } from '@dt/ui-kit';
+import { DtButton, DtIcon, DtSelect } from '@dt/ui-kit';
 
 import { resolveActionLabel, resolveLabel } from '../i18n-label.js';
 import { resolveDocumentTitle } from '../nav.js';
 import type { DocumentDataPort } from '../ports.js';
+import { downloadListAsExcelCsv } from '../list-export.js';
+import { buildListColumnFilterProps } from '../list-column-filter.js';
 import {
   compareListCellValues,
   resolveListColumnSortKind,
@@ -74,6 +76,36 @@ const columnConfig = {
   useKey: true,
 } as const;
 
+const customConfig = {
+  enabled: true,
+  mode: 'modal' as const,
+} as const;
+
+const columnFiltersVisible = ref(false);
+const moreMenuOpen = ref(false);
+const gridNotice = ref<string | null>(null);
+const moreMenuRoot = ref<HTMLElement | null>(null);
+const importInputRef = ref<HTMLInputElement | null>(null);
+
+const gridListId = computed(() => `dt-doc-list-${props.definition.id}`);
+
+const floatingFilterConfig = computed(() => ({
+  enabled: columnFiltersVisible.value,
+  position: 'bottom' as const,
+  rowClassName: 'dt-doc-grid-floating-filters',
+}));
+
+const listFilterChrome = computed(() => ({
+  rangeStartPlaceholder: t('documents.chrome.gridFilterFrom'),
+  rangeEndPlaceholder: t('documents.chrome.gridFilterTo'),
+  selectPlaceholder: t('documents.chrome.all'),
+}));
+
+const filterConfig = {
+  remote: false,
+  showIcon: false,
+} as const;
+
 const columnDragConfig = {
   trigger: 'cell' as const,
   showIcon: false,
@@ -124,9 +156,13 @@ const sortConfig = computed(() => ({
   },
 }));
 
-const gridRef = ref<{
+type VxeGridInstance = {
   getFullColumns: () => Array<{ field?: string }>;
-} | null>(null);
+  openCustom?: () => Promise<void>;
+  recalculate?: () => void | Promise<void>;
+};
+
+const gridRef = ref<VxeGridInstance | null>(null);
 
 const columnOrder = ref(
   props.definition.list.columns.map((col) => col.key),
@@ -140,12 +176,20 @@ watch(
 );
 
 function buildDataColumn(col: (typeof props.definition.list.columns)[number]) {
-  return {
+  const base = {
     field: col.key,
     title: resolveLabel(col, t),
     minWidth: col.minWidth ?? col.width ?? 100,
     sortable: true,
     slots: col.link ? { default: `link-${col.key}` } : undefined,
+  };
+  return {
+    ...base,
+    ...buildListColumnFilterProps(
+      col,
+      props.definition,
+      listFilterChrome.value,
+    ),
   };
 }
 
@@ -252,9 +296,66 @@ async function onRowDelete(row: DocumentRecord) {
   await load();
 }
 
+function closeMoreMenu() {
+  moreMenuOpen.value = false;
+}
+
+function onDocumentPointerDown(event: PointerEvent) {
+  if (!moreMenuOpen.value) return;
+  const root = moreMenuRoot.value;
+  if (root && !root.contains(event.target as Node)) {
+    closeMoreMenu();
+  }
+}
+
+async function onGridRefresh() {
+  await load();
+}
+
+async function onGridSettings() {
+  await gridRef.value?.openCustom?.();
+}
+
+async function onGridToggleFilters() {
+  const grid = gridRef.value;
+  columnFiltersVisible.value = !columnFiltersVisible.value;
+  await nextTick();
+  await grid?.recalculate?.();
+}
+
+function onExportExcel() {
+  closeMoreMenu();
+  const columns = props.definition.list.columns;
+  const headers = columns.map((col) => resolveLabel(col, t));
+  const keys = columns.map((col) => col.key);
+  const rows = items.value.map((row) =>
+    keys.map((key) => String(row[key] ?? '')),
+  );
+  const stamp = new Date().toISOString().slice(0, 10);
+  downloadListAsExcelCsv(`${props.definition.id}-${stamp}`, headers, rows);
+}
+
+function onImportTrigger() {
+  closeMoreMenu();
+  importInputRef.value?.click();
+}
+
+function onImportFileSelected(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+  if (!file) return;
+  gridNotice.value = t('documents.chrome.importPending');
+}
+
 onMounted(() => {
   initFilters();
   void load();
+  document.addEventListener('pointerdown', onDocumentPointerDown, true);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('pointerdown', onDocumentPointerDown, true);
 });
 </script>
 
@@ -265,6 +366,7 @@ onMounted(() => {
     </header>
 
     <DocumentFilterBar
+      v-if="definition.list.filters.length"
       v-model="filters"
       :filters="definition.list.filters"
       @query="
@@ -278,39 +380,132 @@ onMounted(() => {
     />
 
     <div class="dt-doc-list__toolbar">
-      <DtButton
-        v-for="action in definition.list.toolbar"
-        :key="action.id"
-        :variant="action.id === 'create' ? 'primary' : 'default'"
-        :disabled="
-          Boolean(action.requiresSelection && selectedIds.length === 0)
-        "
-        @click="
-          action.id === 'create'
-            ? goCreate()
-            : action.id === 'delete'
-              ? onDeleteSelected()
-              : action.id === 'audit'
-                ? onAuditSelected()
-                : undefined
-        "
+      <div class="dt-doc-list__toolbar-main">
+        <DtButton
+          v-for="action in definition.list.toolbar"
+          :key="action.id"
+          :variant="action.id === 'create' ? 'primary' : 'default'"
+          :disabled="
+            Boolean(action.requiresSelection && selectedIds.length === 0)
+          "
+          @click="
+            action.id === 'create'
+              ? goCreate()
+              : action.id === 'delete'
+                ? onDeleteSelected()
+                : action.id === 'audit'
+                  ? onAuditSelected()
+                  : undefined
+          "
+        >
+          {{ resolveActionLabel(action, t) }}
+        </DtButton>
+        <span class="dt-doc-list__selection">{{
+          t('documents.chrome.selectedCount', { count: selectedIds.length })
+        }}</span>
+      </div>
+
+      <div
+        class="dt-doc-list__grid-tools"
+        role="toolbar"
+        :aria-label="t('documents.chrome.gridTools')"
+        data-testid="document-list-grid-tools"
       >
-        {{ resolveActionLabel(action, t) }}
-      </DtButton>
-      <span class="dt-doc-list__selection">{{
-        t('documents.chrome.selectedCount', { count: selectedIds.length })
-      }}</span>
+        <button
+          type="button"
+          class="dt-doc-list__grid-tool"
+          :title="t('documents.chrome.refresh')"
+          :aria-label="t('documents.chrome.refresh')"
+          @click="onGridRefresh()"
+        >
+          <DtIcon name="RefreshCw" size="md" />
+        </button>
+        <button
+          type="button"
+          class="dt-doc-list__grid-tool"
+          :title="t('documents.chrome.settings')"
+          :aria-label="t('documents.chrome.settings')"
+          @click="onGridSettings()"
+        >
+          <DtIcon name="Settings" size="md" />
+        </button>
+        <button
+          type="button"
+          class="dt-doc-list__grid-tool"
+          :class="{
+            'dt-doc-list__grid-tool--active': columnFiltersVisible,
+          }"
+          data-testid="document-list-toggle-filters"
+          :title="t('documents.chrome.toggleFilters')"
+          :aria-label="t('documents.chrome.toggleFilters')"
+          :aria-pressed="columnFiltersVisible"
+          @click="onGridToggleFilters()"
+        >
+          <DtIcon name="Filter" size="md" />
+        </button>
+        <div ref="moreMenuRoot" class="dt-doc-list__more">
+          <button
+            type="button"
+            class="dt-doc-list__grid-tool"
+            :class="{ 'dt-doc-list__grid-tool--active': moreMenuOpen }"
+            :title="t('documents.chrome.moreActions')"
+            :aria-label="t('documents.chrome.moreActions')"
+            :aria-expanded="moreMenuOpen"
+            aria-haspopup="menu"
+            @click="moreMenuOpen = !moreMenuOpen"
+          >
+            <DtIcon name="MoreHorizontal" size="md" />
+          </button>
+          <div
+            v-if="moreMenuOpen"
+            class="dt-doc-list__more-menu"
+            role="menu"
+            @click.stop
+          >
+            <button
+              type="button"
+              class="dt-doc-list__more-item"
+              role="menuitem"
+              @click="onExportExcel()"
+            >
+              {{ t('documents.chrome.exportExcel') }}
+            </button>
+            <button
+              type="button"
+              class="dt-doc-list__more-item"
+              role="menuitem"
+              @click="onImportTrigger()"
+            >
+              {{ t('documents.chrome.importData') }}
+            </button>
+          </div>
+        </div>
+        <input
+          ref="importInputRef"
+          type="file"
+          class="dt-doc-list__import-input"
+          accept=".csv,.xlsx,.xls"
+          tabindex="-1"
+          aria-hidden="true"
+          @change="onImportFileSelected"
+        />
+      </div>
     </div>
 
+    <p v-if="gridNotice" class="dt-doc-list__notice">{{ gridNotice }}</p>
     <p v-if="error" class="dt-doc-list__error" role="alert">{{ error }}</p>
 
     <div class="dt-doc-list__grid">
       <vxe-grid
         ref="gridRef"
+        :id="gridListId"
         :data="items"
         :columns="gridColumns"
         :column-config="columnConfig"
         :column-drag-config="columnDragConfig"
+        :custom-config="customConfig"
+        :filter-config="filterConfig"
+        :floating-filter-config="floatingFilterConfig"
         :sort-config="sortConfig"
         :loading="loading"
         border
@@ -405,6 +600,88 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  justify-content: space-between;
+}
+.dt-doc-list__toolbar-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.dt-doc-list__grid-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+.dt-doc-list__grid-tool {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--dt-radius-sm);
+  background: transparent;
+  color: var(--dt-text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--dt-duration-fast) var(--dt-ease-default),
+    color var(--dt-duration-fast) var(--dt-ease-default);
+}
+.dt-doc-list__grid-tool:hover:not(:disabled) {
+  background: var(--dt-bg-surface-hover);
+  color: var(--dt-text-primary);
+}
+.dt-doc-list__grid-tool--active {
+  color: var(--dt-accent-primary);
+}
+.dt-doc-list__grid-tool:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.dt-doc-list__more {
+  position: relative;
+}
+.dt-doc-list__more-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 20;
+  min-width: 148px;
+  padding: var(--dt-space-xs);
+  background: var(--dt-bg-elevated);
+  border: 1px solid var(--dt-border-default);
+  border-radius: var(--dt-radius-md);
+  box-shadow: var(--dt-shadow-md, 0 8px 24px rgb(0 0 0 / 12%));
+}
+.dt-doc-list__more-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--dt-radius-sm);
+  background: transparent;
+  color: var(--dt-text-primary);
+  font-size: var(--dt-text-sm);
+  text-align: left;
+  cursor: pointer;
+}
+.dt-doc-list__more-item:hover {
+  background: var(--dt-bg-surface-hover);
+}
+.dt-doc-list__import-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.dt-doc-list__notice {
+  margin: 0;
+  font-size: var(--dt-text-sm);
+  color: var(--dt-text-secondary);
 }
 .dt-doc-list__selection {
   font-size: 12px;
